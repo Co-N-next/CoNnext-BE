@@ -1,28 +1,40 @@
 name: Deploy to EC2
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/connext.pem
-          chmod 600 ~/.ssh/connext.pem
+      - uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Copy files to EC2
+      - name: Add EC2 to known_hosts
         run: |
-          scp -i ~/.ssh/connext.pem Dockerfile docker-compose.yml ./build/libs/connext-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_IP }}:~/app/
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy on EC2
+      - name: Deploy
         run: |
-          ssh -i ~/.ssh/connext.pem ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-          cd ~/app
-          docker-compose down
-          docker-compose up -d --build
+          ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            cd ~/app
+            git pull origin main
+
+            cat <<EOT > .env.prod
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
+            JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
+            EOT
+
+            docker compose down
+            docker compose up -d --build
           EOF
