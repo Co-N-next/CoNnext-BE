@@ -1,0 +1,28 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/connext.pem
+          chmod 600 ~/.ssh/connext.pem
+
+      - name: Copy files to EC2
+        run: |
+          scp -i ~/.ssh/connext.pem Dockerfile docker-compose.yml ./build/libs/connext-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_IP }}:~/app/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/connext.pem ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+          cd ~/app
+          docker-compose down
+          docker-compose up -d --build
+          EOF
