@@ -23,12 +23,29 @@ public enum ErrorCode implements Code {
     INVALID_TOKEN(401, "유효하지 않은 토큰입니다."),
     TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
     REFRESH_TOKEN_EXPIRED(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해 주세요."),
+    INVALID_TOKEN_CATEGORY(401, "토큰 타입이 올바르지 않습니다."),
+    UNSUPPORTED_TOKEN(401, "지원하지 않는 토큰입니다."),
+    NOT_FOUND_TOKEN(401, "토큰이 존재하지 않습니다."),
+    INVALID_CREDENTIALS(401, "아이디 또는 비밀번호가 올바르지 않습니다."),
 
     // ==================== 검색 ====================
     INVALID_SEARCH_KEYWORD(400, "검색어는 공백일 수 없습니다."),
 
     // ==================== 페이징 ====================
-    INVALID_PAGE_REQUEST(400, "page는 0 이상, size는 1~100 사이여야 합니다.");
+    INVALID_PAGE_REQUEST(400, "page는 0 이상, size는 1~100 사이여야 합니다."),
+
+    // ==================== 멤버 ====================
+    NOT_MEMBER_FOUND(404, "존재하지 않는 회원입니다."),
+    ID_ALREADY_EXISTS(409, "이미 존재하는 아이디입니다."),
+    MEMBER_DELETED(403, "탈퇴 처리된 회원입니다."),
+    INVALID_MEMBER_ROLE(400, "유효하지 않은 권한입니다."),
+    EMAIL_ALREADY_USED_BY_LOCAL(409, "이미 자체 회원가입으로 등록된 이메일입니다."),
+    EMAIL_ALREADY_USED_BY_SOCIAL(409,  "이미 다른 소셜 계정으로 등록된 이메일입니다."),
+    INVALID_LOGIN_TYPE(400, "잘못된 로그인 방식입니다."),
+
+    // ==================== 닉네임 ====================
+    NICKNAME_GENERATION_FAILED(500, "랜덤 닉네임 생성에 실패했습니다. 다시 시도해 주세요."),
+    NICKNAME_ALREADY_EXISTS(409, "이미 사용 중인 닉네임입니다.");
 
     private final int statusCode;
     private final String message;

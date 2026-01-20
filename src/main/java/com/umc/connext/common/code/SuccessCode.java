@@ -9,9 +9,24 @@ public enum SuccessCode implements Code {
 
     GET_SUCCESS(200, "조회 성공"),
     LOGIN_SUCCESS(200, "로그인 성공"),
+    LOGOUT_SUCCESS(200, "로그아웃 성공"),
     DELETE_SUCCESS(200, "삭제 성공"),
     INSERT_SUCCESS(201, "삽입 성공"),
-    UPDATE_SUCCESS(204, "업데이트 성공");
+    UPDATE_SUCCESS(204, "업데이트 성공"),
+    JOIN_SUCCESS(200, "회원가입 성공"),
+
+    //토큰 재발급
+    TOKEN_REISSUE_SUCCESS(200, "토큰 재발급 성공"),
+
+    //아이디 중복 체크
+    AVAILABLE_USERNAME(200, "사용 가능한 아이디입니다."),
+
+    // 비밀번호 관련
+    VALID_PASSWORD_FORMAT(203,"사용 가능한 비밀번호 형식입니다."),
+
+    //닉네임 중복 체크
+    AVAILABLE_NICKNAME(200, "사용 가능한 닉네임입니다.");
+
 
     private final int statusCode;
     private final String message;
