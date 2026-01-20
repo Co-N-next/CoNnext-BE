@@ -1,7 +1,7 @@
-package com.umc.connext.domain.refreshtoken.service;
+package com.umc.connext.global.refreshtoken.service;
 
-import com.umc.connext.domain.refreshtoken.entity.RefreshToken;
-import com.umc.connext.domain.refreshtoken.repository.RefreshTokenRepository;
+import com.umc.connext.global.refreshtoken.entity.RefreshToken;
+import com.umc.connext.global.refreshtoken.repository.RefreshTokenRepository;
 import com.umc.connext.global.util.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
-package com.umc.connext.domain.refreshtoken.repository;
+package com.umc.connext.global.refreshtoken.repository;
 
-import com.umc.connext.domain.refreshtoken.entity.RefreshToken;
+import com.umc.connext.global.refreshtoken.entity.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 

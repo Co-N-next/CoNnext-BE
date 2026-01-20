@@ -1,4 +1,4 @@
-package com.umc.connext.domain.refreshtoken.entity;
+package com.umc.connext.global.refreshtoken.entity;
 
 import lombok.Builder;
 import lombok.Getter;
