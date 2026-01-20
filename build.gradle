@@ -33,6 +33,7 @@ dependencies {
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
