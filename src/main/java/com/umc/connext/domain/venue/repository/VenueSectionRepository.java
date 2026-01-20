@@ -10,8 +10,9 @@ import java.util.List;
 
 @Repository
 public interface VenueSectionRepository extends JpaRepository<VenueSection, Long> {
-    List<VenueSection> findByVenueId(Long venueId);
 
     @Query("SELECT vs FROM VenueSection vs WHERE vs.venueId = :venueId AND vs.sectionId = :sectionId")
     VenueSection findByVenueIdAndSectionId(@Param("venueId") Long venueId, @Param("sectionId") String sectionId);
+
+    List<VenueSection> findAllByVenueId(Long venueId);
 }
