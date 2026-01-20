@@ -1,6 +1,9 @@
 package com.umc.connext.global.config;
 
 import com.umc.connext.global.filter.*;
+import com.umc.connext.global.oauth2.handler.CustomOAuth2FailureHandler;
+import com.umc.connext.global.oauth2.handler.CustomOAuth2SuccessHandler;
+import com.umc.connext.global.oauth2.service.CustomOAuth2UserService;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
 import com.umc.connext.global.util.SecurityResponseWriter;

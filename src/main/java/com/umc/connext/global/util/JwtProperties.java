@@ -1,5 +1,6 @@
 package com.umc.connext.global.util;
 
+import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

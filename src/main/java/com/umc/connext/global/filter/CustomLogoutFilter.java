@@ -6,6 +6,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
+import com.umc.connext.global.util.SecurityResponseWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -50,7 +51,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             jwtUtil.validateRefreshToken(refreshToken);
 
             if (!refreshTokenService.existsByRefreshToken(refreshToken)) {
-                throw new GeneralException(ErrorCode.INVALID_TOKEN);
+                throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
             }
 
             refreshTokenService.removeRefreshToken(refreshToken);

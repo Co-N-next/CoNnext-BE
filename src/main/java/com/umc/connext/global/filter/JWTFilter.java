@@ -3,6 +3,7 @@ package com.umc.connext.global.filter;
 import com.umc.connext.common.enums.Role;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.global.jwt.entity.CustomUserDetails;
 import com.umc.connext.global.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

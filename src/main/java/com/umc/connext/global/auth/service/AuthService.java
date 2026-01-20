@@ -1,0 +1,65 @@
+package com.umc.connext.global.auth.service;
+
+import com.umc.connext.common.code.ErrorCode;
+import com.umc.connext.common.enums.Role;
+import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.enums.MemberStatus;
+import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.global.auth.dto.JoinDTO;
+import com.umc.connext.global.nickname.service.NicknameService;
+import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final RefreshTokenService refreshTokenService;
+    private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final NicknameService nicknameService;
+
+    @Transactional
+    public void join(JoinDTO joinDTO){
+        String username = joinDTO.getUsername();
+        String password = joinDTO.getPassword();
+
+
+        // 1️⃣ 자체 회원가입 계정 존재 체크
+        if(memberRepository.existsByUsername(username)){
+            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS,"");
+        }
+
+        // 2️⃣ 소셜 계정 이메일과 충돌 체크
+        memberRepository.findByEmail(username).ifPresent(member -> {
+            throw new GeneralException(ErrorCode.EMAIL_ALREADY_USED_BY_SOCIAL,"");
+        });
+
+
+        // 3️⃣ 회원 생성
+        Member member = Member.createMember(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateUniqueNickname(), Role.ROLE_USER);
+        memberRepository.save(member); //TODO - 추후 개선 ( email 이랑 username)
+    }
+
+    @Transactional
+    public void withdrawCurrentUser(String username) {
+
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND,""));
+
+        if (member.getStatus() == MemberStatus.DELETED) {
+            throw new GeneralException(ErrorCode.MEMBER_DELETED,"");
+        }
+
+        // 1️⃣ Refresh Token 전부 제거 (즉시 로그아웃)
+        refreshTokenService.removeRefreshToken(member.getUsername());
+
+        // 2️⃣ 소프트 삭제
+        memberRepository.delete(member);
+    }
+}
+
