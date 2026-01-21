@@ -1,9 +1,7 @@
-version: "3.8"
-
 services:
   backend:
     build: .
-    image: mishel0702/connext
+    image: connext-backend:latest
     container_name: connext
     restart: always
     ports:
