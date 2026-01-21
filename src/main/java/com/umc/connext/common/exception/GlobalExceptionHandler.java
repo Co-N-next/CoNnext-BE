@@ -29,7 +29,9 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         log.warn("GeneralException: {} - {}", errorCode.name(), e.getMessage());
 
-        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode));
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(Response.fail(errorCode, e.getMessage()));
     }
 
     // ==================== Validation 예외 ====================
@@ -54,7 +56,9 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         log.warn("MethodArgumentNotValidException - Field errors: [{}]", detailedErrors);
 
-        return ResponseEntity.status(errorCode.getStatusCode()).body(Response.fail(errorCode));
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(Response.fail(errorCode, detailedErrors));
     }
 
     // ==================== HTTP 요청 예외 ====================
