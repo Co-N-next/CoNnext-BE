@@ -20,21 +20,22 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            cd ~/app
-            git pull origin main
+            ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+              cd ~/app
+              git pull origin main
+            
+              cat <<EOT > .env.prod
+              SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+              DB_HOST=${{ secrets.DB_HOST }}
+              DB_PORT=${{ secrets.DB_PORT }}
+              DB_NAME=${{ secrets.DB_NAME }}
+              DB_USERNAME=${{ secrets.DB_USERNAME }}
+              DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+              JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
+              JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
+              EOT
 
-            cat <<EOT > .env.prod
-            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
-            JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
-            EOT
+              docker compose down
 
-            docker compose down
-            docker compose up -d --build
-          EOF
+              docker compose --env-file .env.prod up -d --build
+            EOF
