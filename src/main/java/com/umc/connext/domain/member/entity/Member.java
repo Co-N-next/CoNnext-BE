@@ -2,32 +2,54 @@ package com.umc.connext.domain.member.entity;
 
 import com.umc.connext.common.entity.BaseEntity;
 import com.umc.connext.common.enums.Role;
-import com.umc.connext.domain.member.enums.MemberStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-@Entity
 @Getter
+@Entity
+@Table(name = "member")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+
+    @Column(name = "member_id")
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
-    private String nickname;
-
+    @Column(nullable = false, length = 50)
     private String email;
 
+    @Column(nullable = false, unique = true, length = 20)
+    private String nickname;
+
+    @Column(length = 255)
+    private String profileImage;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'ROLE_USER'")
     private Role role;
+
+
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    public void updateProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+    }
 
     public static Member createMember(String username, String email, String password, String nickname, Role role) {
         Member member = new Member();
@@ -38,9 +60,4 @@ public class Member extends BaseEntity {
         member.role = role;
         return member;
     }
-
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
 }

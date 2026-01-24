@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SuccessCode implements Code {
 
+    OK(200, "요청 처리 성공"),
+    CREATED(201, "리소스 생성 성공"),
+    NO_CONTENT(204, "요청 성공, 데이터 없음"),
     GET_SUCCESS(200, "조회 성공"),
     LOGIN_SUCCESS(200, "로그인 성공"),
     LOGOUT_SUCCESS(200, "로그아웃 성공"),
