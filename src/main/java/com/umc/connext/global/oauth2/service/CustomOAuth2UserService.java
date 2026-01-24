@@ -5,11 +5,12 @@ import com.umc.connext.common.enums.Role;
 import com.umc.connext.domain.member.dto.MemberDTO;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.global.oauth2.entity.CustomOAuth2User;
+import com.umc.connext.global.oauth2.principal.CustomOAuth2User;
 import com.umc.connext.global.oauth2.dto.GoogleResponse;
 import com.umc.connext.global.oauth2.dto.KakaoResponse;
 import com.umc.connext.global.oauth2.dto.NaverResponse;
 import com.umc.connext.global.oauth2.dto.OAuth2Response;
+import com.umc.connext.global.oauth2.enums.OAuth2Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -17,6 +18,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +35,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         System.out.println(oAuth2User);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2Response oAuth2Response = null;
-        if (registrationId.equals("naver")) {
+        OAuth2Response oAuth2Response;
+        if (registrationId.equals(OAuth2Provider.NAVER.getValue())) {
 
             oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
         }
-        else if (registrationId.equals("google")) {
+        else if (registrationId.equals(OAuth2Provider.GOOGLE.getValue())) {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         }
-        else if (registrationId.equals("kakao")) {
+        else if (registrationId.equals(OAuth2Provider.KAKAO.getValue())) {
 
             oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         }
@@ -57,47 +60,38 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String username = oAuth2Response.getProvider()+"_"+oAuth2Response.getProviderId();
         String email = oAuth2Response.getEmail();
+        String name = oAuth2Response.getName();
 
-        // 1️⃣ 소셜 계정 자체 존재 여부
-        Member existMember = memberRepository.findByUsername(username).orElse(null);
+        // 1️ 소셜 계정 자체 존재 여부
+        Optional<Member> existMember = memberRepository.findByUsername(username);
 
-        // 2️⃣ 자체 로그인 계정(email 기반)과 충돌 체크
-        Member emailConflictMember = memberRepository.findByUsername(email).orElse(null);
-        if (emailConflictMember != null && (existMember == null || emailConflictMember.getId() != existMember.getId())) {
-            OAuth2Error error = new OAuth2Error(
-                    "email_conflict",
-                    ErrorCode.EMAIL_ALREADY_USED_BY_LOCAL.getMessage(), // 여기서 메시지 가져오기
-                    ""
-            );
-            throw new OAuth2AuthenticationException(error);
-        }
+        // 2️ 자체 로그인 계정(email 기반)과 충돌 체크 - 일부로 email 넣음 -
+        memberRepository.findByUsername(email)
+                .ifPresent(conflictMember -> {
+                    boolean isDifferentMember =
+                            existMember
+                                    .map(m -> m.getId() != conflictMember.getId())
+                                    .orElse(true);
 
-        if(existMember == null) {
+                    if (isDifferentMember) {
+                        throw new OAuth2AuthenticationException(
+                                new OAuth2Error(
+                                        "email_conflict",
+                                        ErrorCode.EMAIL_ALREADY_USED_BY_LOCAL.getMessage(),
+                                        ""
+                                )
+                        );
+                    }
+                });
 
-            Member member = Member.createMember(username, email, null,oAuth2Response.getName(),Role.ROLE_USER);
+        // 3️ 회원 없으면 생성, 있으면 그대로 사용
+        Member member = existMember.orElseGet(() -> memberRepository.save( Member.createMember(
+                username, email, null, name, Role.ROLE_USER )));
 
-            memberRepository.save(member);
+        // 4 DTO 변환
+        MemberDTO memberDTO = MemberDTO.of(member);
 
-            MemberDTO memberDTO = new MemberDTO();
-            memberDTO.setUsername(username);
-            memberDTO.setName(oAuth2Response.getName());
-            memberDTO.setRole(Role.ROLE_USER);
-
-            return new CustomOAuth2User(memberDTO);
-        }
-        else {
-            //existMember.setEmail(oAuth2Response.getEmail());
-            existMember.updateNickname(oAuth2Response.getName());
-
-            memberRepository.save(existMember);
-
-            MemberDTO memberDTO = new MemberDTO();
-            memberDTO.setUsername(existMember.getUsername());
-            memberDTO.setName(oAuth2Response.getName());
-            memberDTO.setRole(existMember.getRole());
-
-            return new CustomOAuth2User(memberDTO);
-        }
+        return new CustomOAuth2User(memberDTO);
     }
 }
 

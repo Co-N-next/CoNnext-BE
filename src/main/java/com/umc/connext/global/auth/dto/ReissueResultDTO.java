@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ReissueResultDto {
+public class ReissueResultDTO {
     String accessToken;
     String refreshToken;
 }

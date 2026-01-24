@@ -1,9 +1,11 @@
 package com.umc.connext.global.oauth2.dto;
 
+import com.umc.connext.global.oauth2.enums.OAuth2Provider;
+
 public interface OAuth2Response {
 
     //제공자 (Ex. naver, google, ...)
-    String getProvider();
+    OAuth2Provider getProvider();
     //제공자에서 발급해주는 아이디(번호)
     String getProviderId();
     //이메일

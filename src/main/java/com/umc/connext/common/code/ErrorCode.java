@@ -45,7 +45,10 @@ public enum ErrorCode implements Code {
 
     // ==================== 닉네임 ====================
     NICKNAME_GENERATION_FAILED(500, "랜덤 닉네임 생성에 실패했습니다. 다시 시도해 주세요."),
-    NICKNAME_ALREADY_EXISTS(409, "이미 사용 중인 닉네임입니다.");
+    NICKNAME_ALREADY_EXISTS(409, "이미 사용 중인 닉네임입니다."),
+
+    // ==================== 아이디 ====================
+    INVALID_MEMBER_ID(400, "유효하지 않은 아이디 형식입니다.");
 
     private final int statusCode;
     private final String message;

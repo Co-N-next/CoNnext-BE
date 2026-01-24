@@ -31,22 +31,17 @@ public class CustomLogoutFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
-    }
-
-    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         //path and method verify
         if (!isLogoutRequest(httpRequest)) {
-            filterChain.doFilter(request, response);
+            chain.doFilter(httpRequest, httpResponse);
             return;
         }
 
         try {
-            String refreshToken = extractRefreshToken(request);
+            String refreshToken = extractRefreshToken(httpRequest);
 
             jwtUtil.validateRefreshToken(refreshToken);
 
@@ -55,20 +50,19 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
 
             refreshTokenService.removeRefreshToken(refreshToken);
-            removeRefreshCookie(response);
+            removeRefreshCookie(httpResponse);
 
             securityResponseWriter.write(
-                    response,
+                    httpResponse,
                     Response.success(SuccessCode.LOGOUT_SUCCESS)
             );
 
         } catch (GeneralException e) {
             securityResponseWriter.write(
-                    response,
+                    httpResponse,
                     Response.fail(e.getErrorCode())
             );
         }
-
     }
 
     private boolean isLogoutRequest(HttpServletRequest request) {

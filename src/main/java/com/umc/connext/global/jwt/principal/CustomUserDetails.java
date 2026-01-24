@@ -1,4 +1,4 @@
-package com.umc.connext.global.jwt.entity;
+package com.umc.connext.global.jwt.principal;
 
 import com.umc.connext.domain.member.entity.Member;
 import org.springframework.security.core.GrantedAuthority;

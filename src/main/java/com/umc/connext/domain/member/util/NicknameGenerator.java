@@ -1,4 +1,4 @@
-package com.umc.connext.global.nickname.entity;
+package com.umc.connext.domain.member.util;
 
 import org.springframework.stereotype.Component;
 

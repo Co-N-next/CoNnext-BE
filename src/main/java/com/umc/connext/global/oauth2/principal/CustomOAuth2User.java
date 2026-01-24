@@ -1,4 +1,4 @@
-package com.umc.connext.global.oauth2.entity;
+package com.umc.connext.global.oauth2.principal;
 
 import com.umc.connext.domain.member.dto.MemberDTO;
 import org.springframework.security.core.GrantedAuthority;

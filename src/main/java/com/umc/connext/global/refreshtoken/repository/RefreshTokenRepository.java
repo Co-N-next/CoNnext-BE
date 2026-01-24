@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Long> {
+
     Optional<RefreshToken> findRefreshTokenByJwtRefreshToken(String refreshToken);
-    @Transactional
     void deleteAllByAuthKey(String authKey);
 }

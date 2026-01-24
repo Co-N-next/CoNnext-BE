@@ -2,7 +2,7 @@ package com.umc.connext.global.auth.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
-import com.umc.connext.global.auth.dto.ReissueResultDto;
+import com.umc.connext.global.auth.dto.ReissueResultDTO;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class ReissueService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public ReissueResultDto reissue(String refreshToken) {
+    public ReissueResultDTO reissue(String refreshToken) {
 
         jwtUtil.validateRefreshToken(refreshToken);
 
@@ -36,6 +36,6 @@ public class ReissueService {
         refreshTokenService.removeRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(newRefresh, username);
 
-        return new ReissueResultDto(newAccess, newRefresh);
+        return new ReissueResultDTO(newAccess, newRefresh);
     }
 }

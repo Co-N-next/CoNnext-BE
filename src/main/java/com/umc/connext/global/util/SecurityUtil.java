@@ -2,7 +2,7 @@ package com.umc.connext.global.util;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
-import com.umc.connext.global.jwt.entity.CustomUserDetails;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

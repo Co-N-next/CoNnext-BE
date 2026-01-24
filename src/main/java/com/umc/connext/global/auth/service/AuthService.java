@@ -7,7 +7,7 @@ import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.global.auth.dto.JoinDTO;
-import com.umc.connext.global.nickname.service.NicknameService;
+import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,7 +28,6 @@ public class AuthService {
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-
         // 1️⃣ 자체 회원가입 계정 존재 체크
         if(memberRepository.existsByUsername(username)){
             throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS,"");
@@ -39,10 +38,9 @@ public class AuthService {
             throw new GeneralException(ErrorCode.EMAIL_ALREADY_USED_BY_SOCIAL,"");
         });
 
-
         // 3️⃣ 회원 생성
-        Member member = Member.createMember(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateUniqueNickname(), Role.ROLE_USER);
-        memberRepository.save(member); //TODO - 추후 개선 ( email 이랑 username)
+        Member member = Member.createMember(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateRandomNickname(), Role.ROLE_USER);
+        memberRepository.save(member);
     }
 
     @Transactional
@@ -51,12 +49,8 @@ public class AuthService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND,""));
 
-        if (member.getStatus() == MemberStatus.DELETED) {
-            throw new GeneralException(ErrorCode.MEMBER_DELETED,"");
-        }
-
         // 1️⃣ Refresh Token 전부 제거 (즉시 로그아웃)
-        refreshTokenService.removeRefreshToken(member.getUsername());
+        refreshTokenService.removeAllByAuthKey(member.getUsername());
 
         // 2️⃣ 소프트 삭제
         memberRepository.delete(member);

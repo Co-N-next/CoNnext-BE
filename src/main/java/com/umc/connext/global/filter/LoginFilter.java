@@ -3,7 +3,7 @@ package com.umc.connext.global.filter;
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.global.auth.dto.LoginResponseDto;
+import com.umc.connext.global.auth.dto.LoginResponseDTO;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
 import com.umc.connext.global.util.SecurityResponseWriter;
@@ -81,8 +81,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(username);
-        Response<LoginResponseDto> body = Response.success(SuccessCode.LOGIN_SUCCESS,loginResponseDto);
+        LoginResponseDTO loginResponseDto = new LoginResponseDTO(username);
+        Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS,loginResponseDto);
 
         securityResponseWriter.write(response, body);
     }

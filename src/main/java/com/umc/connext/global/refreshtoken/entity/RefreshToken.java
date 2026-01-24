@@ -19,7 +19,7 @@ public class RefreshToken {
     @Indexed
     private String jwtRefreshToken;
 
-    // 맴버 이메일로 설정
+    // username으로 설정
     private String authKey;
 
     //리프레시 토큰의 생명 주기(14일)

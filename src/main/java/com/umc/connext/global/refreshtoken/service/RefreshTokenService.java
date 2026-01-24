@@ -2,7 +2,7 @@ package com.umc.connext.global.refreshtoken.service;
 
 import com.umc.connext.global.refreshtoken.entity.RefreshToken;
 import com.umc.connext.global.refreshtoken.repository.RefreshTokenRepository;
-import com.umc.connext.global.util.JwtProperties;
+import com.umc.connext.global.util.JWTProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtProperties jwtProperties;
+    private final JWTProperties jwtProperties;
 
     @Transactional
     public void saveRefreshToken(String refreshToken, String authKey) {

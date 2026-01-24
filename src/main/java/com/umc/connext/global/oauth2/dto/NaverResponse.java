@@ -1,5 +1,7 @@
 package com.umc.connext.global.oauth2.dto;
 
+import com.umc.connext.global.oauth2.enums.OAuth2Provider;
+
 import java.util.Map;
 
 public class NaverResponse implements OAuth2Response{
@@ -11,8 +13,8 @@ public class NaverResponse implements OAuth2Response{
     }
 
     @Override
-    public String getProvider() {
-        return "naver";
+    public OAuth2Provider getProvider() {
+        return OAuth2Provider.NAVER;
     }
 
     @Override

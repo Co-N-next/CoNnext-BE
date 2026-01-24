@@ -1,5 +1,7 @@
 package com.umc.connext.global.oauth2.dto;
 
+import com.umc.connext.global.oauth2.enums.OAuth2Provider;
+
 import java.util.Map;
 
 public class GoogleResponse implements OAuth2Response{
@@ -11,7 +13,7 @@ public class GoogleResponse implements OAuth2Response{
     }
 
     @Override
-    public String getProvider() {return "google";}
+    public OAuth2Provider getProvider() {return OAuth2Provider.GOOGLE;}
 
     @Override
     public String getProviderId() {return attribute.get("sub").toString();}

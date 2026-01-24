@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 @ConfigurationProperties(prefix = "jwt")
 @Getter
 @Setter
-public class JwtProperties {
+public class JWTProperties {
     private String secret;
     private Long accessTokenValidity;
     private Long refreshTokenValidity;

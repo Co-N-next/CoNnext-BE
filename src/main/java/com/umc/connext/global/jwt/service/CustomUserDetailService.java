@@ -2,7 +2,7 @@ package com.umc.connext.global.jwt.service;
 
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.global.jwt.entity.CustomUserDetails;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

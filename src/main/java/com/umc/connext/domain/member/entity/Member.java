@@ -10,8 +10,8 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE member SET deleted_at = NOW(), status = 'DELETED', is_delete = true WHERE id = ?")
-@SQLRestriction("is_delete = false")
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseEntity {
 
     @Id
@@ -23,11 +23,6 @@ public class Member extends BaseEntity {
     private String password;
 
     private String nickname;
-
-    @Enumerated(EnumType.STRING)
-    private MemberStatus status; // ACTIVE, DELETED
-
-    private boolean is_delete;
 
     private String email;
 
@@ -41,7 +36,6 @@ public class Member extends BaseEntity {
         member.password = password;
         member.nickname = nickname;
         member.role = role;
-        member.status = MemberStatus.ACTIVE;
         return member;
     }
 

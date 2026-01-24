@@ -12,9 +12,9 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtTokenProvider {
+public class JWTTokenProvider {
 
-    private final JwtProperties jwtProperties;
+    private final JWTProperties jwtProperties;
 
     public String createJwt(String category ,String username, String role) {
 

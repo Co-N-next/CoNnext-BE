@@ -24,7 +24,8 @@ public enum SuccessCode implements Code {
     // 비밀번호 관련
     VALID_PASSWORD_FORMAT(203,"사용 가능한 비밀번호 형식입니다."),
 
-    //닉네임 중복 체크
+    //닉네임 관련
+    NICKNAME_GENERATION_SUCCESS(200, "랜덤 닉네임이 성공적으로 생성되었습니다."),
     AVAILABLE_NICKNAME(200, "사용 가능한 닉네임입니다.");
 
 

@@ -1,6 +1,6 @@
 package com.umc.connext.global.oauth2.handler;
 
-import com.umc.connext.global.oauth2.entity.CustomOAuth2User;
+import com.umc.connext.global.oauth2.principal.CustomOAuth2User;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
 import com.umc.connext.global.util.SecurityResponseWriter;
@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -22,9 +23,10 @@ import java.util.Iterator;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    @Value("${app.oauth2.success-redirect-uri}")
+    private String redirectUri;
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
-    private final SecurityResponseWriter securityResponseWriter;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -46,7 +48,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         response.addCookie(createCookie("refresh", refresh));
 
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect(redirectUri);
     }
 
     private Cookie createCookie(String key, String value) {

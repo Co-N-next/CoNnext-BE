@@ -22,15 +22,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class  SecurityConfig {
 
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -57,24 +58,7 @@ public class  SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
 
         http
-                .cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration;
-                    }
-                })));
+                .cors(cors ->  cors.configurationSource(corsConfigurationSource()));
         http
                 .csrf((auth) -> auth.disable());
 
@@ -101,18 +85,21 @@ public class  SecurityConfig {
                         .requestMatchers("/auth/reissue").permitAll()
                         .anyRequest().authenticated());
 
-        //JWTFilter 등록
-        http
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
+        //1️⃣ login filter
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter), UsernamePasswordAuthenticationFilter.class);
 
+        //2️⃣ JWT filter
         http.
-                addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, securityResponseWriter), LogoutFilter.class);
+                addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
+        //3️⃣ logout filter
         http.
-                addFilterBefore(jwtExceptionFilter, JWTFilter.class);
+                addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, securityResponseWriter), JWTFilter.class);
+
+        //4️⃣ exception filter
+        http.
+                addFilterBefore(jwtExceptionFilter, CustomLogoutFilter.class);
 
         http
                 .sessionManagement((session) -> session
@@ -125,5 +112,24 @@ public class  SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://localhost:5173"
+        ));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
