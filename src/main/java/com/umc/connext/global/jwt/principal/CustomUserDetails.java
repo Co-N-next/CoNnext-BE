@@ -1,5 +1,6 @@
 package com.umc.connext.global.jwt.principal;
 
+import com.umc.connext.common.enums.Role;
 import com.umc.connext.domain.member.entity.Member;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,13 +10,20 @@ import java.util.Collection;
 
 public class CustomUserDetails implements UserDetails {
     private final Member member;
+    private final String username; // JWT 기반
+    private final Role role;       // JWT 기반
 
     public CustomUserDetails(Member member) {
         this.member = member;
+        this.username = null;
+        this.role = null;
     }
 
-    public int getId() {
-        return member.getId();
+    // JWT 기반 생성자
+    public CustomUserDetails(String username, Role role) {
+        this.member = null;
+        this.username = username;
+        this.role = role;
     }
 
     @Override
@@ -28,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
             @Override
             public String getAuthority() {
 
-                return member.getRole().toString();
+                return getRole().toString();
             }
         });
 
@@ -38,13 +46,17 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getPassword() {
 
-        return member.getPassword();
+        return member != null ? member.getPassword() : null;
     }
 
     @Override
     public String getUsername() {
 
-        return member.getUsername();
+        return member != null ? member.getUsername() : username;
+    }
+
+    public Role getRole() {
+        return member != null ? member.getRole() : role;
     }
 
     @Override

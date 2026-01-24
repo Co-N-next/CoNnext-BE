@@ -80,24 +80,24 @@ public class  SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/auth/join", "/auth/login/**").permitAll()
+                        .requestMatchers("/", "/auth/join", "/auth/login/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/auth/reissue").permitAll()
                         .anyRequest().authenticated());
 
-        //1️⃣ login filter
+        //1️ login filter
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter), UsernamePasswordAuthenticationFilter.class);
 
-        //2️⃣ JWT filter
+        //2️ JWT filter
         http.
                 addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
-        //3️⃣ logout filter
+        //3️ logout filter
         http.
                 addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, securityResponseWriter), JWTFilter.class);
 
-        //4️⃣ exception filter
+        //4️ exception filter
         http.
                 addFilterBefore(jwtExceptionFilter, CustomLogoutFilter.class);
 

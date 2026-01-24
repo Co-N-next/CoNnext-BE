@@ -1,8 +1,10 @@
 package com.umc.connext.global.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
+import com.umc.connext.global.auth.dto.LoginRequestDTO;
 import com.umc.connext.global.auth.dto.LoginResponseDTO;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
@@ -28,6 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final SecurityResponseWriter securityResponseWriter;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public LoginFilter(AuthenticationManager authenticationManager,
                        JWTUtil jwtUtil,
@@ -47,15 +50,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        //클라이언트 요청에서 username, password 추출
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        try {
+            // JSON body 읽기
+            LoginRequestDTO loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequestDTO.class);
 
-        //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
 
-        //token에 담은 검증을 위한 AuthenticationManager로 전달
-        return authenticationManager.authenticate(authToken);
+            return authenticationManager.authenticate(authToken);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse login request body", e);
+        }
     }
 
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
