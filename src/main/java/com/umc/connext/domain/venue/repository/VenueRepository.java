@@ -1,4 +1,4 @@
-package com.umc.connext.domain.venue;
+package com.umc.connext.domain.venue.repository;
 
 import com.umc.connext.domain.venue.entity.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;

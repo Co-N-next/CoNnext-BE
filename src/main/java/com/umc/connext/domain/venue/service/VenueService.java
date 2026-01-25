@@ -1,6 +1,6 @@
 package com.umc.connext.domain.venue.service;
 
-import com.umc.connext.domain.venue.VenueRepository;
+import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
