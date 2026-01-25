@@ -23,6 +23,6 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/trend-search")
-    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearch();
+    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
 
 }
