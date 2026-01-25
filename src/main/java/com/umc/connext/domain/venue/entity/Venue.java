@@ -40,4 +40,7 @@ public class Venue {
 
     @Column(name = "total_views", nullable = false)
     private Integer totalViews;
+
+    @Column(name = "search_count", nullable = false)
+    private Integer searchCount;
 }
