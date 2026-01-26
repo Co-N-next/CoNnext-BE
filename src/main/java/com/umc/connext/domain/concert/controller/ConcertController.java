@@ -4,6 +4,7 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
 import com.umc.connext.domain.concert.dto.ConcertResponse;
+import com.umc.connext.domain.concert.dto.ConcertSearchResponse;
 import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
 import com.umc.connext.domain.concert.service.ConcertService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +54,7 @@ public class ConcertController {
             @ApiResponse(responseCode = "200", description = "검색 성공")
     })
     @GetMapping("/search")
-    public ResponseEntity<Response<Page<ConcertResponse>>> searchConcerts(
+    public ResponseEntity<Response<ConcertSearchResponse>> searchConcerts(
             @Parameter(description = "검색어", example = "콘서트")
             @RequestParam(defaultValue = "") String query,
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
@@ -63,7 +64,7 @@ public class ConcertController {
     ) {
         Page<ConcertResponse> result = concertService.searchConcerts(query, page, size);
         return ResponseEntity.ok()
-                .body(Response.success(SuccessCode.GET_SUCCESS, result, "공연 검색 성공"));
+                .body(Response.success(SuccessCode.GET_SUCCESS, ConcertSearchResponse.from(result), "공연 검색 성공"));
     }
 
     @Operation(summary = "공연 기본 정보 조회", description = "공연의 포스터, 제목, 설명 등 기본 정보를 조회합니다.")
