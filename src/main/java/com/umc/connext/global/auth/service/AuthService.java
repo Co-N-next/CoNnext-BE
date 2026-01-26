@@ -4,7 +4,6 @@ import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.enums.Role;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
-import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.global.auth.dto.JoinDTO;
 import com.umc.connext.domain.member.service.NicknameService;

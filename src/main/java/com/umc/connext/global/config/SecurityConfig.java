@@ -1,5 +1,6 @@
 package com.umc.connext.global.config;
 
+import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.global.filter.*;
 import com.umc.connext.global.oauth2.handler.CustomOAuth2FailureHandler;
 import com.umc.connext.global.oauth2.handler.CustomOAuth2SuccessHandler;
@@ -40,6 +41,7 @@ public class  SecurityConfig {
     private final CustomOAuth2FailureHandler CustomOAuth2FailureHandler;
     private final JWTExceptionFilter jwtExceptionFilter;
     private final SecurityResponseWriter securityResponseWriter;
+    private final MemberService memberService;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -93,7 +95,7 @@ public class  SecurityConfig {
 
         //2️ JWT filter
         http.
-                addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                addFilterBefore(new JWTFilter(jwtUtil, memberService), LoginFilter.class);
 
         //3️ logout filter
         http.

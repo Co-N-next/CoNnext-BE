@@ -1,8 +1,10 @@
 package com.umc.connext.global.filter;
 
+import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.enums.Role;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.util.JWTUtil;
 import jakarta.servlet.FilterChain;
@@ -25,6 +27,7 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,10 +41,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
                 // username, role 값을 획득
                 String username = jwtUtil.getUsername(accessToken);
-                Role role =  Role.valueOf(jwtUtil.getRole(accessToken));
 
                 //detail 검증용
-                CustomUserDetails customUserDetails = new CustomUserDetails(username, role);
+                Member member = memberService.findByUsername(username);
+                CustomUserDetails customUserDetails = new CustomUserDetails(member);
 
                 Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authToken);

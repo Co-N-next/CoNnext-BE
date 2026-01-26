@@ -2,6 +2,7 @@ package com.umc.connext.domain.member.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,11 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+
+    public Member findByUsername(String username) {
+        return memberRepository.findByUsername(username)
+                .orElseThrow(()-> new GeneralException(ErrorCode.NOT_MEMBER_FOUND, "해당 유저를 찾을 수 없습니다."));
+    }
 
     public void checkUsernameDuplicate(String email) {
         if (memberRepository.existsByUsername(email)) {

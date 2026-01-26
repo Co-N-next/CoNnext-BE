@@ -10,21 +10,11 @@ import java.util.Collection;
 
 public class CustomUserDetails implements UserDetails {
     private final Member member;
-    private final String username; // JWT 기반
-    private final Role role;       // JWT 기반
 
     public CustomUserDetails(Member member) {
         this.member = member;
-        this.username = null;
-        this.role = null;
     }
 
-    // JWT 기반 생성자
-    public CustomUserDetails(String username, Role role) {
-        this.member = null;
-        this.username = username;
-        this.role = role;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,11 +42,12 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
 
-        return member != null ? member.getUsername() : username;
+        return member.getUsername();
     }
 
     public Role getRole() {
-        return member != null ? member.getRole() : role;
+
+        return member.getRole();
     }
 
     @Override
