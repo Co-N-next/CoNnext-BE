@@ -23,11 +23,10 @@ public class VenueService {
     // 공연장 검색
     @Transactional
     public Page<VenueResDTO.VenuePreviewDTO> searchVenues(
-            @RequestParam String query,
-            @RequestParam Integer page
+            String query,
+            Integer page
     ) {
         PageRequest pageRequest = PageRequest.of(page, 10);
-        Page<SearchVenue> result = venueRepository.searchVenues(query, pageRequest);
 
         return venueRepository.searchVenues(query, pageRequest)
                 .map(VenueConverter::toVenuePreviewDTO);
