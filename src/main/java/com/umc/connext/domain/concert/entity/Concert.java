@@ -3,6 +3,9 @@ package com.umc.connext.domain.concert.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "concerts")
 @Getter
@@ -32,4 +35,7 @@ public class Concert {
 
     @Column(name = "reservation_link")
     private String reservationLink;
+
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConcertCast> concertCasts = new ArrayList<>();
 }
