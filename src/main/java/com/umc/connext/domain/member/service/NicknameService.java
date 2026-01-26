@@ -21,6 +21,6 @@ public class NicknameService {
                 return nickname;
             }
         }
-        throw new GeneralException(ErrorCode.NICKNAME_GENERATION_FAILED,"");
+        throw new GeneralException(ErrorCode.NICKNAME_GENERATION_FAILED,"랜덤 닉네임 생성에 실패했습니다. 관리자에게 문의바랍니다.");
     }
 }

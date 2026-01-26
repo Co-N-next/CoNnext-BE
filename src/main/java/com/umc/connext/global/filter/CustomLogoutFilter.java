@@ -46,7 +46,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             jwtUtil.validateRefreshToken(refreshToken);
 
             if (!refreshTokenService.existsByRefreshToken(refreshToken)) {
-                throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+                throw new GeneralException(ErrorCode.INVALID_TOKEN,"리프레시 토큰이 유효하지 않습니다.");
             }
 
             refreshTokenService.removeRefreshToken(refreshToken);
@@ -79,7 +79,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 return cookie.getValue();
             }
         }
-        throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"");
+        throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"리프레시 토큰이 존재하지 않습니다.");
     }
 
     private void removeRefreshCookie(HttpServletResponse response) {

@@ -80,7 +80,9 @@ public class  SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/auth/join", "/auth/login/**").permitAll()
+                        .requestMatchers("/", "/auth/join", "/auth/login/**",
+                                "/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/auth/reissue").permitAll()
                         .anyRequest().authenticated());

@@ -28,18 +28,18 @@ public class AuthService {
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-        // 1️⃣ 자체 회원가입 계정 존재 체크
+        // 1️ 자체 회원가입 계정 존재 체크
         if(memberRepository.existsByUsername(username)){
-            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS,"");
+            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS,"이미 가입된 이메일입니다.");
         }
 
-        // 2️⃣ 소셜 계정 이메일과 충돌 체크
+        // 2️ 소셜 계정 이메일과 충돌 체크
         memberRepository.findByEmail(username).ifPresent(member -> {
-            throw new GeneralException(ErrorCode.EMAIL_ALREADY_USED_BY_SOCIAL,"");
+            throw new GeneralException(ErrorCode.EMAIL_ALREADY_USED_BY_SOCIAL,"이미 다른 소셜 계정으로 가입된 이메일입니다.");
         });
 
-        // 3️⃣ 회원 생성
-        Member member = Member.createMember(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateRandomNickname(), Role.ROLE_USER);
+        // 3️ 회원 생성
+        Member member = Member.of(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateRandomNickname(), Role.ROLE_USER);
         memberRepository.save(member);
     }
 
@@ -47,12 +47,12 @@ public class AuthService {
     public void withdrawCurrentUser(String username) {
 
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND,""));
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND,"존재하지 않는 회원입니다."));
 
-        // 1️⃣ Refresh Token 전부 제거 (즉시 로그아웃)
+        // 1️ Refresh Token 전부 제거 (즉시 로그아웃)
         refreshTokenService.removeAllByAuthKey(member.getUsername());
 
-        // 2️⃣ 소프트 삭제
+        // 2️ 삭제
         memberRepository.delete(member);
     }
 }

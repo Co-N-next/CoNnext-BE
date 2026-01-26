@@ -70,7 +70,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .ifPresent(conflictMember -> {
                     boolean isDifferentMember =
                             existMember
-                                    .map(m -> m.getId() != conflictMember.getId())
+                                    .map(m -> !m.getId().equals(conflictMember.getId()))
                                     .orElse(true);
 
                     if (isDifferentMember) {
@@ -85,7 +85,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 });
 
         // 3️ 회원 없으면 생성, 있으면 그대로 사용
-        Member member = existMember.orElseGet(() -> memberRepository.save( Member.createMember(
+        Member member = existMember.orElseGet(() -> memberRepository.save( Member.of(
                 username, email, null, name, Role.ROLE_USER )));
 
         // 4 DTO 변환

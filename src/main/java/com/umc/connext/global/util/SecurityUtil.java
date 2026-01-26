@@ -13,7 +13,7 @@ public class SecurityUtil {
                 SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED,"");
+            throw new GeneralException(ErrorCode.UNAUTHORIZED,"인증이 필요합니다.");
         }
 
         Object principal = authentication.getPrincipal();
@@ -22,6 +22,6 @@ public class SecurityUtil {
             return userDetails.getUsername();
         }
 
-        throw new GeneralException(ErrorCode.UNAUTHORIZED,"");
+        throw new GeneralException(ErrorCode.UNAUTHORIZED,"인증이 필요합니다.");
     }
 }

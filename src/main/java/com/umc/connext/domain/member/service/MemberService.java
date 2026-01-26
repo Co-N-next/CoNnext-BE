@@ -17,13 +17,13 @@ public class MemberService {
 
     public void checkUsernameDuplicate(String email) {
         if (memberRepository.existsByUsername(email)) {
-            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS, "");
+            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS, "이미 가입된 이메일입니다.");
         }
     }
 
     public void checkNicknameDuplicate(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
-            throw new GeneralException(ErrorCode.NICKNAME_ALREADY_EXISTS, "");
+            throw new GeneralException(ErrorCode.NICKNAME_ALREADY_EXISTS, "이미 사용 중인 닉네임입니다.");
         }
     }
 

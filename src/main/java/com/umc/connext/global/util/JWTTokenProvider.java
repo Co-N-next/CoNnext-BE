@@ -39,22 +39,22 @@ public class JWTTokenProvider {
 
     public void parseToken(String token) {
         if (token == null  || token.trim().isEmpty()) {
-            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"");
+            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"토큰이 존재하지 않습니다.");
         }
 
         try {
             extractClaims(token);
         } catch (ExpiredJwtException e) {
-            throw new GeneralException(ErrorCode.TOKEN_EXPIRED,"");
+            throw new GeneralException(ErrorCode.TOKEN_EXPIRED,"토큰이 만료되었습니다.");
         } catch (MalformedJwtException e) {
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            throw new GeneralException(ErrorCode.UNSUPPORTED_TOKEN,"");
+            throw new GeneralException(ErrorCode.UNSUPPORTED_TOKEN,"지원하지 않는 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"");
+            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN,"토큰이 존재하지 않습니다.");
         } catch (Exception e) {
             log.error("Unexpected JWT validation error", e);
-            throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR,"");
+            throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR,"서버 에러, 관리자에게 문의 바랍니다.");
         }
     }
 
@@ -63,7 +63,7 @@ public class JWTTokenProvider {
         parseToken(token);
 
         if (!isAccessToken(token)) {
-            throw new GeneralException(ErrorCode.INVALID_TOKEN_CATEGORY,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN_CATEGORY,"토큰 타입이 올바르지 않습니다.");
         }
     }
 
@@ -71,7 +71,7 @@ public class JWTTokenProvider {
         parseToken(token);
 
         if (!isRefreshToken(token)) {
-            throw new GeneralException(ErrorCode.INVALID_TOKEN_CATEGORY,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN_CATEGORY,"토큰 타입이 올바르지 않습니다.");
         }
     }
 
@@ -98,7 +98,7 @@ public class JWTTokenProvider {
             return extractClaims(token).get("username", String.class);
         } catch (Exception e) {
             log.error("Error extracting username", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         }
     }
 
@@ -109,7 +109,7 @@ public class JWTTokenProvider {
             return extractClaims(token).get("role", String.class);
         } catch (Exception e) {
             log.error("Error extracting role", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         }
     }
 
@@ -120,7 +120,7 @@ public class JWTTokenProvider {
             return extractClaims(token).get("category", String.class);
         } catch (Exception e) {
             log.error("Error extracting category", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         }
     }
 
@@ -131,7 +131,7 @@ public class JWTTokenProvider {
             return extractClaims(token).getExpiration().before(new Date());
         } catch (Exception e) {
             log.error("Error extracting expiration time", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         }
     }
 

@@ -4,8 +4,7 @@ import com.umc.connext.common.entity.BaseEntity;
 import com.umc.connext.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+
 
 @Getter
 @Entity
@@ -13,8 +12,6 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseEntity {
 
     @Id
@@ -51,7 +48,7 @@ public class Member extends BaseEntity {
         this.profileImage = imageUrl;
     }
 
-    public static Member createMember(String username, String email, String password, String nickname, Role role) {
+    public static Member of(String username, String email, String password, String nickname, Role role) {
         Member member = new Member();
         member.username = username;
         member.email = email;

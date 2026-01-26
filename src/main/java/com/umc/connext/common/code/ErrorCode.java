@@ -38,7 +38,7 @@ public enum ErrorCode implements Code {
     NOT_MEMBER_FOUND(404, "존재하지 않는 회원입니다."),
     ID_ALREADY_EXISTS(409, "이미 존재하는 아이디입니다."),
     MEMBER_DELETED(403, "탈퇴 처리된 회원입니다."),
-    INVALID_MEMBER_ROLE(400, "유효하지 않은 권한입니다."),
+    INVALID_MEMBER_ROLE(403, "유효하지 않은 권한입니다."),
     EMAIL_ALREADY_USED_BY_LOCAL(409, "이미 자체 회원가입으로 등록된 이메일입니다."),
     EMAIL_ALREADY_USED_BY_SOCIAL(409,  "이미 다른 소셜 계정으로 등록된 이메일입니다."),
     INVALID_LOGIN_TYPE(400, "잘못된 로그인 방식입니다."),

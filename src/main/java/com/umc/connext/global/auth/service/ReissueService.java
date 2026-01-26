@@ -22,7 +22,7 @@ public class ReissueService {
         jwtUtil.validateRefreshToken(refreshToken);
 
         if (!refreshTokenService.existsByRefreshToken(refreshToken)) {
-            throw new GeneralException(ErrorCode.INVALID_TOKEN, "");
+            throw new GeneralException(ErrorCode.INVALID_TOKEN, "유효하지 않은 리프레시 토큰입니다.");
         }
 
         String username = jwtUtil.getUsername(refreshToken);

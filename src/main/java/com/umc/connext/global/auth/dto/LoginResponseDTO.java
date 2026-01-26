@@ -1,11 +1,10 @@
 package com.umc.connext.global.auth.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@AllArgsConstructor
-public class LoginResponseDTO {
-    private String email;
-
+@Schema(description = "로그인 응답 DTO")
+public record LoginResponseDTO(
+        @Schema(description = "아이디 (username)", example = "qwer@example.com")
+        String username
+) {
 }
