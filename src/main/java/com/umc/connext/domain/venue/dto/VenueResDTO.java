@@ -15,10 +15,4 @@ public class VenueResDTO {
             String imageUrl
     ){}
 
-    @Builder
-    public record VenueSearchDTO(
-            List<VenueResDTO.VenuePreviewDTO> venues,
-            PageInfo pageInfo
-    ){}
-
 }

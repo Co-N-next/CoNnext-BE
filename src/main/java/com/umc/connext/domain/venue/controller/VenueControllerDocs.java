@@ -5,10 +5,12 @@ import com.umc.connext.domain.venue.dto.VenueResDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.data.domain.Pageable;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -25,7 +27,10 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "400", description = "검색어를 다시 확인해주세요")
     })
     @GetMapping("/search")
-    ResponseEntity<Response<VenueResDTO.VenueSearchDTO>> searchVenues(String query, Integer page);
+    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") Integer page
+    );
 
     // 인기 검색 공연장 조회
     @Operation(
