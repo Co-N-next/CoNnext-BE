@@ -4,9 +4,9 @@ import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ public class VenueService {
     private final VenueRepository venueRepository;
 
     // 인기 검색 공연장 조회
+    @Transactional(readOnly = true)
     public List<VenueResDTO.VenuePreviewDTO> trendSearchVenues() {
 
         // searchCount가 가장 높은 것부터 5개 조회
