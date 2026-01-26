@@ -17,10 +17,9 @@ public class VenueService {
     private final VenueRepository venueRepository;
 
     // 인기 검색 공연장 조회
-    @Transactional
     public List<VenueResDTO.VenuePreviewDTO> trendSearchVenues() {
 
-        // searchCount가 가장 높은 것부터 10개 조회
+        // searchCount가 가장 높은 것부터 5개 조회
         List<Venue> top5BySearchCount = venueRepository.findTop5ByOrderBySearchCountDesc();
 
         // DTO 변환
