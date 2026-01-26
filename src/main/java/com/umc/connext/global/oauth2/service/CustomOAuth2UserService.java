@@ -12,6 +12,7 @@ import com.umc.connext.global.oauth2.dto.NaverResponse;
 import com.umc.connext.global.oauth2.dto.OAuth2Response;
 import com.umc.connext.global.oauth2.enums.OAuth2Provider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -26,6 +27,9 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private static final String OAUTH_DUMMY_PASSWORD = "OAUTH2_USER";
+
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -86,7 +90,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // 3️ 회원 없으면 생성, 있으면 그대로 사용
         Member member = existMember.orElseGet(() -> memberRepository.save( Member.of(
-                username, email, null, name, Role.ROLE_USER )));
+                username, email, passwordEncoder.encode(OAUTH_DUMMY_PASSWORD), name, Role.ROLE_USER )));
 
         // 4 DTO 변환
         MemberDTO memberDTO = MemberDTO.of(member);
