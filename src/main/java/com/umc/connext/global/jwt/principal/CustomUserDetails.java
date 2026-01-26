@@ -2,6 +2,7 @@ package com.umc.connext.global.jwt.principal;
 
 import com.umc.connext.common.enums.Role;
 import com.umc.connext.domain.member.entity.Member;
+import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,19 +17,13 @@ public class CustomUserDetails implements UserDetails {
     }
 
 
+    @NonNull
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() {
-
-                return getRole().toString();
-            }
-        });
+        collection.add((GrantedAuthority) () -> getRole().toString());
 
         return collection;
     }
@@ -39,6 +34,7 @@ public class CustomUserDetails implements UserDetails {
         return member != null ? member.getPassword() : null;
     }
 
+    @NonNull
     @Override
     public String getUsername() {
 

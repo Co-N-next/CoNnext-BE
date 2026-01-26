@@ -1,7 +1,5 @@
 package com.umc.connext.global.filter;
 
-import com.umc.connext.common.code.ErrorCode;
-import com.umc.connext.common.enums.Role;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.service.MemberService;
@@ -11,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +29,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private final MemberService memberService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         // 헤더에서 access 키에 담긴 토큰을 꺼냄
         String accessToken = resolveAccessToken(request);
