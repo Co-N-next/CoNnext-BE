@@ -1,16 +1,14 @@
 package com.umc.connext.domain.venue.service;
 
-import com.umc.connext.domain.venue.projection.SearchVenue;
 import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,7 +19,7 @@ public class VenueService {
     private final VenueRepository venueRepository;
 
     // 공연장 검색
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<VenueResDTO.VenuePreviewDTO> searchVenues(
             String query,
             Integer page
