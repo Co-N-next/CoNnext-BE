@@ -38,4 +38,7 @@ public class Concert {
 
     @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConcertCast> concertCasts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConcertDetail> concertDetails = new ArrayList<>();
 }
