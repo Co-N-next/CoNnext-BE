@@ -31,7 +31,7 @@ public class VenueController implements VenueControllerDocs{
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
     ) {
-        if (query == null || query.trim().isEmpty()) {
+        if (query.trim().isEmpty()) {
             throw new GeneralException(ErrorCode.INVALID_SEARCH_KEYWORD, "검색어는 공백일 수 없습니다.");
         }
         if (page < 0) {
