@@ -1,10 +1,12 @@
 package com.umc.connext.domain.venue.controller;
 
 import com.umc.connext.common.code.SuccessCode;
+import com.umc.connext.common.response.PageInfo;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.service.VenueService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +27,23 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 검색
     @GetMapping("/search")
-    public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
+    public ResponseEntity<Response<VenueResDTO.VenueSearchDTO>> searchVenues(
             @RequestParam String query,
-            @RequestParam(defaultValue = "0") Integer page
+            @RequestParam(defaultValue = "0") @Min(0) Integer page
     ) {
         Page<VenueResDTO.VenuePreviewDTO> result = venueService.searchVenues(query, page);
-        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "공연장 검색 성공"));
+
+        PageInfo pageInfo = new PageInfo(
+                result.getNumber(),
+                result.getSize(),
+                result.hasNext(),
+                result.getTotalElements(),
+                result.getTotalPages()
+        );
+
+        VenueResDTO.VenueSearchDTO searchData = new VenueResDTO.VenueSearchDTO(result.getContent(), pageInfo);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, searchData, "공연장 검색 성공"));
     }
 
     // 인기 검색 공연장 조회

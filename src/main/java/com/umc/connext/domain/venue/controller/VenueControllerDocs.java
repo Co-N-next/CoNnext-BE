@@ -25,7 +25,7 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "400", description = "검색어를 다시 확인해주세요")
     })
     @GetMapping("/search")
-    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(String query, Integer page);
+    ResponseEntity<Response<VenueResDTO.VenueSearchDTO>> searchVenues(String query, Integer page);
 
     // 인기 검색 공연장 조회
     @Operation(
