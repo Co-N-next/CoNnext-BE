@@ -22,7 +22,8 @@ jobs:
         run: |
           ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
           cd ~/app
-          git pull origin main
+          git fetch origin
+          git reset --hard origin/main
           
           echo "SPRING_PROFILES_ACTIVE=prod" > .env.prod
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.prod
