@@ -1,6 +1,7 @@
 package com.umc.connext.domain.venue.entity;
 
-import com.umc.connext.domain.venue.enums.Type;
+import com.umc.connext.common.entity.BaseEntity;
+import com.umc.connext.domain.venue.enums.VenueType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Venue {
+public class Venue extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,7 +37,7 @@ public class Venue {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Type type = Type.CONCERT_HALL;
+    private VenueType venueType = VenueType.CONCERT_HALL;
 
     @Column(name = "total_views", nullable = false)
     private Integer totalViews;

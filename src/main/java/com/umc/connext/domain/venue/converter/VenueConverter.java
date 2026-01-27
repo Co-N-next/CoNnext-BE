@@ -3,7 +3,6 @@ package com.umc.connext.domain.venue.converter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
-import org.springframework.data.domain.Page;
 
 public class VenueConverter {
 
