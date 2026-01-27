@@ -5,6 +5,7 @@ import com.umc.connext.common.enums.Role;
 import com.umc.connext.domain.member.dto.MemberDTO;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.global.oauth2.principal.CustomOAuth2User;
 import com.umc.connext.global.oauth2.dto.GoogleResponse;
 import com.umc.connext.global.oauth2.dto.KakaoResponse;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final NicknameService nicknameService;
     private final PasswordEncoder passwordEncoder;
     private static final String OAUTH_DUMMY_PASSWORD = "OAUTH2_USER";
 
@@ -89,8 +91,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 });
 
         // 3️ 회원 없으면 생성, 있으면 그대로 사용
-        Member member = existMember.orElseGet(() -> memberRepository.save( Member.of(
-                username, email, passwordEncoder.encode(OAUTH_DUMMY_PASSWORD), name, Role.ROLE_USER )));
+        Member member;
+        if (existMember.isPresent()) {
+            member = existMember.get();
+        } else {
+            if (memberRepository.existsByNickname(name)) {
+                name = nicknameService.generateRandomNickname();
+            }
+
+            member = memberRepository.save(
+                    Member.of(
+                            username,
+                            email,
+                            passwordEncoder.encode(OAUTH_DUMMY_PASSWORD),
+                            name,
+                            Role.ROLE_USER
+                    )
+            );
+        }
 
         // 4 DTO 변환
         MemberDTO memberDTO = MemberDTO.of(member);

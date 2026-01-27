@@ -21,7 +21,7 @@ public class NicknameGenerator {
     public String generate() {
         String adj = ADJECTIVES.get(random.nextInt(ADJECTIVES.size()));
         String noun = NOUNS.get(random.nextInt(NOUNS.size()));
-        int number = random.nextInt(1000); // 0~999
+        int number = random.nextInt(10000); // 0~9999
 
         return adj + noun + number;
     }
