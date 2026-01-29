@@ -10,6 +10,7 @@ import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.global.auth.dto.*;
 import com.umc.connext.global.auth.service.AuthService;
 import com.umc.connext.global.auth.service.ReissueService;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.util.JWTProperties;
 import com.umc.connext.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -146,7 +148,7 @@ public class AuthController {
     )
     @GetMapping("/nickname/availability")
     public ResponseEntity<Response<Void>> checkNicknameAvailability(@RequestParam String nickname) {
-        memberService.checkNicknameDuplicate(nickname);
+        nicknameService.checkNicknameDuplicate(nickname);
         return ResponseEntity
                 .status(SuccessCode.AVAILABLE_NICKNAME.getStatusCode())
                 .body(Response.success(SuccessCode.AVAILABLE_NICKNAME));
@@ -171,6 +173,25 @@ public class AuthController {
                 .status(SuccessCode.NICKNAME_GENERATION_SUCCESS.getStatusCode())
                 .body(Response.success(SuccessCode.NICKNAME_GENERATION_SUCCESS,
                         NicknameDTO.of(nickname)));
+    }
+
+    @Operation(
+            summary = "닉네임 변경",
+            description = "로그인한 사용자의 닉네임을 변경합니다. 새 닉네임은 2~20자여야 합니다.",
+            security = @SecurityRequirement(name = "JWT"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "닉네임 변경 성공"),
+                    @ApiResponse(responseCode = "400", description = "유효하지 않은 닉네임 형식 또는 현재와 동일한 닉네임"),
+                    @ApiResponse(responseCode = "409", description = "이미 존재하는 닉네임")
+            })
+    @PatchMapping("/nickname")
+    public ResponseEntity<Response<Void>> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                         @RequestBody @Valid NicknameChangeDTO nicknameChangeDTO){
+
+        nicknameService.changeNickname(userDetails.getMemberId(), nicknameChangeDTO.getNickname());
+        return ResponseEntity
+                .status(SuccessCode.NICKNAME_UPDATE_SUCCESS.getStatusCode())
+                .body(Response.success(SuccessCode.NICKNAME_UPDATE_SUCCESS));
     }
 
     @Operation(

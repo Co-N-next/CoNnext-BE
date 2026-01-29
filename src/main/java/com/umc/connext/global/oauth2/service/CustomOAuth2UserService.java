@@ -2,11 +2,10 @@ package com.umc.connext.global.oauth2.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.enums.Role;
-import com.umc.connext.domain.member.dto.MemberDTO;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.member.service.NicknameService;
-import com.umc.connext.global.oauth2.principal.CustomOAuth2User;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.oauth2.dto.GoogleResponse;
 import com.umc.connext.global.oauth2.dto.KakaoResponse;
 import com.umc.connext.global.oauth2.dto.NaverResponse;
@@ -110,10 +109,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             );
         }
 
-        // 4 DTO 변환
-        MemberDTO memberDTO = MemberDTO.of(member);
-
-        return new CustomOAuth2User(memberDTO);
+        return new CustomUserDetails(member);
     }
 }
 

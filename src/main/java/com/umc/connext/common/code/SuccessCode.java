@@ -25,12 +25,12 @@ public enum SuccessCode implements Code {
     AVAILABLE_USERNAME(200, "사용 가능한 아이디입니다."),
 
     // 비밀번호 관련
-    VALID_PASSWORD_FORMAT(203,"사용 가능한 비밀번호 형식입니다."),
+    VALID_PASSWORD_FORMAT(200,"사용 가능한 비밀번호 형식입니다."),
 
     //닉네임 관련
     NICKNAME_GENERATION_SUCCESS(200, "랜덤 닉네임이 성공적으로 생성되었습니다."),
-    AVAILABLE_NICKNAME(200, "사용 가능한 닉네임입니다.");
-
+    AVAILABLE_NICKNAME(200, "사용 가능한 닉네임입니다."),
+    NICKNAME_UPDATE_SUCCESS(200, "닉네임이 성공적으로 변경되었습니다.");
 
     private final int statusCode;
     private final String message;

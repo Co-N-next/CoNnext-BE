@@ -1,9 +1,8 @@
 package com.umc.connext.global.oauth2.handler;
 
-import com.umc.connext.global.oauth2.principal.CustomOAuth2User;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.util.JWTUtil;
-import com.umc.connext.global.util.SecurityResponseWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +31,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         //OAuth2User
-        CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String username = customUserDetails.getUsername();
 

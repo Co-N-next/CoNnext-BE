@@ -27,12 +27,6 @@ public class MemberService {
         }
     }
 
-    public void checkNicknameDuplicate(String nickname) {
-        if (memberRepository.existsByNickname(nickname)) {
-            throw new GeneralException(ErrorCode.NICKNAME_ALREADY_EXISTS, "이미 사용 중인 닉네임입니다.");
-        }
-    }
-
     public void validateUsername(String username) {
         if (username == null || username.isBlank()) {
             throw new GeneralException(ErrorCode.INVALID_MEMBER_ID ,"이메일은 필수입니다.");
