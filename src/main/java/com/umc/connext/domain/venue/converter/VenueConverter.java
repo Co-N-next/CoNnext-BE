@@ -2,7 +2,7 @@ package com.umc.connext.domain.venue.converter;
 
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
-import com.umc.connext.domain.venue.projection.NearbyVenue;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
 
 public class VenueConverter {
@@ -19,8 +19,8 @@ public class VenueConverter {
                 .build();
     }
 
-    public static VenueResDTO.VenueSimpleDTO toNearByVenueDTO(
-            NearbyVenue venue
+    public static VenueResDTO.VenueSimpleDTO toVenueSimpleDTO(
+            SimpleVenue venue
     ){
         return VenueResDTO.VenueSimpleDTO.builder()
                 .id(venue.getId())

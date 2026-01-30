@@ -1,7 +1,7 @@
 package com.umc.connext.domain.venue.repository;
 
 import com.umc.connext.domain.venue.entity.Venue;
-import com.umc.connext.domain.venue.projection.NearbyVenue;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,5 +58,5 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
             )
         LIMIT 1
     """, nativeQuery = true)
-    Optional<NearbyVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, Double lat, Double lng, int radius);
+    Optional<SimpleVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, Double lat, Double lng, int radius);
 }

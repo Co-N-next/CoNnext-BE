@@ -6,7 +6,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
-import com.umc.connext.domain.venue.projection.NearbyVenue;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.service.VenueService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.DecimalMax;
@@ -68,7 +68,7 @@ public class VenueController implements VenueControllerDocs{
             @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
     ) {
         // 근처 공연장 조회
-        Optional<NearbyVenue> result = venueService.nearbyVenue(lat, lng, radius);
+        Optional<SimpleVenue> result = venueService.nearbyVenue(lat, lng, radius);
 
         // 근처에 공연장이 없을 경우
         if (result.isEmpty()) {
@@ -76,7 +76,7 @@ public class VenueController implements VenueControllerDocs{
         }
 
         // 근처에 공연장이 있는 경우
-        VenueResDTO.VenueSimpleDTO dto = VenueConverter.toNearByVenueDTO(result.get());
+        VenueResDTO.VenueSimpleDTO dto = VenueConverter.toVenueSimpleDTO(result.get());
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, dto, "근처 공연장 조회 성공"));
 
     }

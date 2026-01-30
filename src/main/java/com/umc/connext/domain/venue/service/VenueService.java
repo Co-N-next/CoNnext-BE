@@ -1,6 +1,6 @@
 package com.umc.connext.domain.venue.service;
 
-import com.umc.connext.domain.venue.projection.NearbyVenue;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
@@ -47,7 +47,7 @@ public class VenueService {
 
     // 근처 공연장 조회
     @Transactional(readOnly = true)
-    public Optional<NearbyVenue> nearbyVenue(
+    public Optional<SimpleVenue> nearbyVenue(
             Double lat,
             Double lng,
             int radius
