@@ -8,10 +8,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Schema(description = "회원가입 요청 DTO")
-public class JoinDTO {
+public class LocalJoinDTO {
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
@@ -27,4 +29,7 @@ public class JoinDTO {
     )
     @Schema(example = "qwer1234")
     private String password;
+
+    @Schema(description = "동의한 약관 ID 리스트", example = "[1, 2, 4]")
+    private List<Long> agreedTermIds;
 }

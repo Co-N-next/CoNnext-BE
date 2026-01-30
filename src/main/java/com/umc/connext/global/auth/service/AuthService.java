@@ -5,7 +5,8 @@ import com.umc.connext.common.enums.Role;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.global.auth.dto.JoinDTO;
+import com.umc.connext.domain.member.service.TermService;
+import com.umc.connext.global.auth.dto.LocalJoinDTO;
 import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,15 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final NicknameService nicknameService;
+    private final TermService termService;
 
     @Transactional
-    public void join(JoinDTO joinDTO){
-        String username = joinDTO.getUsername();
-        String password = joinDTO.getPassword();
+    public void join(LocalJoinDTO localJoinDTO){
+
+        termService.validateRequiredTerms(localJoinDTO.getAgreedTermIds());
+
+        String username = localJoinDTO.getUsername();
+        String password = localJoinDTO.getPassword();
 
         // 1️ 자체 회원가입 계정 존재 체크
         if(memberRepository.existsByUsername(username)){
@@ -40,6 +45,7 @@ public class AuthService {
         // 3️ 회원 생성
         Member member = Member.of(username, username, bCryptPasswordEncoder.encode(password), nicknameService.generateRandomNickname(), Role.ROLE_USER);
         memberRepository.save(member);
+        termService.saveAgreements(member, localJoinDTO.getAgreedTermIds());
     }
 
     @Transactional

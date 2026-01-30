@@ -48,7 +48,11 @@ public enum ErrorCode implements Code {
     NICKNAME_ALREADY_EXISTS(409, "이미 사용 중인 닉네임입니다."),
 
     // ==================== 아이디 ====================
-    INVALID_MEMBER_ID(400, "유효하지 않은 아이디 형식입니다.");
+    INVALID_MEMBER_ID(400, "유효하지 않은 아이디 형식입니다."),
+
+    // ==================== 약관동의 ====================
+    INVALID_TERM_TYPE(400, "수정할 수 없는 약관 타입입니다."),
+    MISSING_REQUIRED_TERM(400, "필수 약관에 동의해야 합니다.");
 
     private final int statusCode;
     private final String message;
