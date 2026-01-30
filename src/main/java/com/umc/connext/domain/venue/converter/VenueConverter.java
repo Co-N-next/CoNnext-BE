@@ -19,10 +19,10 @@ public class VenueConverter {
                 .build();
     }
 
-    public static VenueResDTO.NearbyVenueDTO toNearByVenueDTO(
+    public static VenueResDTO.VenueSimpleDTO toNearByVenueDTO(
             NearbyVenue venue
     ){
-        return VenueResDTO.NearbyVenueDTO.builder()
+        return VenueResDTO.VenueSimpleDTO.builder()
                 .id(venue.getId())
                 .name(venue.getName())
                 .build();

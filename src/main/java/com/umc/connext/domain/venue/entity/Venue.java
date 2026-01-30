@@ -44,4 +44,7 @@ public class Venue extends BaseEntity {
 
     @Column(name = "search_count", nullable = false)
     private Integer searchCount;
+
+    @Column(name = "favorite", nullable = false)
+    private boolean favorite = false;
 }

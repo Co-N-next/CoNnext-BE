@@ -62,7 +62,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 근처 공연장 조회
     @GetMapping("/nearby")
-    public ResponseEntity<Response<VenueResDTO.NearbyVenueDTO>> nearbyVenue(
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> nearbyVenue(
             @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") Double lat,
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") Double lng,
             @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
@@ -76,7 +76,7 @@ public class VenueController implements VenueControllerDocs{
         }
 
         // 근처에 공연장이 있는 경우
-        VenueResDTO.NearbyVenueDTO dto = VenueConverter.toNearByVenueDTO(result.get());
+        VenueResDTO.VenueSimpleDTO dto = VenueConverter.toNearByVenueDTO(result.get());
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, dto, "근처 공연장 조회 성공"));
 
     }

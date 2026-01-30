@@ -13,7 +13,7 @@ public class VenueResDTO {
     ){}
 
     @Builder
-    public record NearbyVenueDTO(
+    public record VenueSimpleDTO(
             Long id,
             String name
     ){}

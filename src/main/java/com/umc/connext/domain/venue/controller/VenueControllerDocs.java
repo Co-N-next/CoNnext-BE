@@ -54,7 +54,7 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/nearby")
-    ResponseEntity<Response<VenueResDTO.NearbyVenueDTO>> nearbyVenue(
+    ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> nearbyVenue(
             @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") Double lat,
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") Double lng,
             @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
