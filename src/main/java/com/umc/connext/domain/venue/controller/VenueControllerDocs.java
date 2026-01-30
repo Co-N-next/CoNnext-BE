@@ -5,6 +5,10 @@ import com.umc.connext.domain.venue.dto.VenueResDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,4 +45,18 @@ public interface VenueControllerDocs {
     @GetMapping("/trend-search")
     ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
 
+    // 근처 공연장 조회
+    @Operation(
+            summary = "근처 공연장 조회",
+            description = "사용자의 위도와 경도를 이용하여 근처 공연장 정보를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/nearby")
+    ResponseEntity<Response<VenueResDTO.NearbyVenueDTO>> nearbyVenue(
+            @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") Double lat,
+            @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") Double lng,
+            @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
+    );
 }

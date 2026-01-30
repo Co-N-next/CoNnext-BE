@@ -2,6 +2,7 @@ package com.umc.connext.domain.venue.converter;
 
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.Venue;
+import com.umc.connext.domain.venue.projection.NearbyVenue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
 
 public class VenueConverter {
@@ -15,6 +16,15 @@ public class VenueConverter {
                 .name(venue.getName())
                 .city(venue.getCity())
                 .imageUrl(venue.getImageUrl())
+                .build();
+    }
+
+    public static VenueResDTO.NearbyVenueDTO toNearByVenueDTO(
+            NearbyVenue venue
+    ){
+        return VenueResDTO.NearbyVenueDTO.builder()
+                .id(venue.getId())
+                .name(venue.getName())
                 .build();
     }
 

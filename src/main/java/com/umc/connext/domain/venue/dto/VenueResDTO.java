@@ -12,4 +12,10 @@ public class VenueResDTO {
             String imageUrl
     ){}
 
+    @Builder
+    public record NearbyVenueDTO(
+            Long id,
+            String name
+    ){}
+
 }

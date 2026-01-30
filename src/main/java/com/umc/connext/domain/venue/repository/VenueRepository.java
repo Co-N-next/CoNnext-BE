@@ -1,6 +1,7 @@
 package com.umc.connext.domain.venue.repository;
 
 import com.umc.connext.domain.venue.entity.Venue;
+import com.umc.connext.domain.venue.projection.NearbyVenue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VenueRepository extends JpaRepository<Venue, Long> {
 
@@ -41,4 +43,20 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
 
     List<Venue> findTop5ByOrderBySearchCountDesc();
 
+    @Query(value = """
+        SELECT v.id AS id, v.name AS name
+        FROM venues v
+        WHERE v.latitude BETWEEN :minLat AND :maxLat
+            AND v.longitude BETWEEN :minLng AND :maxLng
+            AND ST_Distance_Sphere(
+                POINT(v.longitude, v.latitude), 
+                POINT(:lng, :lat)
+                ) <= :radius
+        ORDER BY ST_Distance_Sphere(
+            POINT(v.longitude, v.latitude), 
+            POINT(:lng, :lat)
+            )
+        LIMIT 1
+    """, nativeQuery = true)
+    Optional<NearbyVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, Double lat, Double lng, int radius);
 }
