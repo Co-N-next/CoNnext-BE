@@ -54,4 +54,18 @@ public interface VenueControllerDocs {
             @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
     );
 
+    // 즐겨찾기 공연장 삭제
+    @Operation(
+            summary = "즐겨찾기 공연장 삭제",
+            description = "해당 공연장을 즐겨찾기 목록에서 삭제합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "삭제 성공")
+    })
+    @DeleteMapping("/favorite/{venueId}")
+    ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @PathVariable("venueId") Long venueId,
+            @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
+    );
+
 }

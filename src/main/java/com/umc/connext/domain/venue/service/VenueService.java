@@ -3,6 +3,7 @@ package com.umc.connext.domain.venue.service;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.venue.entity.FavoriteVenue;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.repository.FavoriteVenueRepository;
 import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
@@ -78,6 +79,16 @@ public class VenueService {
 
         return VenueConverter.toVenueSimpleDTO(venue);
 
+    }
+
+    // 공연장 즐겨찾기 삭제
+    @Transactional
+    public void deleteFavoriteVenue(
+            Long venueId,
+            Long memberId // 임시 사용자
+    ){
+        // 즐겨찾기 공연장 존재 확인
+        favoriteVenueRepository.deleteByMemberIdAndVenueId(memberId, venueId);
     }
 
 }

@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FavoriteVenueRepository extends JpaRepository<FavoriteVenue, Long> {
 
     boolean existsByMemberAndVenue(Member member, Venue venue);
+
+    void deleteByMemberIdAndVenueId(Long memberId, Long venueId);
 }

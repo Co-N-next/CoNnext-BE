@@ -49,7 +49,7 @@ public class VenueController implements VenueControllerDocs{
     }
 
     // 공연장 즐겨찾기 등록
-    @PostMapping("/favorites/{venueId}")
+    @PostMapping("/favorite/{venueId}")
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
             @PathVariable("venueId") Long venueId,
             @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
@@ -57,6 +57,15 @@ public class VenueController implements VenueControllerDocs{
         return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS,
                 venueService.addFavoriteVenue(memberId, venueId),
                 "즐겨찾기 공연장 등록 성공"));
+    }
+
+    // 공연장 즐겨찾기 삭제
+    @DeleteMapping("/favorite/{venueId}")
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @PathVariable("venueId") Long venueId,
+            @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
+    ){
+        return ResponseEntity.ok().body(Response.success(SuccessCode.DELETE_SUCCESS, "즐겨찾기 공연장 삭제 성공"));
     }
 
 }
