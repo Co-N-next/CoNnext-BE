@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,5 +38,20 @@ public interface VenueControllerDocs {
     })
     @GetMapping("/trend-search")
     ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
+
+    // 즐겨찾기 공연장 등록
+    @Operation(
+            summary = "즐겨찾기 공연장 등록",
+            description = "해당 공연장을 즐겨찾기 목록에 추가합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "추가 성공"),
+            @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없습니다.")
+    })
+    @PostMapping("/favorites/{venueId}")
+    ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @PathVariable("venueId") Long venueId,
+            @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
+    );
 
 }

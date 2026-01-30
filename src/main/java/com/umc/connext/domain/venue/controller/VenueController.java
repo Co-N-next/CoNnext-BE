@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,6 +46,17 @@ public class VenueController implements VenueControllerDocs{
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
+    }
+
+    // 공연장 즐겨찾기 등록
+    @PostMapping("/favorites/{venueId}")
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @PathVariable("venueId") Long venueId,
+            @RequestHeader("X-Member-Id") Long memberId // 임시 사용자
+    ){
+        return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS,
+                venueService.addFavoriteVenue(memberId, venueId),
+                "즐겨찾기 공연장 등록 성공"));
     }
 
 }
