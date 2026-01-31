@@ -2,8 +2,8 @@ package com.umc.connext.domain.searchhistory.controller;
 
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.searchhistory.dto.SearchHistoryCreateRequest;
-import com.umc.connext.domain.searchhistory.dto.SearchHistoryResponse;
+import com.umc.connext.domain.searchhistory.dto.SearchHistoryCreateRequestDTO;
+import com.umc.connext.domain.searchhistory.dto.SearchHistoryResponseDTO;
 import com.umc.connext.domain.searchhistory.entity.SearchType;
 import com.umc.connext.domain.searchhistory.service.SearchHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,15 +30,16 @@ public class SearchHistoryController {
             description = "최근 검색어를 최대 7개까지 가져옵니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "최근 검색어 가져오기 성공")
+            @ApiResponse(responseCode = "200", description = "최근 검색어 가져오기 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
     @GetMapping
-    public ResponseEntity<Response<List<SearchHistoryResponse>>> getSearchHistory(
+    public ResponseEntity<Response<List<SearchHistoryResponseDTO>>> getSearchHistory(
             @RequestParam SearchType type
     ) {
         Long memberId = getMemberId();
 
-        List<SearchHistoryResponse> result =
+        List<SearchHistoryResponseDTO> result =
                 searchHistoryService.getSearchHistory(memberId, type);
 
         return ResponseEntity.ok()
@@ -52,18 +53,18 @@ public class SearchHistoryController {
     @Operation(
             summary = "검색어 저장하기",
             description = "검색창에 입력한 검색어를 저장합니다.")
-    @ApiResponses({@ApiResponse(responseCode = "200", description = "검색어 저장하기 성공")})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "검색어 저장하기 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
+    })
     @PostMapping
     public ResponseEntity<Response<Void>> addSearchHistory(
-            @Valid @RequestBody SearchHistoryCreateRequest request
+            @Valid @RequestBody SearchHistoryCreateRequestDTO request
     ) {
         Long memberId = getMemberId();
         searchHistoryService.addSearchHistory(memberId, request);
         return ResponseEntity.ok(
-                Response.successVoid(
-                        SuccessCode.OK,
-                        "최근 검색어 저장 성공"
-                )
+                Response.success(SuccessCode.OK, "최근 검색어 저장 성공")
         );
     }
 
@@ -71,7 +72,10 @@ public class SearchHistoryController {
             summary = "검색어 한개 삭제하기",
             description = "최근 검색어 중 한개를 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "최근 검색어 한개 삭제 성공")
+            @ApiResponse(responseCode = "200", description = "최근 검색어 한개 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "검색 기록이 존재하지 않음")
     })
     @DeleteMapping("/{searchHistoryId}")
     public ResponseEntity<Response<Void>> deleteSearchHistory(
@@ -80,8 +84,7 @@ public class SearchHistoryController {
         Long memberId = getMemberId();
         searchHistoryService.deleteSearchHistory(memberId, searchHistoryId);
         return ResponseEntity.ok(
-                Response.successVoid(
-                        SuccessCode.DELETE_SUCCESS,
+                Response.success(SuccessCode.DELETE_SUCCESS,
                         "최근 검색어 한개 삭제 성공"
                 )
         );
@@ -91,7 +94,8 @@ public class SearchHistoryController {
             summary = "검색어 전체 삭제하기",
             description = "최근 검색어에 있는 모든 검색어를 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "최근 검색어 전체 삭제 성공")
+            @ApiResponse(responseCode = "200", description = "최근 검색어 전체 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
     })
     @DeleteMapping("/all")
     public ResponseEntity<Response<Void>> deleteAllSearchHistory(
@@ -100,7 +104,7 @@ public class SearchHistoryController {
         Long memberId = getMemberId();
         searchHistoryService.deleteAllSearchHistory(memberId, type);
         return ResponseEntity.ok(
-                Response.successVoid(
+                Response.success(
                         SuccessCode.DELETE_SUCCESS,
                         "최근 검색어 전체 삭제 성공"
                 )

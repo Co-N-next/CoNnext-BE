@@ -9,10 +9,11 @@ import java.util.List;
 public interface SearchHistoryRepository
         extends JpaRepository<SearchHistory, Long> {
 
-    List<SearchHistory> findByMemberIdAndTypeOrderByCreatedAtDesc(
+    List<SearchHistory> findTop7ByMemberIdAndTypeOrderByCreatedAtDesc(
             Long memberId,
             SearchType type
     );
-
+    @Modifying
+    @Query("DELETE FROM SearchHistory sh WHERE sh.memberId = :memberId AND sh.type = :type")
     void deleteByMemberIdAndType(Long memberId, SearchType type);
 }

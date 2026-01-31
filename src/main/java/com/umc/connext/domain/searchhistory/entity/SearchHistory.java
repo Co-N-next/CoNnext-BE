@@ -9,21 +9,27 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "searchHistory")
+@Table(name = "search_history",
+        indexes = {
+                @Index(
+                        name = "idx_search_history_member_type_created",
+                        columnList = "member_id, type, created_at DESC"
+                )
+        })
 public class SearchHistory extends BaseEntity {
     @Id
-    @Column(name = "searchHistory_id")
+    @Column(name = "search_history_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "keyword", nullable = false)
     private String keyword;
 
-    @Column(nullable = false)
+    @Column(name = "member_id", nullable = false)
     private Long memberId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "search_type", nullable = false)
     private SearchType type;
 
     public static SearchHistory create(
