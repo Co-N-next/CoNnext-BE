@@ -5,37 +5,53 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: chmod +x gradlew && ./gradlew clean bootJar -x test
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -f Dockerfile.prod -t ${{ secrets.DOCKER_USERNAME }}/connext:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/connext:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Add EC2 to known_hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
-
       - name: Deploy
         run: |
-            ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-              cd ~/app
-              git pull origin main
-            
-              cat <<EOT > .env.prod
-              SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
-              DB_HOST=${{ secrets.DB_HOST }}
-              DB_PORT=${{ secrets.DB_PORT }}
-              DB_NAME=${{ secrets.DB_NAME }}
-              DB_USERNAME=${{ secrets.DB_USERNAME }}
-              DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-              JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
-              JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
-              EOT
-
-              docker compose down
-
-              docker compose --env-file .env.prod up -d --build
-            EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+          docker pull ${{ secrets.DOCKER_USERNAME }}/connext:latest
+          docker stop connext || true
+          docker rm connext || true
+          docker run -d --name connext -p 8080:8080 \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_PORT=${{ secrets.DB_PORT }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }} \
+            -e JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }} \
+            ${{ secrets.DOCKER_USERNAME }}/connext:latest
+          EOF
