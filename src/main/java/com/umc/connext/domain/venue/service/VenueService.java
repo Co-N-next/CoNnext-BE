@@ -3,7 +3,6 @@ package com.umc.connext.domain.venue.service;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.venue.entity.FavoriteVenue;
-import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.repository.FavoriteVenueRepository;
 import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
@@ -57,23 +56,24 @@ public class VenueService {
     // 공연장 즐겨찾기 등록
     @Transactional
     public VenueResDTO.VenueSimpleDTO addFavoriteVenue(
-            Long venueId,
-            Long memberId // 임시 사용자
+            Long memberId,
+            Long venueId
     ){
         // 공연장 존재 확인
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다."));
 
-        // 임의 회원 참조
-        Member memberRef = em.getReference(Member.class, memberId);
+        // 회원 존재 확인
+        Member member = em.find(Member.class, memberId);
+        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
 
         // 이미 즐겨찾기된 경우
-        if (favoriteVenueRepository.existsByMemberAndVenue(memberRef, venue)) {
-            return null;
+        if (favoriteVenueRepository.existsByMemberIdAndVenueId(memberId, venueId)) {
+            return VenueConverter.toVenueSimpleDTO(venue); // 이미 즐겨찾기여도 성공
         }
 
         // 즐겨찾기 생성
-        FavoriteVenue favoriteVenue = VenueConverter.toFavoriteVenue(memberRef, venue);
+        FavoriteVenue favoriteVenue = VenueConverter.toFavoriteVenue(member, venue);
         // DB 적용
         favoriteVenueRepository.save(favoriteVenue);
 
@@ -84,11 +84,32 @@ public class VenueService {
     // 공연장 즐겨찾기 삭제
     @Transactional
     public void deleteFavoriteVenue(
-            Long venueId,
-            Long memberId // 임시 사용자
+            Long memberId,
+            Long venueId
     ){
-        // 즐겨찾기 공연장 존재 확인
+        Member member = em.find(Member.class, memberId);
+        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+
+        venueRepository.findById(venueId)
+                .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다."));
+
         favoriteVenueRepository.deleteByMemberIdAndVenueId(memberId, venueId);
+    }
+
+    // 공연장 즐겨찾기 목록 조회
+    @Transactional(readOnly = true)
+    public List<VenueResDTO.VenuePreviewDTO> favoriteVenues(
+            Long memberId
+    ){
+        Member member = em.find(Member.class, memberId);
+        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+
+        List<FavoriteVenue> favorites = favoriteVenueRepository.findAllByMemberIdFetchVenue(memberId);
+
+        return favorites.stream()
+                .map(FavoriteVenue::getVenue)
+                .map(VenueConverter::toVenuePreviewDTO)
+                .toList();
     }
 
 }

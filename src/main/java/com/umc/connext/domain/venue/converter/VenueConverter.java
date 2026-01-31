@@ -22,15 +22,6 @@ public class VenueConverter {
     }
 
     public static VenueResDTO.VenueSimpleDTO toVenueSimpleDTO(
-            SimpleVenue venue
-    ){
-        return VenueResDTO.VenueSimpleDTO.builder()
-                .id(venue.getId())
-                .name(venue.getName())
-                .build();
-    }
-
-    public static VenueResDTO.VenueSimpleDTO toVenueSimpleDTO(
             Venue venue
     ){
         return VenueResDTO.VenueSimpleDTO.builder()
