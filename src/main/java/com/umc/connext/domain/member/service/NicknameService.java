@@ -3,6 +3,7 @@ package com.umc.connext.domain.member.service;
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.member.util.NicknameGenerator;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class NicknameService {
 
@@ -30,7 +32,12 @@ public class NicknameService {
     public void changeNickname(Long memberId, String newNickname) {
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND, "존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER, "존재하지 않는 회원입니다."));
+
+        if (member.getMemberStatus() != MemberStatus.ACTIVE) {
+            throw new GeneralException(ErrorCode.BAD_REQUEST, "닉네임을 변경하려면 회원가입을 완료해야합니다.");
+        }
+
 
         checkNicknameDuplicate(newNickname);
         member.updateNickname(newNickname);

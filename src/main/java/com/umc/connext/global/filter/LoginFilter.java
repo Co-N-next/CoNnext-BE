@@ -6,9 +6,12 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.global.auth.dto.LoginRequestDTO;
 import com.umc.connext.global.auth.dto.LoginResponseDTO;
+import com.umc.connext.global.auth.enums.TokenCategory;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
-import com.umc.connext.global.util.JWTUtil;
-import com.umc.connext.global.util.SecurityResponseWriter;
+import com.umc.connext.global.auth.util.JWTProperties;
+import com.umc.connext.global.auth.util.JWTUtil;
+import com.umc.connext.global.auth.util.SecurityResponseWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +20,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -31,18 +30,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final RefreshTokenService refreshTokenService;
     private final SecurityResponseWriter securityResponseWriter;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JWTProperties jwtProperties;
 
     public LoginFilter(AuthenticationManager authenticationManager,
                        JWTUtil jwtUtil,
                        RefreshTokenService refreshTokenService,
-                       SecurityResponseWriter securityResponseWriter) {
+                       SecurityResponseWriter securityResponseWriter,
+                       JWTProperties jwtProperties) {
 
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshTokenService = refreshTokenService;
         this.securityResponseWriter = securityResponseWriter;
+        this.jwtProperties = jwtProperties;
 
-        // ⭐ 여기서 로그인 URL 변경
         setFilterProcessesUrl("/auth/login/local");
     }
 
@@ -55,7 +56,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             LoginRequestDTO loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequestDTO.class);
 
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
+                    new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
 
             return authenticationManager.authenticate(authToken);
 
@@ -68,26 +69,31 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
 
-        //유저 정보
-        String username = authentication.getName();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
+        Long memberId = userDetails.getMemberId();
+        String role = authentication.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+
 
         //토큰 생성
-        String access = jwtUtil.createJwt("access", username, role);
-        String refresh = jwtUtil.createJwt("refresh", username, role);
+        String access = jwtUtil.createJwt(TokenCategory.ACCESS, role, memberId);
+        String refresh = jwtUtil.createJwt(TokenCategory.REFRESH, role, memberId);
+
+        //기존 Refresh 토큰 제거
+        refreshTokenService.removeAllByAuthKey(memberId);
 
         //Refresh 토큰 저장
-        refreshTokenService.saveRefreshToken(refresh, username);
+        refreshTokenService.saveRefreshToken(refresh, memberId);
 
         //응답 설정
         response.setHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
 
-        LoginResponseDTO loginResponseDto = new LoginResponseDTO(username);
+        //ID(email) 리턴
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername());
         Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS,loginResponseDto);
 
         securityResponseWriter.write(response, body);
@@ -104,8 +110,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
+        cookie.setMaxAge(Math.toIntExact(jwtProperties.getRefreshTokenValiditySeconds()));
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
 

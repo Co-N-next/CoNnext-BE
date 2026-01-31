@@ -21,8 +21,8 @@ public enum SuccessCode implements Code {
     //토큰 재발급
     TOKEN_REISSUE_SUCCESS(200, "토큰 재발급 성공"),
 
-    //아이디 중복 체크
-    AVAILABLE_USERNAME(200, "사용 가능한 아이디입니다."),
+    //이메일 중복 체크
+    AVAILABLE_EMAIL(200, "사용 가능한 이메일입니다."),
 
     // 비밀번호 관련
     VALID_PASSWORD_FORMAT(200,"사용 가능한 비밀번호 형식입니다."),

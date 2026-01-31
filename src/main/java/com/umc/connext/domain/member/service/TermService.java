@@ -2,9 +2,9 @@ package com.umc.connext.domain.member.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
-import com.umc.connext.domain.member.dto.ActiveTermDTO;
-import com.umc.connext.domain.member.dto.MyTermDTO;
-import com.umc.connext.domain.member.dto.OptionalTermsChangeDTO;
+import com.umc.connext.domain.member.dto.ActiveTermResponseDTO;
+import com.umc.connext.domain.member.dto.MyTermResponseDTO;
+import com.umc.connext.domain.member.dto.OptionalTermsChangeRequestDTO;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.entity.MemberTerm;
 import com.umc.connext.domain.member.entity.Term;
@@ -62,26 +62,26 @@ public class TermService {
         memberTermRepository.saveAll(memberTerms);
     }
 
-    public List<ActiveTermDTO> getActiveTerms() {
+    public List<ActiveTermResponseDTO> getActiveTerms() {
         return termRepository.findAll().stream()
                 .filter(Term::isActive)
-                .map(ActiveTermDTO::from)
+                .map(ActiveTermResponseDTO::from)
                 .toList();
     }
 
-    public List<MyTermDTO> getMyOptionalTerms(Long memberId) {
+    public List<MyTermResponseDTO> getMyOptionalTerms(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND, "존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER, "존재하지 않는 회원입니다."));
 
         return memberTermRepository.findByMemberAndTerm_Type(member, TermType.OPTIONAL).stream()
-                .map(MyTermDTO::from)
+                .map(MyTermResponseDTO::from)
                 .toList();
     }
 
     @Transactional
-    public void changeOptionalTerms(Long memberId, List<OptionalTermsChangeDTO.TermAgreement> agreements) {
+    public void changeOptionalTerms(Long memberId, List<OptionalTermsChangeRequestDTO.TermAgreement> agreements) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_MEMBER_FOUND, "존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorCode.MEMBER_DELETED, "존재하지 않는 회원입니다."));
         for (var agreement : agreements) {
             Term term = termRepository.findById(agreement.getTermId())
                     .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "존재하지 않는 약관입니다."));

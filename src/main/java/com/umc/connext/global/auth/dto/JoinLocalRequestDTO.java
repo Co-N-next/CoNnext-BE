@@ -12,14 +12,14 @@ import java.util.List;
 
 @Getter
 @Setter
-@Schema(description = "회원가입 요청 DTO")
-public class LocalJoinDTO {
+@Schema(description = "Local 회원가입 요청 DTO")
+public class JoinLocalRequestDTO {
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     @Size(max = 50, message = "이메일은 최대 50자까지 가능합니다.")
     @Schema(example = "qwer@example.com")
-    private String username;
+    private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Size(min = 8, max = 20, message = "비밀번호는 8~20자여야 합니다.")

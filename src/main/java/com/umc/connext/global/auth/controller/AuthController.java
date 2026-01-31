@@ -4,19 +4,22 @@ import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.member.dto.ActiveTermDTO;
-import com.umc.connext.domain.member.dto.MyTermDTO;
-import com.umc.connext.domain.member.dto.OptionalTermsChangeDTO;
-import com.umc.connext.domain.member.dto.RandomNicknameDTO;
+import com.umc.connext.domain.member.dto.ActiveTermResponseDTO;
+import com.umc.connext.domain.member.dto.MyTermResponseDTO;
+import com.umc.connext.domain.member.dto.OptionalTermsChangeRequestDTO;
+import com.umc.connext.domain.member.dto.RandomNicknameResponseDTO;
+import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.domain.member.service.TermService;
 import com.umc.connext.global.auth.dto.*;
+import com.umc.connext.global.auth.enums.TokenCategory;
 import com.umc.connext.global.auth.service.AuthService;
 import com.umc.connext.global.auth.service.ReissueService;
+import com.umc.connext.global.auth.util.JWTUtil;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
-import com.umc.connext.global.util.JWTProperties;
-import com.umc.connext.global.util.SecurityUtil;
+import com.umc.connext.global.auth.util.JWTProperties;
+import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +31,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,27 +48,41 @@ public class AuthController {
 
     private final AuthService authService;
     private final ReissueService reissueService;
+    private final RefreshTokenService refreshTokenService;
     private final JWTProperties jwtProperties;
     private final MemberService memberService;
     private final NicknameService nicknameService;
     private final TermService termService;
+    private final JWTUtil jwtUtil;
 
     @Operation(
-            summary = "회원가입",
-            description = "username, password를 JSON으로 받아 회원가입을 진행합니다.",
+            summary = "Local 회원가입",
+            description = "email, password, 약관동의 목록을 받아 회원가입을 진행합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "회원가입 성공"),
                     @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
-                    @ApiResponse(responseCode = "409", description = "중복된 username")
+                    @ApiResponse(responseCode = "409", description = "중복된 email")
             }
     )
-    @PostMapping("/join")
-    public ResponseEntity<Response<Void>> join(@RequestBody @Valid LocalJoinDTO localJoinDTO){
+    @PostMapping("/signup/local")
+    public ResponseEntity<Response<LoginResponseDTO>> joinLocal(@RequestBody @Valid JoinLocalRequestDTO joinLocalRequestDTO,
+                                                    HttpServletResponse response){
 
-        authService.join(localJoinDTO);
+        Member member = authService.joinLocal(joinLocalRequestDTO);
+        String refresh = jwtUtil.createJwt(TokenCategory.REFRESH, member.getRole().name(), member.getId());
+        String access = jwtUtil.createJwt(TokenCategory.ACCESS, member.getRole().name(), member.getId());
+
+        refreshTokenService.saveRefreshToken(refresh, member.getId());
+        addRefreshCookie(response, refresh);
+
+        response.setHeader("Authorization", "Bearer " + access);
+
+
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(member.getEmail());
+
         return ResponseEntity
                 .status(SuccessCode.JOIN_SUCCESS.getStatusCode())
-                .body(Response.success(SuccessCode.JOIN_SUCCESS));
+                .body(Response.success(SuccessCode.JOIN_SUCCESS, loginResponseDto));
     }
 
     @Operation(
@@ -77,9 +95,9 @@ public class AuthController {
             }
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> delete() {
+    public ResponseEntity<Response<Void>> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        authService.withdrawCurrentUser(SecurityUtil.getCurrentUsername());
+        authService.withdrawCurrentUser(userDetails.getMemberId());
 
         return ResponseEntity
                 .status(SuccessCode.DELETE_SUCCESS.getStatusCode())
@@ -110,7 +128,6 @@ public class AuthController {
     @Operation(
             summary = "비밀번호 형식 검사",
             description = "비밀번호가 형식에 맞는지 검사합니다.",
-            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "유효한 비밀번호 형식"),
                     @ApiResponse(responseCode = "400", description = "유효하지 않은 비밀번호 형식")
@@ -126,35 +143,43 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "ID(username) 사용 가능 여부 확인",
+            summary = "ID 사용 가능 여부 확인",
             description = "이메일 형식 검증 및 중복 여부를 확인합니다.",
-            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "사용 가능한 이메일"),
                     @ApiResponse(responseCode = "400", description = "이메일 형식 오류"),
                     @ApiResponse(responseCode = "409", description = "이미 사용 중인 이메일")
             }
     )
-    @GetMapping("/username/availability")
-    public ResponseEntity<Response<Void>> checkUsernameAvailability(@RequestParam String username) {
-        memberService.validateUsername(username);
-        memberService.checkUsernameDuplicate(username);
+    @GetMapping("/email/availability")
+    public ResponseEntity<Response<Void>> checkEmailAvailability(@RequestParam String email) {
+        memberService.validateEmail(email);
+        memberService.checkEmailDuplicate(email);
         return ResponseEntity
-                .status(SuccessCode.AVAILABLE_USERNAME.getStatusCode())
-                .body(Response.success(SuccessCode.AVAILABLE_USERNAME));
+                .status(SuccessCode.AVAILABLE_EMAIL.getStatusCode())
+                .body(Response.success(SuccessCode.AVAILABLE_EMAIL));
     }
 
     @Operation(
             summary = "nickname 사용 가능 여부 확인",
-            description = "닉네임 중복 여부를 확인합니다.",
-            security = @SecurityRequirement(name = "JWT"),
+            description = """
+                비밀번호가 형식에 맞는지 검사합니다.
+
+                [비밀번호 조건]
+                - 8자 이상 20자 이하
+                - 영문자(A-Z, a-z) 최소 1자 포함
+                - 숫자(0-9) 최소 1자 포함
+                """,
             responses = {
                     @ApiResponse(responseCode = "200", description = "사용 가능한 닉네임"),
+                    @ApiResponse(responseCode = "400", description = "닉네임 길이 오류 (2자 이상 20자 이하)"),
                     @ApiResponse(responseCode = "409", description = "이미 사용 중인 닉네임")
             }
     )
     @GetMapping("/nickname/availability")
-    public ResponseEntity<Response<Void>> checkNicknameAvailability(@RequestParam String nickname) {
+    public ResponseEntity<Response<Void>> checkNicknameAvailability(
+            @RequestParam @Size(min = 2, max = 20, message = "닉네임은 2자 이상 20자 이하만 가능합니다.")
+            String nickname) {
         nicknameService.checkNicknameDuplicate(nickname);
         return ResponseEntity
                 .status(SuccessCode.AVAILABLE_NICKNAME.getStatusCode())
@@ -164,22 +189,21 @@ public class AuthController {
     @Operation(
             summary = "랜덤 닉네임 생성",
             description = "서버에서 랜덤 닉네임을 생성하여 반환합니다.",
-            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "닉네임 생성 성공",
-                            content = @Content(schema = @Schema(implementation = RandomNicknameDTO.class))),
+                            content = @Content(schema = @Schema(implementation = RandomNicknameResponseDTO.class))),
                     @ApiResponse(responseCode = "500", description = "닉네임 생성 실패 (중복으로 인한 서버 내부 오류)")
             }
     )
     @GetMapping("/nickname/random")
-    public ResponseEntity<Response<RandomNicknameDTO>> generateRandomNickname() {
+    public ResponseEntity<Response<RandomNicknameResponseDTO>> generateRandomNickname() {
         String nickname = nicknameService.generateRandomNickname();
         return ResponseEntity
                 .status(SuccessCode.NICKNAME_GENERATION_SUCCESS.getStatusCode())
                 .body(Response.success(SuccessCode.NICKNAME_GENERATION_SUCCESS,
-                        RandomNicknameDTO.of(nickname)));
+                        RandomNicknameResponseDTO.of(nickname)));
     }
 
     @Operation(
@@ -193,9 +217,9 @@ public class AuthController {
             })
     @PatchMapping("/nickname")
     public ResponseEntity<Response<Void>> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                         @RequestBody @Valid NicknameChangeDTO nicknameChangeDTO){
+                                                         @RequestBody @Valid NicknameChangeRequestDTO nicknameChangeRequestDTO){
 
-        nicknameService.changeNickname(userDetails.getMemberId(), nicknameChangeDTO.getNickname());
+        nicknameService.changeNickname(userDetails.getMemberId(), nicknameChangeRequestDTO.getNickname());
         return ResponseEntity
                 .status(SuccessCode.NICKNAME_UPDATE_SUCCESS.getStatusCode())
                 .body(Response.success(SuccessCode.NICKNAME_UPDATE_SUCCESS));
@@ -203,7 +227,7 @@ public class AuthController {
 
     @Operation(
             summary = "로컬 로그인",
-            description = "username과 password를 JSON으로 받아 로그인을 진행합니다.",
+            description = "ID(email)와 password를 JSON으로 받아 로그인을 진행합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "로그인 성공",
                             content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
@@ -218,7 +242,6 @@ public class AuthController {
     @Operation(
             summary = "로그아웃",
             description = "쿠키의 Refresh Token을 무효화하고 로그아웃을 진행합니다.",
-            security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -233,6 +256,53 @@ public class AuthController {
     @PostMapping("/logout")
     public Response<Void> logout() {
         throw new IllegalStateException("This method is intercepted by CustomLogoutFilter.");
+    }
+
+    @Operation(summary = "약관 목록 조회", description = "회원가입 시 사용되는 약관 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/terms")
+    public ResponseEntity<Response<List<ActiveTermResponseDTO>>> getTerms() {
+        List<ActiveTermResponseDTO> result = termService.getActiveTerms();
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 목록 조회 성공"));
+    }
+
+    @Operation(summary = "동의한 optional 약관 목록 조회",
+            description = "사용자가 동의한 optional 약관 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("terms/me")
+    public ResponseEntity<Response<List<MyTermResponseDTO>>> myTerms(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        List<MyTermResponseDTO> result = termService.getMyOptionalTerms(userDetails.getMemberId());
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "동의한 약관 목록 조회 성공"));
+    }
+
+    @Operation(summary = "동의한 약관 수정",
+            description = "사용자가 동의한 optional 약관 목록을 수정합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "필수 약관 변경 시도 또는 잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "약관 또는 약관 정보가 존재하지 않음")
+    })
+    @PatchMapping("/terms/me")
+    public ResponseEntity<Response<Void>> changeOptionalTerms(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid OptionalTermsChangeRequestDTO request
+    ) {
+        termService.changeOptionalTerms(userDetails.getMemberId(), request.getAgreements());
+
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, "동의한 약관 수정 성공"));
     }
 
     private String extractRefreshToken(HttpServletRequest request) {
@@ -252,56 +322,9 @@ public class AuthController {
     private void addRefreshCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("refresh", token);
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge((int) (jwtProperties.getRefreshTokenValidity() / 1000));
+        cookie.setMaxAge((int) (jwtProperties.getRefreshTokenValiditySeconds()));
         response.addCookie(cookie);
-    }
-
-
-    @Operation(summary = "약관 목록 조회", description = "회원가입 시 사용되는 약관 목록을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("/terms")
-    public ResponseEntity<Response<List<ActiveTermDTO>>> getTerms() {
-        List<ActiveTermDTO> result = termService.getActiveTerms();
-        return ResponseEntity.ok()
-                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 목록 조회 성공"));
-    }
-
-    @Operation(summary = "동의한 optional 약관 목록 조회",
-            description = "사용자가 동의한 optional 약관 목록을 조회합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("terms/me")
-    public ResponseEntity<Response<List<MyTermDTO>>> myTerms(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        List<MyTermDTO> result = termService.getMyOptionalTerms(userDetails.getMemberId());
-        return ResponseEntity.ok()
-                .body(Response.success(SuccessCode.GET_SUCCESS, result, "동의한 약관 목록 조회 성공"));
-    }
-
-    @Operation(summary = "동의한 약관 수정",
-            description = "사용자가 동의한 optional 약관 목록을 수정합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공"),
-            @ApiResponse(responseCode = "400", description = "필수 약관 변경 시도 또는 잘못된 요청"),
-            @ApiResponse(responseCode = "404", description = "약관 또는 약관 정보가 존재하지 않음")
-    })
-    @PatchMapping("/terms/me")
-    public ResponseEntity<Response<Void>> changeOptionalTerms(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody @Valid OptionalTermsChangeDTO request
-    ) {
-        termService.changeOptionalTerms(userDetails.getMemberId(), request.getAgreements());
-
-        return ResponseEntity.ok()
-                .body(Response.success(SuccessCode.GET_SUCCESS, "동의한 약관 수정 성공"));
     }
 }

@@ -6,8 +6,9 @@ import com.umc.connext.global.oauth2.handler.CustomOAuth2FailureHandler;
 import com.umc.connext.global.oauth2.handler.CustomOAuth2SuccessHandler;
 import com.umc.connext.global.oauth2.service.CustomOAuth2UserService;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
-import com.umc.connext.global.util.JWTUtil;
-import com.umc.connext.global.util.SecurityResponseWriter;
+import com.umc.connext.global.auth.util.JWTProperties;
+import com.umc.connext.global.auth.util.JWTUtil;
+import com.umc.connext.global.auth.util.SecurityResponseWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,14 +39,12 @@ public class  SecurityConfig {
     private final JWTExceptionFilter jwtExceptionFilter;
     private final SecurityResponseWriter securityResponseWriter;
     private final MemberService memberService;
+    private final JWTProperties jwtProperties;
 
-    //AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
-
         return configuration.getAuthenticationManager();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
@@ -73,16 +72,16 @@ public class  SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/auth/join", "/auth/login/**",
+                        .requestMatchers(
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/auth/reissue").permitAll()
-                        .anyRequest().authenticated());
+                        .requestMatchers("/", "/auth/**").permitAll()
+                        .anyRequest().hasRole("USER"));
 
         //1️ login filter
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter, jwtProperties), UsernamePasswordAuthenticationFilter.class);
 
         //2️ JWT filter
         http.

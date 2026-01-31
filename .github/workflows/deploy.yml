@@ -33,6 +33,45 @@ jobs:
               DB_PASSWORD=${{ secrets.DB_PASSWORD }}
               JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
               JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
+          
+              # ===============================
+              # Redis
+              # ===============================
+              REDIS_HOST=${{ secrets.REDIS_HOST }}
+              REDIS_PORT=${{ secrets.REDIS_PORT }}
+              
+              # ===============================
+              # JWT
+              # ===============================
+              JWT_SECRET=${{ secrets.JWT_SECRET }}
+              JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.JWT_ACCESS_TOKEN_VALIDITY }}
+              JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.JWT_REFRESH_TOKEN_VALIDITY }}
+              JWT_SIGNUP_TOKEN_VALIDITY=${{ secrets.JWT_SIGNUP_TOKEN_VALIDITY }}
+              
+              # ===============================
+              # OAuth (Spring Security)
+              # ===============================
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+              
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+              
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+              
+              # ===============================
+              # OAuth Redirect URI
+              # ===============================
+              GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}
+              NAVER_REDIRECT_URI=${{ secrets.NAVER_REDIRECT_URI }}
+              KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}
+              
+              # ===============================
+              # Frontend Redirect
+              # ===============================
+              OAUTH2_SUCCESS_URL=${{ secrets.OAUTH2_SUCCESS_URL }}
+              OAUTH2_SIGNUP_URL=${{ secrets.OAUTH2_SIGNUP_URL }}
               EOT
 
               docker compose down

@@ -1,9 +1,12 @@
 package com.umc.connext.global.refreshtoken.service;
 
+import com.umc.connext.common.code.ErrorCode;
+import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.global.refreshtoken.entity.RefreshToken;
 import com.umc.connext.global.refreshtoken.repository.RefreshTokenRepository;
-import com.umc.connext.global.util.JWTProperties;
+import com.umc.connext.global.auth.util.JWTProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,30 +19,36 @@ public class RefreshTokenService {
     private final JWTProperties jwtProperties;
 
     @Transactional
-    public void saveRefreshToken(String refreshToken, String authKey) {
+    public void saveRefreshToken(String refreshToken, Long authKey) {
 
-        long ttlSeconds = jwtProperties.getRefreshTokenValidity() / 1000;
+        try {
+            RefreshToken token = RefreshToken.builder()
+                    .refreshToken(refreshToken)
+                    .authKey(authKey)
+                    .ttl(jwtProperties.getRefreshTokenValiditySeconds())
+                    .build();
 
-        RefreshToken token = RefreshToken.builder()
-                .jwtRefreshToken(refreshToken)
-                .authKey(authKey)
-                .ttl(ttlSeconds)
-                .build();
-        refreshTokenRepository.save(token);
+            refreshTokenRepository.save(token);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new GeneralException(
+                    ErrorCode.INVALID_TOKEN,
+                    "리프레시 토큰 저장에 실패했습니다."
+            );
+        }
     }
 
     @Transactional
     public void removeRefreshToken(String refreshToken) {
-        refreshTokenRepository.findRefreshTokenByJwtRefreshToken(refreshToken)
-                .ifPresent(token -> refreshTokenRepository.delete(token));
+        refreshTokenRepository.deleteById(refreshToken);
     }
 
-    public boolean existsByRefreshToken(String refreshToken) {
-        return refreshTokenRepository.findRefreshTokenByJwtRefreshToken(refreshToken).isPresent();
+    public boolean existsById(String refreshToken) {
+        return refreshTokenRepository.existsById(refreshToken);
     }
 
     @Transactional
-    public void removeAllByAuthKey(String authKey) {
+    public void removeAllByAuthKey(Long authKey) {
         refreshTokenRepository.deleteAllByAuthKey(authKey);
     }
 }

@@ -2,13 +2,18 @@ package com.umc.connext.domain.member.entity;
 
 import com.umc.connext.common.entity.BaseEntity;
 import com.umc.connext.common.enums.Role;
+import com.umc.connext.domain.member.enums.MemberStatus;
+import com.umc.connext.global.oauth2.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Getter
 @Entity
-@Table(name = "member")
+@Table(name = "member",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"socialType", "providerId"})
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -19,10 +24,13 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SocialType socialType;
 
     @Column(nullable = false)
+    private String providerId;
+
     private String password;
 
     @Column(nullable = false, length = 50)
@@ -31,6 +39,10 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus memberStatus;
+
     @Column(length = 255)
     private String profileImage;
 
@@ -38,6 +50,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'ROLE_USER'")
     private Role role;
 
+    public void updateMemberStatus(MemberStatus memberStatus) {
+        this.memberStatus = memberStatus;
+    }
 
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;
@@ -47,13 +62,35 @@ public class Member extends BaseEntity {
         this.profileImage = imageUrl;
     }
 
-    public static Member of(String username, String email, String password, String nickname, Role role) {
-        Member member = new Member();
-        member.username = username;
-        member.email = email;
-        member.password = password;
-        member.nickname = nickname;
-        member.role = role;
-        return member;
+    public static Member local(
+            String email,
+            String encodedPassword,
+            String nickname
+    ) {
+        return Member.builder()
+                .socialType(SocialType.LOCAL)
+                .providerId(email)
+                .email(email)
+                .password(encodedPassword)
+                .nickname(nickname)
+                .role(Role.ROLE_USER)
+                .memberStatus(MemberStatus.ACTIVE)
+                .build();
+    }
+
+    public static Member social(
+            SocialType socialType,
+            String providerId,
+            String email,
+            String nickname
+    ) {
+        return Member.builder()
+                .socialType(socialType)
+                .providerId(providerId)
+                .email(email)
+                .nickname(nickname)
+                .role(Role.ROLE_USER)
+                .memberStatus(MemberStatus.PENDING)
+                .build();
     }
 }

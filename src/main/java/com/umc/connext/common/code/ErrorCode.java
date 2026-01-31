@@ -35,7 +35,7 @@ public enum ErrorCode implements Code {
     INVALID_PAGE_REQUEST(400, "page는 0 이상, size는 1~100 사이여야 합니다."),
 
     // ==================== 멤버 ====================
-    NOT_MEMBER_FOUND(404, "존재하지 않는 회원입니다."),
+    NOT_FOUND_MEMBER(404, "존재하지 않는 회원입니다."),
     ID_ALREADY_EXISTS(409, "이미 존재하는 아이디입니다."),
     MEMBER_DELETED(403, "탈퇴 처리된 회원입니다."),
     INVALID_MEMBER_ROLE(403, "유효하지 않은 권한입니다."),

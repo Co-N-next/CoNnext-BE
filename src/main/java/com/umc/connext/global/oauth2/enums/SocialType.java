@@ -1,17 +1,17 @@
 package com.umc.connext.global.oauth2.enums;
 
-public enum OAuth2Provider {
+import lombok.Getter;
+
+@Getter
+public enum SocialType {
     NAVER("naver"),
     GOOGLE("google"),
-    KAKAO("kakao");
+    KAKAO("kakao"),
+    LOCAL("local"); //자체로그인
 
     private final String value;
 
-    OAuth2Provider(String value) {
+    SocialType(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 }

@@ -1,5 +1,7 @@
 package com.umc.connext.global.jwt.service;
 
+import com.umc.connext.common.code.ErrorCode;
+import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
@@ -16,17 +18,13 @@ public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GeneralException(
+                        ErrorCode.NOT_FOUND_MEMBER,
+                        "존재하지 않는 회원입니다."
+                ));
 
-        //DB에서 조회
-        Member member = memberRepository.findByUsername(username).orElse(null);
-
-        if (member != null) {
-
-            //UserDetails에 담아서 return하면 AutneticationManager가 검증 함
-            return new CustomUserDetails(member);
-        }
-
-        return null;
+        return new CustomUserDetails(member);
     }
 }

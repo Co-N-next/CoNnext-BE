@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class NicknameChangeDTO {
+public class NicknameChangeRequestDTO {
 
     @Schema(
             description = "변경할 새로운 닉네임",

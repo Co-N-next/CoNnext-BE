@@ -1,7 +1,8 @@
-package com.umc.connext.global.util;
+package com.umc.connext.global.auth.util;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.global.auth.enums.TokenCategory;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,24 +17,29 @@ public class JWTTokenProvider {
 
     private final JWTProperties jwtProperties;
 
-    public String createJwt(String category ,String username, String role) {
-
+    public String createJwt(TokenCategory category, String role, Long memberId) {
         Date now = new Date();
-
-        long validity = "access".equalsIgnoreCase(category)
-                ? jwtProperties.getAccessTokenValidity()
-                : jwtProperties.getRefreshTokenValidity();
+        long validity = switch (category) {
+            case ACCESS -> jwtProperties.getAccessTokenValidity();
+            case REFRESH -> jwtProperties.getRefreshTokenValidity();
+            case SIGNUP -> jwtProperties.getSignupTokenValidity();
+        };
 
         Date expiryDate = new Date(now.getTime() + validity);
 
-        return Jwts.builder()
-                .claim("category", category)
-                .claim("username", username)
-                .claim("role", role)
+        JwtBuilder builder = Jwts.builder()
+                .claim("category", category.getValue())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(expiryDate)
-                .signWith(jwtProperties.getSecretKey())
-                .compact();
+                .signWith(jwtProperties.getSecretKey());
+
+        if (category != TokenCategory.SIGNUP) {
+            builder.claim("role", role);
+        }
+
+        builder.claim("memberId", memberId);
+
+        return builder.compact();
     }
 
 
@@ -75,6 +81,13 @@ public class JWTTokenProvider {
         }
     }
 
+    public void validateSignUpToken(String token) {
+        parseToken(token);
+
+        if (!isSignUpToken(token)) {
+            throw new GeneralException(ErrorCode.INVALID_TOKEN_CATEGORY,"토큰 타입이 올바르지 않습니다.");
+        }
+    }
 
     private Claims extractClaims(String token) {
         return Jwts.parser()
@@ -91,17 +104,6 @@ public class JWTTokenProvider {
         return bearerToken;
     }
 
-    public String getUsername(String token) {
-
-        token = extractToken(token);
-        try {
-            return extractClaims(token).get("username", String.class);
-        } catch (Exception e) {
-            log.error("Error extracting username", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
-        }
-    }
-
     public String getRole(String token) {
 
         token = extractToken(token);
@@ -113,31 +115,21 @@ public class JWTTokenProvider {
         }
     }
 
-    public String getCategory(String token) {
+    public TokenCategory getCategory(String token) {
 
         token = extractToken(token);
         try {
-            return extractClaims(token).get("category", String.class);
+            String category = extractClaims(token).get("category", String.class);
+            return TokenCategory.from(category);
         } catch (Exception e) {
             log.error("Error extracting category", e);
             throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
         }
     }
 
-    public boolean isExpired(String token) {
-
-        token = extractToken(token);
-        try {
-            return extractClaims(token).getExpiration().before(new Date());
-        } catch (Exception e) {
-            log.error("Error extracting expiration time", e);
-            throw new GeneralException(ErrorCode.INVALID_TOKEN,"유효하지 않은 토큰입니다.");
-        }
-    }
-
     public boolean isAccessToken(String token) {
         try {
-            return "access".equalsIgnoreCase(getCategory(token));
+            return "access".equalsIgnoreCase(getCategory(token).getValue());
         } catch (Exception e) {
             return false;
         }
@@ -145,9 +137,30 @@ public class JWTTokenProvider {
 
     public boolean isRefreshToken(String token) {
         try {
-            return "refresh".equalsIgnoreCase(getCategory(token));
+            return "refresh".equalsIgnoreCase(getCategory(token).getValue());
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public boolean isSignUpToken(String token) {
+        try {
+            return "signup".equalsIgnoreCase(getCategory(token).getValue());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Long getMemberId(String token) {
+
+        token = extractToken(token);
+        try {
+            return extractClaims(token).get("memberId", Long.class);
+        } catch (Exception e) {
+            throw new GeneralException(
+                    ErrorCode.INVALID_TOKEN,
+                    "유효하지 않은 토큰입니다."
+            );
         }
     }
 }

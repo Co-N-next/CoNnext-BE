@@ -1,6 +1,6 @@
 package com.umc.connext.global.oauth2.dto;
 
-import com.umc.connext.global.oauth2.enums.OAuth2Provider;
+import com.umc.connext.global.oauth2.enums.SocialType;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ public class GoogleResponse implements OAuth2Response{
     }
 
     @Override
-    public OAuth2Provider getProvider() {return OAuth2Provider.GOOGLE;}
+    public SocialType getProvider() {return SocialType.GOOGLE;}
 
     @Override
     public String getProviderId() {return attribute.get("sub").toString();}

@@ -4,7 +4,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
-import com.umc.connext.global.util.JWTUtil;
+import com.umc.connext.global.auth.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,12 +37,10 @@ public class JWTFilter extends OncePerRequestFilter {
         if(accessToken != null){
             try {
                 jwtUtil.validateAccessToken(accessToken);
-
-                // username, role 값을 획득
-                String username = jwtUtil.getUsername(accessToken);
+                Long memberId = jwtUtil.getMemberId(accessToken);
 
                 //detail 검증용
-                Member member = memberService.findByUsername(username);
+                Member member = memberService.findById(memberId);
                 CustomUserDetails customUserDetails = new CustomUserDetails(member);
 
                 Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
@@ -50,9 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             } catch (GeneralException e){
                 log.error("JWT authentication failed", e);
-                SecurityContextHolder.clearContext();
-                throw e;
-            }
+                SecurityContextHolder.clearContext();}
         }
 
         log.info("Request    to {} passed through JwtAuthenticationFilter", request.getRequestURI());

@@ -20,7 +20,7 @@ import java.util.List;
                 "    {\"termId\": 3, \"agreed\": true}\n" +
                 "  ]\n" +
                 "}")
-public class OptionalTermsChangeDTO {
+public class OptionalTermsChangeRequestDTO {
 
     @NotEmpty
     @Schema(description = "수정할 선택 약관 리스트")

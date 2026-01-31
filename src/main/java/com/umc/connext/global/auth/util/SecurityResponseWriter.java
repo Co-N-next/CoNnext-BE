@@ -1,4 +1,4 @@
-package com.umc.connext.global.util;
+package com.umc.connext.global.auth.util;
 
 import com.umc.connext.common.response.Response;
 import jakarta.servlet.http.HttpServletResponse;

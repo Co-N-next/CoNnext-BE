@@ -4,9 +4,7 @@ import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.entity.MemberTerm;
 import com.umc.connext.domain.member.entity.Term;
 import com.umc.connext.domain.member.enums.TermType;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,6 @@
 package com.umc.connext.global.oauth2.service;
 
 import com.umc.connext.common.code.ErrorCode;
-import com.umc.connext.common.enums.Role;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.member.service.NicknameService;
@@ -10,46 +9,42 @@ import com.umc.connext.global.oauth2.dto.GoogleResponse;
 import com.umc.connext.global.oauth2.dto.KakaoResponse;
 import com.umc.connext.global.oauth2.dto.NaverResponse;
 import com.umc.connext.global.oauth2.dto.OAuth2Response;
-import com.umc.connext.global.oauth2.enums.OAuth2Provider;
+import com.umc.connext.global.oauth2.enums.SocialType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
     private final NicknameService nicknameService;
-    private final PasswordEncoder passwordEncoder;
-    private static final String OAUTH_DUMMY_PASSWORD = "OAUTH2_USER";
-
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        System.out.println(oAuth2User);
-
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response;
-        if (registrationId.equals(OAuth2Provider.NAVER.getValue())) {
+        if (registrationId.equals(SocialType.NAVER.getValue())) {
 
             oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
         }
-        else if (registrationId.equals(OAuth2Provider.GOOGLE.getValue())) {
+        else if (registrationId.equals(SocialType.GOOGLE.getValue())) {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         }
-        else if (registrationId.equals(OAuth2Provider.KAKAO.getValue())) {
+        else if (registrationId.equals(SocialType.KAKAO.getValue())) {
 
             oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         }
@@ -62,54 +57,47 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException(error);
         }
 
-
-        String username = oAuth2Response.getProvider()+"_"+oAuth2Response.getProviderId();
         String email = oAuth2Response.getEmail();
-        String name = oAuth2Response.getName();
+        String providerId = oAuth2Response.getProviderId();
+        SocialType socialType = oAuth2Response.getProvider();
+        String nickname = oAuth2Response.getName();
 
-        // 1️ 소셜 계정 자체 존재 여부
-        Optional<Member> existMember = memberRepository.findByUsername(username);
+        //소셜 계정 자체 존재 여부
+        Optional<Member> socialMember = memberRepository.findBySocialTypeAndProviderId(socialType, providerId);
 
-        // 2️ 자체 로그인 계정(email 기반)과 충돌 체크 - 일부로 email 넣음 -
-        memberRepository.findByUsername(email)
-                .ifPresent(conflictMember -> {
-                    boolean isDifferentMember =
-                            existMember
-                                    .map(m -> !m.getId().equals(conflictMember.getId()))
-                                    .orElse(true);
+        if (socialMember.isPresent()) {
+            return new CustomUserDetails(socialMember.get());
+        }
 
-                    if (isDifferentMember) {
-                        throw new OAuth2AuthenticationException(
-                                new OAuth2Error(
-                                        "email_conflict",
-                                        ErrorCode.EMAIL_ALREADY_USED_BY_LOCAL.getMessage(),
-                                        ""
-                                )
-                        );
-                    }
-                });
+        //자체 로그인(email)과 충돌 체크
+        boolean localEmailExists = memberRepository.existsByEmailAndSocialType(email, SocialType.LOCAL);
 
-        // 3️ 회원 없으면 생성, 있으면 그대로 사용
-        Member member;
-        if (existMember.isPresent()) {
-            member = existMember.get();
-        } else {
-            if (memberRepository.existsByNickname(name)) {
-                name = nicknameService.generateRandomNickname();
-            }
-
-            member = memberRepository.save(
-                    Member.of(
-                            username,
-                            email,
-                            passwordEncoder.encode(OAUTH_DUMMY_PASSWORD),
-                            name,
-                            Role.ROLE_USER
+        if (localEmailExists) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(
+                            "email_conflict",
+                            ErrorCode.EMAIL_ALREADY_USED_BY_LOCAL.getMessage(),
+                            ""
                     )
             );
         }
 
+
+        //닉네임 중복 처리
+        if (memberRepository.existsByNickname(nickname)) {
+            nickname = nicknameService.generateRandomNickname();
+        }
+
+        //신규 소셜 회원 생성
+        Member member = memberRepository.save(
+                Member.social(
+                        socialType,
+                        providerId,
+                        email,
+                        nickname
+                )
+        );
+
         return new CustomUserDetails(member);
     }
 }
-

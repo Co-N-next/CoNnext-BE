@@ -5,38 +5,32 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
-import com.umc.connext.global.util.JWTUtil;
-import com.umc.connext.global.util.SecurityResponseWriter;
+import com.umc.connext.global.auth.util.JWTUtil;
+import com.umc.connext.global.auth.util.SecurityResponseWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class CustomLogoutFilter extends GenericFilterBean {
+public class CustomLogoutFilter extends OncePerRequestFilter {
 
     private static final String LOGOUT_URI = "/auth/logout";
-
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final SecurityResponseWriter securityResponseWriter;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
+    protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain)
+            throws ServletException, IOException {
         //path and method verify
         if (!isLogoutRequest(httpRequest)) {
-            chain.doFilter(httpRequest, httpResponse);
+            filterChain.doFilter(httpRequest, httpResponse);
             return;
         }
 
@@ -45,18 +39,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
             jwtUtil.validateRefreshToken(refreshToken);
 
-            if (!refreshTokenService.existsByRefreshToken(refreshToken)) {
-                throw new GeneralException(ErrorCode.INVALID_TOKEN,"리프레시 토큰이 유효하지 않습니다.");
-            }
-
             refreshTokenService.removeRefreshToken(refreshToken);
             removeRefreshCookie(httpResponse);
-
             securityResponseWriter.write(
                     httpResponse,
                     Response.success(SuccessCode.LOGOUT_SUCCESS)
             );
-
         } catch (GeneralException e) {
             securityResponseWriter.write(
                     httpResponse,
@@ -72,7 +60,9 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private String extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) return null;
+        if (cookies == null) {
+            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN, "쿠키가 존재하지 않습니다.");
+        }
 
         for (Cookie cookie : cookies) {
             if ("refresh".equals(cookie.getName())) {
@@ -86,7 +76,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
-        //cookie.setHttpOnly(true);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         response.addCookie(cookie);
     }
 }

@@ -1,12 +1,12 @@
 package com.umc.connext.global.jwt.principal;
 
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.enums.MemberStatus;
 import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +24,13 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return null;
     }
 
+    @NonNull
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> member.getRole().name());
     }
 
+    @NonNull
     @Override
     public String getName() {
         return member.getNickname();
@@ -40,9 +42,9 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     }
 
     @NonNull
-    @Override
+    @Override //로컬 로그인
     public String getUsername() {
-        return member.getUsername();
+        return member.getEmail();
     }
 
     @Override
@@ -60,4 +62,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public Long getMemberId() {
         return member.getId();
     }
+
+    public MemberStatus getMemberStatus() {return  member.getMemberStatus();}
 }

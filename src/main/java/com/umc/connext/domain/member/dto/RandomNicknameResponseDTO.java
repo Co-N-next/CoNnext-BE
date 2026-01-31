@@ -7,11 +7,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Schema(description = "랜덤닉네임 생성 DTO")
-public class RandomNicknameDTO {
+public class RandomNicknameResponseDTO {
     @Schema(description = "사용자 nickname", example = "조용한강아지34")
     String nickname;
 
-    public static RandomNicknameDTO of(String nickname) {
-        return new RandomNicknameDTO(nickname);
+    public static RandomNicknameResponseDTO of(String nickname) {
+        return new RandomNicknameResponseDTO(nickname);
     }
 }

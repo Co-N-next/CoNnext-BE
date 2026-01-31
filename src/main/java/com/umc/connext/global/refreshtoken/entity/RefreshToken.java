@@ -3,32 +3,29 @@ package com.umc.connext.global.refreshtoken.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
-@Setter
 @NoArgsConstructor
-@RedisHash(value = "refreshToken")
+@RedisHash(value = "refresh_token")
 public class RefreshToken {
 
     @Id
-    @Indexed
-    private String jwtRefreshToken;
+    private String refreshToken;
 
-    // username으로 설정
-    private String authKey;
+    @Indexed
+    private Long authKey;
 
     //리프레시 토큰의 생명 주기(14일)
     @TimeToLive
     private Long ttl;
 
     @Builder
-    public RefreshToken(String jwtRefreshToken, String authKey, Long ttl) {
-        this.jwtRefreshToken = jwtRefreshToken;
+    public RefreshToken(String refreshToken, Long authKey, Long ttl) {
+        this.refreshToken = refreshToken;
         this.authKey = authKey;
         this.ttl = ttl;
     }
