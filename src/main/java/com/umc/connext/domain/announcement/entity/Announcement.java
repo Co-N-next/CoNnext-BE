@@ -33,4 +33,7 @@ public class Announcement extends BaseEntity {
 
     @Column(name="logo_img")
     private String logoImg;
+
+    @Column(name="is_read", nullable=false)
+    private Boolean isRead;
 }
