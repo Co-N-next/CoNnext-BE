@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,6 +46,38 @@ public class VenueController implements VenueControllerDocs{
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
+    }
+
+    // 공연장 즐겨찾기 등록
+    @PostMapping("/favorites/{venueId}")
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @PathVariable Long venueId
+    ){
+        Long memberId = 1L; // 임시 회원 (추후 삭제)
+        return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS,
+                venueService.addFavoriteVenue(memberId, venueId),
+                "즐겨찾기 공연장 등록 성공"));
+    }
+
+    // 공연장 즐겨찾기 삭제
+    @DeleteMapping("/favorites/{venueId}")
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @PathVariable Long venueId
+    ){
+        Long memberId = 1L; // 임시 회원 (추후 삭제)
+
+        venueService.deleteFavoriteVenue(memberId, venueId);
+        return ResponseEntity.ok().body(Response.success(SuccessCode.DELETE_SUCCESS, "즐겨찾기 공연장 삭제 성공"));
+    }
+
+    // 공연장 즐겨찾기 목록 조회
+    @GetMapping("/favorites")
+    public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(){
+        Long memberId = 1L; // 임시 회원
+
+        List<VenueResDTO.VenuePreviewDTO> result = venueService.favoriteVenues(memberId);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "즐겨찾기 공연장 조회 성공"));
     }
 
 }
