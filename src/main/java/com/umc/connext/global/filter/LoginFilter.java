@@ -17,6 +17,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -102,7 +103,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, AuthenticationException {
-        Response<Void> body =  Response.fail(ErrorCode.INVALID_CREDENTIALS);
+        Throwable cause = failed.getCause();
+
+        ErrorCode errorCode = ErrorCode.INVALID_CREDENTIALS;
+
+        if (cause instanceof DisabledException) {
+            errorCode = ErrorCode.MEMBER_DELETED;
+        }
+
+        Response<Void> body =  Response.fail(errorCode);
 
         securityResponseWriter.write(response, body);
     }

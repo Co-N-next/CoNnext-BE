@@ -61,6 +61,7 @@ public class AuthController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "회원가입 성공"),
                     @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
+                    @ApiResponse(responseCode = "403", description = "탈퇴한 회원입니다. 문의바랍니다."),
                     @ApiResponse(responseCode = "409", description = "중복된 email")
             }
     )
@@ -96,6 +97,10 @@ public class AuthController {
     )
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
+        }
 
         authService.withdrawCurrentUser(userDetails.getMemberId());
 
@@ -219,6 +224,10 @@ public class AuthController {
     public ResponseEntity<Response<Void>> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                          @RequestBody @Valid NicknameChangeRequestDTO nicknameChangeRequestDTO){
 
+        if (userDetails == null) {
+            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+
         nicknameService.changeNickname(userDetails.getMemberId(), nicknameChangeRequestDTO.getNickname());
         return ResponseEntity
                 .status(SuccessCode.NICKNAME_UPDATE_SUCCESS.getStatusCode())
@@ -231,7 +240,8 @@ public class AuthController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "로그인 성공",
                             content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-                    @ApiResponse(responseCode = "401", description = "로그인 실패 (아이디 또는 비밀번호 불일치)")
+                    @ApiResponse(responseCode = "401", description = "로그인 실패 (아이디 또는 비밀번호 불일치)"),
+                    @ApiResponse(responseCode = "403", description = "탈퇴한 회원입니다.")
             }
     )
     @PostMapping("/login/local")
@@ -277,9 +287,12 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("terms/me")
-    public ResponseEntity<Response<List<MyTermResponseDTO>>> myTerms(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+    public ResponseEntity<Response<List<MyTermResponseDTO>>> myTerms(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+
         List<MyTermResponseDTO> result = termService.getMyOptionalTerms(userDetails.getMemberId());
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "동의한 약관 목록 조회 성공"));
@@ -299,6 +312,11 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid OptionalTermsChangeRequestDTO request
     ) {
+
+        if (userDetails == null) {
+            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+
         termService.changeOptionalTerms(userDetails.getMemberId(), request.getAgreements());
 
         return ResponseEntity.ok()

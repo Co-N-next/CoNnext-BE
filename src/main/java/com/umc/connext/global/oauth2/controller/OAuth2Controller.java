@@ -43,6 +43,7 @@ public class OAuth2Controller {
         
         - Refresh Token은 HttpOnly Cookie로 발급됩니다.
         - Access Token은 Reissue API 호출을 통해 발급해야합니다.
+        - 신규 로그인시에는 Signup Token이 HttpOnly Cookie로 발급됩니다. /auth/signup/social 에서 해당 토큰을 사용합니다.
         - 본 API는 브라우저 리다이렉트를 전제로 하며 Swagger에서 직접 실행해도 정상 동작하지 않습니다.
         """,
             responses = {

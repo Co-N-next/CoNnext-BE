@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -35,8 +37,14 @@ public class AuthService {
         String password = joinLocalRequestDTO.getPassword();
 
         //자체 회원가입 계정 존재 체크
-        if(memberRepository.existsBySocialTypeAndProviderId(SocialType.LOCAL, email)){
-            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS,"이미 가입된 이메일입니다.");
+        Optional<Member> localOpt = memberRepository.findIncludingDeletedByEmailAndSocialType(email, SocialType.LOCAL);
+
+        if(localOpt.isPresent()){
+            if (localOpt.get().getMemberStatus() == MemberStatus.DELETED) {
+                throw new GeneralException(ErrorCode.MEMBER_DELETED, "탈퇴한 계정입니다. 재가입하려면 문의바랍니다.");
+            }
+
+            throw new GeneralException(ErrorCode.ID_ALREADY_EXISTS, "이미 가입된 이메일입니다.");
         }
 
         //소셜 계정 이메일과 충돌 체크

@@ -2,6 +2,7 @@ package com.umc.connext.global.oauth2.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.member.service.NicknameService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
@@ -63,9 +64,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nickname = oAuth2Response.getName();
 
         //소셜 계정 자체 존재 여부
-        Optional<Member> socialMember = memberRepository.findBySocialTypeAndProviderId(socialType, providerId);
+        Optional<Member> socialMember = memberRepository.findIncludingDeletedBySocialTypeAndProviderId(
+                socialType, providerId);
 
         if (socialMember.isPresent()) {
+            Member member = socialMember.get();
+
+            if (member.getMemberStatus() == MemberStatus.DELETED) {
+                member.restore();
+                memberRepository.save(member);
+            }
             return new CustomUserDetails(socialMember.get());
         }
 

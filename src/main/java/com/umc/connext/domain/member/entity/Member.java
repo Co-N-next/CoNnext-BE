@@ -6,6 +6,8 @@ import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.global.oauth2.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+
 
 @Getter
 @Entity
@@ -17,6 +19,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW(), member_status = 'DELETED' WHERE member_id = ?")
 public class Member extends BaseEntity {
 
     @Id
@@ -54,6 +57,10 @@ public class Member extends BaseEntity {
         this.memberStatus = memberStatus;
     }
 
+    public void restore() {
+        super.restore();
+        this.memberStatus = MemberStatus.ACTIVE;
+    }
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;
     }
