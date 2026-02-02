@@ -31,8 +31,8 @@ public interface VenueFacilityRepository extends JpaRepository<VenueFacility, Lo
     // 특정 두 층을 연결하는 계단 조회 (connectedFloors에 두 층 번호가 모두 포함된 경우)
     @Query("SELECT f FROM VenueFacility f WHERE f.venueId = :venueId " +
             "AND f.type = 'STAIRS' " +
-            "AND f.connectedFloors LIKE %:floor1% " +
-            "AND f.connectedFloors LIKE %:floor2%")
+            "AND f.connectedFloors LIKE CONCAT('%', :floor1, '%') " +
+            "AND f.connectedFloors LIKE CONCAT('%', :floor2, '%')")
     List<VenueFacility> findStairsConnectingFloors(
             @Param("venueId") Long venueId,
             @Param("floor1") String floor1,
@@ -60,4 +60,7 @@ public interface VenueFacilityRepository extends JpaRepository<VenueFacility, Lo
 
     // 공연장의 특정 층 시설물 수 카운트
     long countByVenueIdAndFloor(Long venueId, Integer floor);
+
+    // 공연장의 모든 시설물 삭제
+    void deleteAllByVenueId(Long venueId);
 }

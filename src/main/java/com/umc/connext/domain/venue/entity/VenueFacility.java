@@ -4,6 +4,7 @@ import com.umc.connext.common.enums.FacilityType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Slf4j
 @Schema(
         name = "VenueFacility",
         description = "공연장 시설물 엔티티 (화장실/계단/출입구 등)"
@@ -90,8 +92,25 @@ public class VenueFacility {
         }
         return Arrays.stream(connectedFloors.split(","))
                 .map(String::trim)
-                .map(Integer::parseInt)
+                .map(this::tryParseInteger)
+                .filter(floor -> floor != null)
                 .toList();
+    }
+
+    private Integer tryParseInteger(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(trimmed);
+        } catch (NumberFormatException ex) {
+            log.warn("Failed to parse floor number from '{}', skipping", value);
+            return null;
+        }
     }
 
     public void setConnectedFloorsList(List<Integer> floors) {

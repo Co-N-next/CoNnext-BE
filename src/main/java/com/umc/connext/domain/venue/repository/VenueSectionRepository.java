@@ -27,4 +27,7 @@ public interface VenueSectionRepository extends JpaRepository<VenueSection, Long
 
     // 공연장의 특정 층 구역 수 카운트
     long countByVenueIdAndFloor(Long venueId, Integer floor);
+
+    // 공연장의 모든 구역 삭제
+    void deleteAllByVenueId(Long venueId);
 }

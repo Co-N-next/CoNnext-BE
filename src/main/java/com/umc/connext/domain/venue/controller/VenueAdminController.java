@@ -7,6 +7,8 @@ import com.umc.connext.domain.venue.entity.Venue;
 import com.umc.connext.domain.venue.entity.VenueFloorConfig;
 import com.umc.connext.domain.venue.repository.VenueFloorConfigRepository;
 import com.umc.connext.domain.venue.repository.VenueRepository;
+import com.umc.connext.domain.venue.repository.VenueSectionRepository;
+import com.umc.connext.domain.venue.repository.VenueFacilityRepository;
 import com.umc.connext.domain.venue.service.FloorMappingService;
 import com.umc.connext.domain.venue.service.SvgParserService;
 import com.umc.connext.domain.venue.service.VenueDataInitService;
@@ -38,6 +40,8 @@ public class VenueAdminController {
 
     private final VenueRepository venueRepository;
     private final VenueFloorConfigRepository floorConfigRepository;
+    private final VenueSectionRepository venueSectionRepository;
+    private final VenueFacilityRepository venueFacilityRepository;
     private final FloorMappingService floorMappingService;
     private final VenueDataInitService venueDataInitService;
     private final SvgParserService svgParserService;
@@ -143,13 +147,15 @@ public class VenueAdminController {
     ) {
         if (clearExisting) {
             floorMappingService.removeAllFloorConfigs(venueId);
+            venueSectionRepository.deleteAllByVenueId(venueId);
+            venueFacilityRepository.deleteAllByVenueId(venueId);
         }
 
         VenueDataInitService.InitResult result = venueDataInitService.initializeFromSvg(venueId, svgFile);
         if (result.isSuccess()) {
             return ResponseEntity.ok(Response.success(SuccessCode.INSERT_SUCCESS, result));
         } else {
-            return ResponseEntity.ok(Response.fail(ErrorCode.BAD_REQUEST));
+            return ResponseEntity.ok(Response.fail(ErrorCode.BAD_REQUEST, result.getMessage()));
         }
     }
 

@@ -112,7 +112,7 @@ public class PathFindingService {
             BigDecimal startX, BigDecimal startY, Integer startFloor,
             Long facilityId, boolean includeGuide
     ) {
-        VenueFacility facility = facilityRepository.findById(facilityId)
+        VenueFacility facility = facilityRepository.findByIdAndVenueId(facilityId, venueId)
                 .orElseThrow(() -> GeneralException.notFound("시설물을 찾을 수 없습니다."));
 
         PathFindingRequest request = PathFindingRequest.builder()

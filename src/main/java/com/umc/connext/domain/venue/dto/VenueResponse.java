@@ -112,7 +112,7 @@ public class VenueResponse {
         public static FacilityDto from(VenueFacility facility) {
             return FacilityDto.builder()
                     .facilityId(facility.getId())
-                    .type(facility.getType().toString())
+                    .type(facility.getType())
                     .name(facility.getName())
                     .floor(facility.getFloor())
                     .x(facility.getX())

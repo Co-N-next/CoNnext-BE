@@ -190,7 +190,8 @@ public class VenueService {
     }
 
     public List<VenueResponse.FacilityDto> getVenueFacilities(Long venueId) {
-        // 1. 해당 공연장의 모든 시설물 조회
+        validateVenueId(venueId);
+
         List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
 
         // 2. Entity -> DTO 변환하여 반환

@@ -167,7 +167,13 @@ public class SvgParserService {
         }
 
         Matcher matcher = FLOOR_PREFIX_PATTERN.matcher(id);
-        if (matcher.matches()) return Integer.parseInt(matcher.group(1));
+        if (matcher.matches()) {
+            try {
+                return Integer.parseInt(matcher.group(1));
+            } catch (NumberFormatException e) {
+                log.warn("Failed to parse floor from id '{}' using FLOOR_PREFIX_PATTERN, group(1)='{}'", id, matcher.group(1), e);
+            }
+        }
 
         if (floorMappingService.hasFloorConfig(venueId)) {
             String cleanId = cleanSectionId(id);
