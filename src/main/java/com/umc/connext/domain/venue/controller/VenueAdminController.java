@@ -11,6 +11,7 @@ import com.umc.connext.domain.venue.service.FloorMappingService;
 import com.umc.connext.domain.venue.service.SvgParserService;
 import com.umc.connext.domain.venue.service.VenueDataInitService;
 import com.umc.connext.domain.venue.dto.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+@Hidden
 @Tag(name = "Admin Venue", description = "공연장 관리자 API (공연장 CRUD, 층 설정, SVG 업로드/초기화)")
 @RestController
 @RequestMapping("/api/admin/venues")

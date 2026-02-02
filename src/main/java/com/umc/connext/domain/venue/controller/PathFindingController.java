@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 
 @Tag(name = "Path Finding", description = "공연장 내 경로 탐색 API")
 @RestController
-@RequestMapping("/api/venues/{venueId}/pathfinding")
+@RequestMapping("/venues/{venueId}/pathfinding")
 @RequiredArgsConstructor
 public class PathFindingController {
 

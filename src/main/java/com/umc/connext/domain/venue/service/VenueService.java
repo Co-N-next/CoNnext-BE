@@ -39,6 +39,8 @@ public class VenueService {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다. ID=" + venueId));
 
+        venueRepository.incrementTotalViews(venueId);
+
         // 구역(Section) 및 시설(Facility) 조회
         List<VenueSection> sections = venueSectionRepository.findAllByVenueId(venueId);
         List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
@@ -157,6 +159,16 @@ public class VenueService {
                 venueId, floor, type, result.size());
 
         return result;
+    }
+
+    public List<VenueResponse.FacilityDto> getVenueFacilities(Long venueId) {
+        // 1. 해당 공연장의 모든 시설물 조회
+        List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
+
+        // 2. Entity -> DTO 변환하여 반환
+        return facilities.stream()
+                .map(VenueResponse.FacilityDto::from) // DTO에 from 메서드가 있다고 가정 (없으면 builder 사용)
+                .collect(Collectors.toList());
     }
 
     // ==================== Validation Methods ====================

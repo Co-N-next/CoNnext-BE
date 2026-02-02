@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Venue Map", description = "공연장 지도/맵 데이터 조회 API")
 @RestController
 @RequestMapping("/venues")
@@ -40,5 +42,24 @@ public class VenueController {
     ) {
         VenueResponse mapData = venueService.getVenueMap(venueId);
         return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, mapData));
+    }
+
+    @Operation(
+            summary = "공연장 시설물(편의시설) 전체 조회",
+            description = "특정 공연장의 모든 시설물(화장실, 엘리베이터, 계단, 매점 등) 정보를 조회합니다. 지도 위에 아이콘만 갱신하거나 검색할 때 사용합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = VenueResponse.FacilityDto.class))), // List 반환 명시
+            @ApiResponse(responseCode = "404", description = "공연장 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @GetMapping("/{venueId}/facilities")
+    public ResponseEntity<Response<List<VenueResponse.FacilityDto>>> getVenueFacilities(
+            @Parameter(description = "공연장 ID", example = "1", required = true)
+            @PathVariable Long venueId
+    ) {
+        List<VenueResponse.FacilityDto> facilities = venueService.getVenueFacilities(venueId);
+        return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, facilities));
     }
 }
