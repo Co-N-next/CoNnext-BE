@@ -1,5 +1,6 @@
 package com.umc.connext.domain.venue.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -90,6 +91,9 @@ public class PathFindingResponse {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private boolean multiFloor;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<NavigationStep> navigationSteps;
 
     public static PathFindingResponse success(
             List<Coordinate> coordinates,

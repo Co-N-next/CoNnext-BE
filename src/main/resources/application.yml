@@ -11,3 +11,6 @@ spring:
   session:
     jdbc:
       initialize-schema: always
+  logging:
+    level:
+      com.umc.connext.domain.venue.service.PathFindingService: DEBUG

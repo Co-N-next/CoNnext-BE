@@ -82,11 +82,17 @@ public class PathFindingController {
             @Parameter(description = "도착 Y 좌표", example = "778.90", required = true)
             @RequestParam BigDecimal endY,
             @Parameter(description = "도착 층", example = "2", required = true)
-            @RequestParam Integer endFloor
+            @RequestParam Integer endFloor,
+            @Parameter(description = "단계별 텍스트 안내 포함 여부")
+            @RequestParam(defaultValue = "false") boolean includeGuide
     ) {
-        PathFindingResponse pathResponse = pathFindingService.findPath(
-                venueId, startX, startY, startFloor, endX, endY, endFloor
-        );
+        PathFindingRequest request = PathFindingRequest.builder()
+                .startX(startX).startY(startY).startFloor(startFloor)
+                .endX(endX).endY(endY).endFloor(endFloor)
+                .includeGuide(includeGuide)
+                .build();
+
+        PathFindingResponse pathResponse = pathFindingService.findPath(venueId, request);
         return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, pathResponse));
     }
 
@@ -114,10 +120,11 @@ public class PathFindingController {
             @Parameter(description = "출발 Y 좌표", example = "678.90", required = true)
             @RequestParam BigDecimal startY,
             @Parameter(description = "출발 층", example = "1", required = true)
-            @RequestParam Integer startFloor
+            @RequestParam Integer startFloor,
+            @RequestParam(defaultValue = "false") boolean includeGuide
     ) {
         PathFindingResponse pathResponse = pathFindingService.findPathToFacility(
-                venueId, startX, startY, startFloor, facilityId
+                venueId, startX, startY, startFloor, facilityId, includeGuide
         );
         return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, pathResponse));
     }

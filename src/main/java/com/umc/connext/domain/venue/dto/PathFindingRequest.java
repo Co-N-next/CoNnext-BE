@@ -65,6 +65,8 @@ public class PathFindingRequest {
     @NotNull(message = "도착 층은 필수입니다")
     private Integer endFloor;
 
+    private boolean includeGuide;
+
     public boolean isSameFloor() {
         return startFloor.equals(endFloor);
     }
