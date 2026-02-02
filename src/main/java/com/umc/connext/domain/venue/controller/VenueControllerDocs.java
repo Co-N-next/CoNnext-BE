@@ -1,7 +1,7 @@
 package com.umc.connext.domain.venue.controller;
 
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.venue.dto.VenueResDTO;
+import com.umc.connext.domain.venue.dto.VenueResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,7 +25,7 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "400", description = "검색어를 다시 확인해주세요")
     })
     @GetMapping("/search")
-    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
+    ResponseEntity<Response<List<VenueResponse.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
     );
@@ -39,6 +39,6 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/trend-search")
-    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
+    ResponseEntity<Response<List<VenueResponse.VenuePreviewDTO>>> trendSearchVenues();
 
 }

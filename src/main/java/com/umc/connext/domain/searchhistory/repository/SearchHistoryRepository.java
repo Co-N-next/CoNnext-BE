@@ -3,6 +3,8 @@ package com.umc.connext.domain.searchhistory.repository;
 import com.umc.connext.domain.searchhistory.entity.SearchHistory;
 import com.umc.connext.domain.searchhistory.entity.SearchType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
