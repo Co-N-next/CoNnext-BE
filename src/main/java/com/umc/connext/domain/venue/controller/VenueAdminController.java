@@ -258,9 +258,10 @@ public class VenueAdminController {
         return ResponseEntity.ok(Response.<Void>success(SuccessCode.DELETE_SUCCESS));
     }
 
-    @Operation(summary = "층 설정 전체 삭제", description = "venueId의 모든 층 설정을 삭제합니다.")
+    @Operation(summary = "공연장 삭제", description = "공연장과 관련된 모든 데이터(섹션, 시설물, 층 설정)를 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "삭제 성공")
+            @ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없음")
     })
     @DeleteMapping("/{venueId}")
     public ResponseEntity<Response<Void>> deleteVenue(

@@ -28,7 +28,7 @@ public class VenueController implements VenueControllerDocs{
 
     private final VenueService venueService;
 
-    // 공연장 검색
+    @Override
     @GetMapping("/search")
     public ResponseEntity<Response<List<VenueResponse.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
@@ -43,10 +43,10 @@ public class VenueController implements VenueControllerDocs{
 
         Page<VenueResponse.VenuePreviewDTO> result = venueService.searchVenues(query, page);
 
-        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "공연장 검색 성공"));
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result.getContent(), "공연장 검색 성공"));
     }
 
-    // 인기 검색 공연장 조회
+    @Override
     @GetMapping("/trend-search")
     public ResponseEntity<Response<List<VenueResponse.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResponse.VenuePreviewDTO> result = venueService.trendSearchVenues();

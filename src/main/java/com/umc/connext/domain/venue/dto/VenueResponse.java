@@ -76,9 +76,10 @@ public class VenueResponse {
         private String pathData;
 
         public static SectionDto from(VenueSection section) {
+            String type = (section.getType() != null) ? section.getType().toString() : "UNKNOWN";
             return SectionDto.builder()
                     .sectionId(section.getSectionId())
-                    .type(section.getType().toString())
+                    .type(type)
                     .pathData(section.getFullPath())
                     .build();
         }

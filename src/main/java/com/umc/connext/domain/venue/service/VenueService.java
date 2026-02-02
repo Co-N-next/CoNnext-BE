@@ -60,6 +60,7 @@ public class VenueService {
                 .toList();
     }
 
+    @Transactional(readOnly = false)
     public VenueResponse getVenueMap(Long venueId) {
         validateVenueId(venueId);
 
