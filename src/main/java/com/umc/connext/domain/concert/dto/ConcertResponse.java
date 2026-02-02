@@ -26,8 +26,8 @@ public class ConcertResponse {
     @Schema(description = "관람등급", example = "전체관람가")
     private String ageRating;
 
-    @Schema(description = "공연 설명", example = "신나는 인디밴드 페스티벌입니다.")
-    private String description;
+    @Schema(description = "공연 설명 주소", example = "https://example.com/notice")
+    private String noticeUrl;
 
     @Schema(description = "가격", example = "50,000원")
     private String price;
@@ -45,7 +45,7 @@ public class ConcertResponse {
                 .name(concert.getName())
                 .posterImage(concert.getPosterImage())
                 .ageRating(concert.getAgeRating())
-                .description(concert.getDescription())
+                .noticeUrl(concert.getNoticeUrl())
                 .price(concert.getPrice())
                 .reservationLink(concert.getReservationLink())
                 .schedules(details.stream()
@@ -61,7 +61,7 @@ public class ConcertResponse {
                 .name(concert.getName())
                 .posterImage(concert.getPosterImage())
                 .ageRating(concert.getAgeRating())
-                .description(concert.getDescription())
+                .noticeUrl(concert.getNoticeUrl())
                 .price(concert.getPrice())
                 .reservationLink(concert.getReservationLink())
                 .build();

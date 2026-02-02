@@ -26,8 +26,7 @@ public class Concert extends BaseEntity {
 
     private String ageRating;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private String noticeUrl;
 
     private String price;
 

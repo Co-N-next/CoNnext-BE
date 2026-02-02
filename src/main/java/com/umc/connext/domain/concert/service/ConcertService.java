@@ -41,7 +41,7 @@ public class ConcertService {
 
     public ConcertDetailResponse getConcertDetail(Long detailId) {
         ConcertDetail concertDetail = concertDetailRepository.findByIdWithConcert(detailId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST, "존재하지 않는 공연 회차입니다. id=" + detailId));
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "존재하지 않는 공연 회차입니다. id=" + detailId));
 
         return ConcertDetailResponse.from(concertDetail);
     }
@@ -54,8 +54,9 @@ public class ConcertService {
     }
 
     public List<ConcertTodayResponse> getTodayConcerts() {
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
         return concertDetailRepository.findByStartAtBetween(startOfDay, endOfDay)
                 .stream()

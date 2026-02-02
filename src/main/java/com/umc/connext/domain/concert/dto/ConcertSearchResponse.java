@@ -18,17 +18,4 @@ public class ConcertSearchResponse {
 
     @Schema(description = "페이지 정보")
     private PageInfo pageInfo;
-
-    public static ConcertSearchResponse from(Page<ConcertResponse> page) {
-        return ConcertSearchResponse.builder()
-                .concerts(page.getContent())
-                .pageInfo(new PageInfo(
-                        page.getNumber(),
-                        page.getSize(),
-                        page.hasNext(),
-                        page.getTotalElements(),
-                        page.getTotalPages()
-                ))
-                .build();
-    }
 }
