@@ -117,7 +117,6 @@ public class VenueAdminController {
                     if (request.name() != null) venue.setName(request.name());
                     if (request.address() != null) venue.setAddress(request.address());
                     if (request.totalFloors() != null) venue.setTotalFloors(request.totalFloors());
-                    if (request.isActive() != null) venue.setIsActive(request.isActive());
                     return ResponseEntity.ok(Response.success(SuccessCode.UPDATE_SUCCESS, venueRepository.save(venue)));
                 })
                 .orElseGet(() -> ResponseEntity.ok(Response.fail(ErrorCode.NOT_FOUND)));

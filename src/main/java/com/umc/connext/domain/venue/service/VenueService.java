@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.connext.common.enums.FacilityType;
 import com.umc.connext.common.enums.SectionType;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResponse;
 import com.umc.connext.domain.venue.entity.Venue;
 import com.umc.connext.domain.venue.entity.VenueFacility;
@@ -14,6 +15,8 @@ import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.repository.VenueSectionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,31 @@ public class VenueService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final VenueRepository venueRepository;
+
+    // 공연장 검색
+    @Transactional(readOnly = true)
+    public Page<VenueResponse.VenuePreviewDTO> searchVenues(
+            String query,
+            Integer page
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
+
+        return venueRepository.searchVenues(query, pageRequest)
+                .map(VenueConverter::toVenuePreviewDTO);
+    }
+
+    // 인기 검색 공연장 조회
+    @Transactional
+    public List<VenueResponse.VenuePreviewDTO> trendSearchVenues() {
+
+        // searchCount가 가장 높은 것부터 10개 조회
+        List<Venue> top5BySearchCount = venueRepository.findTop5ByOrderBySearchCountDesc();
+
+        // DTO 변환
+        return top5BySearchCount.stream()
+                .map(VenueConverter::toVenuePreviewDTO)
+                .toList();
+    }
 
     public VenueResponse getVenueMap(Long venueId) {
         validateVenueId(venueId);

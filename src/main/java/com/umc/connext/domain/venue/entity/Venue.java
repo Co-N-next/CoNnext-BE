@@ -1,5 +1,7 @@
 package com.umc.connext.domain.venue.entity;
 
+import com.umc.connext.common.entity.BaseEntity;
+import com.umc.connext.domain.venue.enums.VenueType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,14 +12,14 @@ import java.time.LocalDateTime;
 @Table(name = "venues")
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Schema(
         name = "Venue",
         description = "공연장 기본 엔티티"
 )
-public class Venue {
+public class Venue extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +29,10 @@ public class Venue {
     @Column(name = "name", length = 100, nullable = false)
     @Schema(description = "공연장 이름", example = "올림픽홀", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
+
+    @Column(name = "city")
+    @Schema(description = "도시", example = "서울")
+    private String city;
 
     @Column(name = "address", length = 500)
     @Schema(description = "공연장 주소", example = "서울 송파구 올림픽로 424")
@@ -59,22 +65,17 @@ public class Venue {
     @Schema(description = "원본 SVG 파일 경로 또는 URL", example = "/static/maps/venue_1.svg")
     private String svgPath;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    @Schema(description = "활성 상태", example = "true")
-    private Boolean isActive = true;
+    private VenueType venueType = VenueType.CONCERT_HALL;
 
-    @Column(name = "created_at")
-    @Builder.Default
-    @Schema(description = "생성 시각", example = "2024-01-01T12:00:00", accessMode = Schema.AccessMode.READ_ONLY)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "latitude")
+    private Double latitude;
 
-    @Column(name = "updated_at")
-    @Schema(description = "수정 시각", example = "2024-01-10T18:30:00", accessMode = Schema.AccessMode.READ_ONLY)
-    private LocalDateTime updatedAt;
+    @Column(name = "longitude")
+    private Double longitude;
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "image_url")
+    private String imageUrl;
 }

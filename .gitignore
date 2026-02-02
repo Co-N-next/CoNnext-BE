@@ -38,4 +38,6 @@ out/
 
 ### environment files ###
 .env
+.env.prod
+
 *.md

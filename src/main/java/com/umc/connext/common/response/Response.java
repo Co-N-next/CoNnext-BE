@@ -3,6 +3,7 @@ package com.umc.connext.common.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.umc.connext.common.code.Code;
+import com.umc.connext.common.code.SuccessCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -102,6 +103,14 @@ public class Response<T> {
                 .statusCode(code.getStatusCode())
                 .isSuccess(false)
                 .message(code.getMessage())
+                .build();
+    }
+
+    public static <T> Response<T> fail(Code code, String message) {
+        return Response.<T>builder()
+                .statusCode(code.getStatusCode())
+                .isSuccess(false)
+                .message(message)
                 .build();
     }
 }

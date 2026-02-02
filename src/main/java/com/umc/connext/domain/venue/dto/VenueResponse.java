@@ -120,4 +120,12 @@ public class VenueResponse {
                     .build();
         }
     }
+
+    @Builder
+    public record VenuePreviewDTO(
+            Long id,
+            String name,
+            String city,
+            String imageUrl
+    ){}
 }
