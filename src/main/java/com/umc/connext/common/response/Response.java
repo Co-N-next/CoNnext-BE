@@ -3,6 +3,7 @@ package com.umc.connext.common.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.umc.connext.common.code.Code;
+import com.umc.connext.common.code.SuccessCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
