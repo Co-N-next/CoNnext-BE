@@ -56,4 +56,17 @@ public class ReservationService {
 
     }
 
+    // 예매내역 삭제
+    @Transactional
+    public void deleteReservation(
+            Long memberId,
+            Long reservationId
+    ){
+        // 회원 존재 확인
+        Member member = em.find(Member.class, memberId);
+        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+
+        reservationRepository.deleteByIdAndMemberId(reservationId, memberId);
+    }
+
 }

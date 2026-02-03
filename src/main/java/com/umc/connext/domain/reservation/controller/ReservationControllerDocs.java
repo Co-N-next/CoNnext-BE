@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/reservations")
 public interface ReservationControllerDocs {
@@ -25,6 +23,19 @@ public interface ReservationControllerDocs {
     @PostMapping("")
     ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @RequestBody ReservationReqDTO.ReservationAddReqDTO dto
+    );
+
+    @Operation(
+            summary = "예매내역 삭제",
+            description = "예매내역을 삭제합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "예매내역을 찾을 수 없습니다.")
+    })
+    @DeleteMapping("/{reservationId}")
+    ResponseEntity<Response> deleteReservation(
+            @PathVariable Long reservationId
     );
 
 }

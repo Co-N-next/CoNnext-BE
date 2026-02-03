@@ -15,4 +15,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             String row,
             Integer seat
     );
+
+    void deleteByIdAndMemberId(Long reservationId, Long memberId);
 }
