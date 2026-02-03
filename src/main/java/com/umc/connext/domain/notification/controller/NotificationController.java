@@ -2,8 +2,6 @@ package com.umc.connext.domain.notification.controller;
 
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.searchhistory.dto.SearchHistoryResponseDTO;
-import com.umc.connext.domain.searchhistory.entity.SearchType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.umc.connext.domain.notification.service.NotificationService;
 import com.umc.connext.domain.notification.type.NotificationType;
-
-import java.util.List;
 
 @Tag(name = "Notifications", description = "알림 관련 API")
 @RestController
@@ -35,16 +31,16 @@ public class NotificationController {
             @ApiResponse(responseCode = "200", description = "알림 존재 여부 확인 성공")
     })
     @GetMapping
-    public ResponseEntity<Response<Boolean>> hasUnreadNotification(
+    public ResponseEntity<Response<Void>> hasUnreadNotification(
             @RequestParam NotificationType type
     ) {
         boolean result = notificationService.hasUnreadNotification(type);
 
-        return ResponseEntity.ok()
-                .body(Response.success(
+        return ResponseEntity.ok(
+                Response.success(
                         SuccessCode.GET_SUCCESS,
-                        result,
                         result ? "안 읽은 알림이 존재합니다." : "안 읽은 알림이 존재하지 않습니다."
-                ));
+                )
+        );
     }
 }

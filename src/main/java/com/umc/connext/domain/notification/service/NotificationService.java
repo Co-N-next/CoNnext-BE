@@ -14,8 +14,8 @@ public class NotificationService {
 
     public boolean hasUnreadNotification(NotificationType type) {
         return switch (type) {
-            case MYNOTIFICATION -> myNotificationService.existsUnread();
-            case ANNOUNCEMENT -> announcementService.existsUnread();
+            case NEWS -> myNotificationService.existsUnread();
+            case NOTICES -> announcementService.existsUnread();
         };
     }
 }

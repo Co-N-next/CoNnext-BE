@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
         })
 public class SearchHistory extends BaseEntity {
     @Id
-    @Column(name = "search_history_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

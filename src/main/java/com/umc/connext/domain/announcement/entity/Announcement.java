@@ -18,8 +18,8 @@ import lombok.AccessLevel;
 public class Announcement extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "announcement_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="sender_id", nullable=false)

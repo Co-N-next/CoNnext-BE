@@ -16,7 +16,6 @@ import com.umc.connext.domain.mynotification.entity.Category;
 public class MyNotification extends BaseEntity {
 
     @Id
-    @Column(name = "my_notification_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long myNotificationId;
 
