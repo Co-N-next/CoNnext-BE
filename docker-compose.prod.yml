@@ -1,0 +1,18 @@
+services:
+  backend:
+    image: ${DOCKER_USERNAME}/connext:latest
+    container_name: connext
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
