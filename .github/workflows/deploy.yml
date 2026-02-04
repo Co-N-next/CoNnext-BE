@@ -34,24 +34,52 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+      - name: Add EC2 to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
+
+      - name: Copy docker-compose.prod.yml to EC2
+        run: |
+          scp docker-compose.prod.yml ubuntu@${{ secrets.EC2_IP }}:~/app/docker-compose.prod.yml
+
       - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-          docker pull ${{ secrets.DOCKER_USERNAME }}/connext:latest
-          docker stop connext || true
-          docker rm connext || true
-          docker run -d --name connext -p 8080:8080 \
-            -e SPRING_PROFILES_ACTIVE=prod \
-            -e DB_HOST=${{ secrets.DB_HOST }} \
-            -e DB_PORT=${{ secrets.DB_PORT }} \
-            -e DB_NAME=${{ secrets.DB_NAME }} \
-            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }} \
-            -e JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }} \
-            ${{ secrets.DOCKER_USERNAME }}/connext:latest
+          ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            cd ~/app
+
+            cat <<EOT > .env.prod
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}
+            FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
+            JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.JWT_ACCESS_TOKEN_VALIDITY }}
+            JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.JWT_REFRESH_TOKEN_VALIDITY }}
+            JWT_SIGNUP_TOKEN_VALIDITY=${{ secrets.JWT_SIGNUP_TOKEN_VALIDITY }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+            EOT
+
+            docker compose -f docker-compose.prod.yml down
+            docker pull ${{ secrets.DOCKER_USERNAME }}/connext:latest
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
           EOF
