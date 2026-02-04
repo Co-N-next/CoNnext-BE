@@ -76,7 +76,9 @@ jobs:
             echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env.prod
             echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env.prod
             echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env.prod
-
+          
+            docker stop connext redis || true
+            docker rm connext redis || true 
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKER_USERNAME }}/connext:latest
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
