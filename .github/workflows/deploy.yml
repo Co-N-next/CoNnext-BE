@@ -53,31 +53,29 @@ jobs:
           ssh ubuntu@${{ secrets.EC2_IP }} << 'EOF'
             cd ~/app
 
-            cat <<EOT > .env.prod
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}
-            FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}
-            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}
-            JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}
-            REDIS_HOST=${{ secrets.REDIS_HOST }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.JWT_ACCESS_TOKEN_VALIDITY }}
-            JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.JWT_REFRESH_TOKEN_VALIDITY }}
-            JWT_SIGNUP_TOKEN_VALIDITY=${{ secrets.JWT_SIGNUP_TOKEN_VALIDITY }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-            EOT
+            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env.prod
+            echo "BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}" >> .env.prod
+            echo "FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}" >> .env.prod
+            echo "SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}" >> .env.prod
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.prod
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.prod
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.prod
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env.prod
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.prod
+            echo "JPA_DDL_AUTO=${{ secrets.JPA_DDL_AUTO }}" >> .env.prod
+            echo "JPA_SHOW_SQL=${{ secrets.JPA_SHOW_SQL }}" >> .env.prod
+            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env.prod
+            echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env.prod
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.prod
+            echo "JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.JWT_ACCESS_TOKEN_VALIDITY }}" >> .env.prod
+            echo "JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.JWT_REFRESH_TOKEN_VALIDITY }}" >> .env.prod
+            echo "JWT_SIGNUP_TOKEN_VALIDITY=${{ secrets.JWT_SIGNUP_TOKEN_VALIDITY }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env.prod
+            echo "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env.prod
 
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKER_USERNAME }}/connext:latest
