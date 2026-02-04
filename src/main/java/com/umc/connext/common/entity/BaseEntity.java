@@ -25,4 +25,7 @@ public abstract class BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    protected void restore() {
+        this.deletedAt = null;
+    }
 }

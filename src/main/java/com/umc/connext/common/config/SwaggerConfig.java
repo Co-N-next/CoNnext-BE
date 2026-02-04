@@ -21,12 +21,13 @@ public class SwaggerConfig {
                 .addServersItem(new io.swagger.v3.oas.models.servers.Server()
                         .url("http://localhost:8080")
                         .description("Local"))
-//                .addSecurityItem(new SecurityRequirement().addList("JWT"))
-//                .components(new Components()
-//                        .addSecuritySchemes("JWT", new SecurityScheme()
-//                                .type(SecurityScheme.Type.HTTP)
-//                                .scheme("bearer")
-//                                .bearerFormat("JWT")))
+                .components(new Components()
+                        .addSecuritySchemes("JWT", new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .in(SecurityScheme.In.HEADER)
+                                .name("Authorization")))
                                 ;
     }
 }
