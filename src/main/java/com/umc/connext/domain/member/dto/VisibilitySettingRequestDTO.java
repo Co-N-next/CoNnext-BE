@@ -26,9 +26,9 @@ public class VisibilitySettingRequestDTO {
             description = "좌석 공개 레벨",
             example = "SECTION_ROW",
             allowableValues = {
-                    "SECTION",
-                    "SECTION_ROW",
-                    "FULL_SEAT"
+                    "SECTION_ONLY",
+                    "ROW_ONLY",
+                    "EXACT_SEAT"
             }
     )
     private SeatVisibility seatVisibility;
