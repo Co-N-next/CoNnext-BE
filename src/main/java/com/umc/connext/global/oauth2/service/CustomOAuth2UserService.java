@@ -92,7 +92,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
         //닉네임 중복 처리
-        if (memberRepository.existsByNickname(nickname)) {
+        if (nickname == null || memberRepository.existsByNickname(nickname)) {
             nickname = nicknameService.generateRandomNickname();
         }
 
