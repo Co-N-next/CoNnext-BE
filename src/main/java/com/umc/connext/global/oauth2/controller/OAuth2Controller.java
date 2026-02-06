@@ -45,6 +45,8 @@ public class OAuth2Controller {
         - Access Token은 Reissue API 호출을 통해 발급해야합니다.
         - 신규 로그인시에는 Signup Token이 HttpOnly Cookie로 발급됩니다. /auth/signup/social 에서 해당 토큰을 사용합니다.
         - 본 API는 브라우저 리다이렉트를 전제로 하며 Swagger에서 직접 실행해도 정상 동작하지 않습니다.
+        - 자체 회원가입으로 등록된 이메일로 소셜로그인시 아래 JSON error를 뿌립니다.
+        - "code":"email_conflict","message":"이미 자체 회원가입으로 등록된 이메일입니다.","isSuccess":false}
         """,
             responses = {
                     @ApiResponse(
