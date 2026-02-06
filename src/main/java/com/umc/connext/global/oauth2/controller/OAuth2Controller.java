@@ -5,15 +5,18 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.global.auth.dto.JoinSocialRequestDTO;
 import com.umc.connext.global.auth.enums.TokenCategory;
 import com.umc.connext.global.auth.service.AuthService;
+import com.umc.connext.global.oauth2.dto.SignupInfoResponseDTO;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
 import com.umc.connext.global.auth.util.JWTProperties;
 import com.umc.connext.global.auth.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +36,7 @@ public class OAuth2Controller {
     private final RefreshTokenService refreshTokenService;
     private final JWTUtil jwtUtil;
     private final JWTProperties jwtProperties;
+    private final MemberService memberService;
 
     @Operation(
             summary = "소셜 로그인 시작 (리다이렉트)",
@@ -91,6 +95,7 @@ public class OAuth2Controller {
                     "- Access Token은 Reissue API 호출을 통해 발급해야합니다.\n",
             responses = {
                     @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+                    @ApiResponse(responseCode = "401", description = "회원가입 토큰이 없거나 유효하지 않음"),
                     @ApiResponse(responseCode = "400", description = "유효성 검증 실패")
             }
     )
@@ -115,6 +120,56 @@ public class OAuth2Controller {
         return ResponseEntity
                 .status(SuccessCode.JOIN_SUCCESS.getStatusCode())
                 .body(Response.success(SuccessCode.JOIN_SUCCESS));
+    }
+
+
+    @Operation(
+            summary = "소셜 회원가입 정보 조회",
+            description = """
+        소셜 로그인 후 약관 동의 전(PENDING 상태) 에서
+        회원가입 화면에 표시할 기본 정보를 조회합니다.
+
+        - 본 API는 **소셜 최초 로그인 시 발급된 Signup Token(HttpOnly Cookie)** 을 사용합니다.
+        - Signup Token은 약관 동의 완료 시 만료되며 이후에는 사용할 수 없습니다.
+        - 이미 가입이 완료된 회원(ACTIVE 상태)은 해당 API를 호출할 수 없습니다.
+        """,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "소셜 회원가입 정보 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = SignupInfoResponseDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "회원가입 토큰이 없거나 유효하지 않음"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "회원가입 진행 중인 사용자가 아님 (PENDING 상태 아님)"
+                    )
+            }
+    )
+
+    @GetMapping("auth/signup-info/social")
+    public ResponseEntity<Response<SignupInfoResponseDTO>> getSignupInfo(
+            @CookieValue(value = "signup",  required = false) String signupToken) {
+
+        if (signupToken == null) {
+            throw new GeneralException(ErrorCode.NOT_FOUND_TOKEN, "회원가입 토큰이 없습니다.");
+        }
+
+        jwtUtil.validateSignupToken(signupToken);
+
+        // 2. memberId 추출
+        Long memberId = jwtUtil.getMemberId(signupToken);
+
+        String email = memberService.findById(memberId).getEmail();
+
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS ,SignupInfoResponseDTO.of(email),"소셜 회원가입 정보 조회 성공"));
     }
 
     private Cookie createCookie(String key, String value) {
