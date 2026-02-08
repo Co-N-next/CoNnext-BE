@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,6 @@ public interface ConcertDetailRepository extends JpaRepository<ConcertDetail, Lo
     Optional<ConcertDetail> findByIdWithConcert(@Param("id") Long id);
 
     List<ConcertDetail> findAllByConcertOrderByStartAtAsc(Concert concert);
+
+    List<ConcertDetail> findByStartAtBetween(LocalDateTime start, LocalDateTime end);
 }

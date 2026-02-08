@@ -35,7 +35,7 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
             END,
             v.name ASC,
             v.id ASC
-""", nativeQuery = true)
+        """, nativeQuery = true)
     Page<SearchVenue> searchVenues(
             @Param("q") String q,
             PageRequest pageRequest
