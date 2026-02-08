@@ -24,6 +24,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 검색
     @GetMapping("/search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
@@ -42,6 +43,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 인기 검색 공연장 조회
     @GetMapping("/trend-search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
 
@@ -50,6 +52,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 즐겨찾기 등록
     @PostMapping("/favorites/{venueId}")
+    @Override
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
             @PathVariable Long venueId
     ){
@@ -61,6 +64,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 즐겨찾기 삭제
     @DeleteMapping("/favorites/{venueId}")
+    @Override
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
             @PathVariable Long venueId
     ){
@@ -72,6 +76,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 즐겨찾기 목록 조회
     @GetMapping("/favorites")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(){
         Long memberId = 1L; // 임시 회원
 

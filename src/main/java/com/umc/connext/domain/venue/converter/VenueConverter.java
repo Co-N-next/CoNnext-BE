@@ -5,7 +5,6 @@ import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.FavoriteVenue;
 import com.umc.connext.domain.venue.entity.Venue;
 import com.umc.connext.domain.venue.projection.SearchVenue;
-import com.umc.connext.domain.venue.projection.SimpleVenue;
 
 public class VenueConverter {
 

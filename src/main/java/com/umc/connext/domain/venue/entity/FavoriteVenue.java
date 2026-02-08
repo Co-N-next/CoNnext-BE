@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "favoriteVenues")
+@Table(name = "favorite_venues")
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

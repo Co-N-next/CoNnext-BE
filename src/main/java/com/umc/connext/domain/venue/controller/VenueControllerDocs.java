@@ -45,7 +45,7 @@ public interface VenueControllerDocs {
             description = "해당 공연장을 즐겨찾기 목록에 추가합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "추가 성공"),
+            @ApiResponse(responseCode = "200", description = "추가 성공"),
             @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없습니다.")
     })
     @PostMapping("/favorites/{venueId}")
@@ -61,7 +61,7 @@ public interface VenueControllerDocs {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "삭제 성공")
     })
-    @DeleteMapping("/favorite/{venueId}")
+    @DeleteMapping("/favorites/{venueId}")
     ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
             @PathVariable Long venueId
     );
