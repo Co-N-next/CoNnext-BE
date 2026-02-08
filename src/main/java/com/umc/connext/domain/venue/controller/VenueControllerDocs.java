@@ -2,10 +2,12 @@ package com.umc.connext.domain.venue.controller;
 
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,6 +52,7 @@ public interface VenueControllerDocs {
     })
     @PostMapping("/favorites/{venueId}")
     ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long venueId
     );
 
@@ -63,6 +66,7 @@ public interface VenueControllerDocs {
     })
     @DeleteMapping("/favorites/{venueId}")
     ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long venueId
     );
 
@@ -75,6 +79,8 @@ public interface VenueControllerDocs {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping("/favorites")
-    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues();
+    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    );
 
 }

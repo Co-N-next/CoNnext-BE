@@ -2,6 +2,7 @@ package com.umc.connext.domain.venue.service;
 
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.venue.entity.FavoriteVenue;
 import com.umc.connext.domain.venue.repository.FavoriteVenueRepository;
 import com.umc.connext.domain.venue.repository.VenueRepository;
@@ -24,6 +25,7 @@ public class VenueService {
 
     private final VenueRepository venueRepository;
     private final FavoriteVenueRepository favoriteVenueRepository;
+    private final MemberRepository memberRepository;
 
     // 공연장 검색
     @Transactional(readOnly = true)
@@ -39,10 +41,6 @@ public class VenueService {
     // 인기 검색 공연장 조회
     @Transactional(readOnly = true)
     public List<VenueResDTO.VenuePreviewDTO> trendSearchVenues() {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/dev
         // searchCount가 가장 높은 것부터 5개 조회
         List<Venue> top5BySearchCount = venueRepository.findTop5ByOrderBySearchCountDesc();
         // DTO 변환
@@ -50,10 +48,6 @@ public class VenueService {
                 .map(VenueConverter::toVenuePreviewDTO)
                 .toList();
     }
-<<<<<<< HEAD
-
-    @PersistenceContext
-    private EntityManager em;
 
     // 공연장 즐겨찾기 등록
     @Transactional
@@ -66,8 +60,8 @@ public class VenueService {
                 .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다."));
 
         // 회원 존재 확인
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         // 이미 즐겨찾기된 경우
         if (favoriteVenueRepository.existsByMemberIdAndVenueId(memberId, venueId)) {
@@ -89,8 +83,9 @@ public class VenueService {
             Long memberId,
             Long venueId
     ){
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        // 회원 존재 확인
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         venueRepository.findById(venueId)
                 .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다."));
@@ -103,8 +98,9 @@ public class VenueService {
     public List<VenueResDTO.VenuePreviewDTO> favoriteVenues(
             Long memberId
     ){
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        // 회원 존재 확인
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         List<FavoriteVenue> favorites = favoriteVenueRepository.findAllByMemberIdFetchVenue(memberId);
 
@@ -115,6 +111,3 @@ public class VenueService {
     }
 
 }
-=======
-}
->>>>>>> origin/dev

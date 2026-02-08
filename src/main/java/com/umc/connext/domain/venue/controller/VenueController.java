@@ -6,10 +6,12 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.service.VenueService;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,9 +56,10 @@ public class VenueController implements VenueControllerDocs {
     @PostMapping("/favorites/{venueId}")
     @Override
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long venueId
     ){
-        Long memberId = 1L; // 임시 회원 (추후 삭제)
+        Long memberId = userDetails.getMemberId();
         return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS,
                 venueService.addFavoriteVenue(memberId, venueId),
                 "즐겨찾기 공연장 등록 성공"));
@@ -66,9 +69,10 @@ public class VenueController implements VenueControllerDocs {
     @DeleteMapping("/favorites/{venueId}")
     @Override
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long venueId
     ){
-        Long memberId = 1L; // 임시 회원 (추후 삭제)
+        Long memberId = userDetails.getMemberId();
 
         venueService.deleteFavoriteVenue(memberId, venueId);
         return ResponseEntity.ok().body(Response.success(SuccessCode.DELETE_SUCCESS, "즐겨찾기 공연장 삭제 성공"));
@@ -77,8 +81,10 @@ public class VenueController implements VenueControllerDocs {
     // 공연장 즐겨찾기 목록 조회
     @GetMapping("/favorites")
     @Override
-    public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(){
-        Long memberId = 1L; // 임시 회원
+    public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long memberId = userDetails.getMemberId();
 
         List<VenueResDTO.VenuePreviewDTO> result = venueService.favoriteVenues(memberId);
 
