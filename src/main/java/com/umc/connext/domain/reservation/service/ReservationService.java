@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -67,6 +68,17 @@ public class ReservationService {
         if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
 
         reservationRepository.deleteByIdAndMemberId(reservationId, memberId);
+    }
+
+    // 예매내역 조회
+    @Transactional(readOnly = true)
+    public List<ReservationResDTO.ReservationGetResDTO> myReservations(
+            Long memberId
+    ){
+        Member member = em.find(Member.class, memberId);
+        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+
+        return null;
     }
 
 }

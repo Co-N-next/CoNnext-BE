@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Reservation", description = "예매내역 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -39,6 +41,14 @@ public class ReservationController implements ReservationControllerDocs {
         reservationService.deleteReservation(memberId, reservationId);
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.DELETE_SUCCESS, "예매내역 삭제 성공"));
+    }
+
+    // 예매내역 조회
+    @GetMapping("")
+    public ResponseEntity<Response<List<ReservationResDTO.ReservationGetResDTO>>> myReservations(){
+        Long memberId = 1L; // 임시 회원 (추후 삭제)
+
+        return null;
     }
 
 }
