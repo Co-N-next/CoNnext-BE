@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/venues")
-public class VenueController implements VenueControllerDocs{
+public class VenueController implements VenueControllerDocs {
 
     private final VenueService venueService;
 

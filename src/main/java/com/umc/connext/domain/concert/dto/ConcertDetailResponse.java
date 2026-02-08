@@ -15,7 +15,7 @@ public class ConcertDetailResponse {
     private String name;
     private String posterImage;
     private String ageRating;
-    private String description;
+    private String noticeUrl;
 
     // ConcertDetail 정보
     private Long detailId;
@@ -32,7 +32,7 @@ public class ConcertDetailResponse {
                 .name(concert.getName())
                 .posterImage(concert.getPosterImage())
                 .ageRating(concert.getAgeRating())
-                .description(concert.getDescription())
+                .noticeUrl(concert.getNoticeUrl())
                 .detailId(detail.getId())
                 .startAt(detail.getStartAt())
                 .runningTime(detail.getRunningTime())
