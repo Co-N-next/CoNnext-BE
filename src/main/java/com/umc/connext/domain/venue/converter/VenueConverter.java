@@ -7,9 +7,7 @@ import com.umc.connext.domain.venue.projection.SearchVenue;
 public class VenueConverter {
 
     // Entity -> DTO
-    public static VenueResDTO.VenuePreviewDTO toVenuePreviewDTO(
-            Venue venue
-    ){
+    public static VenueResDTO.VenuePreviewDTO toVenuePreviewDTO(Venue venue) {
         return VenueResDTO.VenuePreviewDTO.builder()
                 .id(venue.getId())
                 .name(venue.getName())
@@ -27,5 +25,4 @@ public class VenueConverter {
                 .imageUrl(venue.getImageUrl())
                 .build();
     }
-
 }
