@@ -54,7 +54,15 @@ public class VenueService {
     ) {
         // BoundingBox 먼저 계산
         double latDelta = radius / 111_320.0; // 위도
-        double lngDelta = radius / (111_320.0 * Math.cos(Math.toRadians(lat))); // 경도
+        double cosLat = Math.cos(Math.toRadians(lat));
+        double lngDelta;
+
+        if (Math.abs(cosLat) < 1e-6) {
+            lngDelta = 180.0;
+        } else {
+            lngDelta = radius / (111_320.0 * cosLat); // 경도
+            if (lngDelta > 180.0) lngDelta = 180.0;
+        }
 
         double minLat = lat - latDelta;
         double maxLat = lat + latDelta;
