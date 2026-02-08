@@ -69,6 +69,11 @@ public class VenueService {
         double minLng = lng - lngDelta;
         double maxLng = lng + lngDelta;
 
+        minLat = Math.max(minLat, -90.0);
+        maxLat = Math.min(maxLat, 90.0);
+        minLng = Math.max(minLng, -180.0);
+        maxLng = Math.min(maxLng, 180.0);
+
         // BoundingBox 내의 공연장 조회
         return venueRepository.findNearbyVenue(minLat, maxLat, minLng, maxLng, lat, lng, radius);
     }

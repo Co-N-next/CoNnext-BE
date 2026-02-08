@@ -44,18 +44,23 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
     List<Venue> findTop5ByOrderBySearchCountDesc();
 
     @Query(value = """
-        SELECT v.id AS id, v.name AS name
-        FROM venues v
-        WHERE v.latitude BETWEEN :minLat AND :maxLat
-            AND v.longitude BETWEEN :minLng AND :maxLng
-            AND ST_Distance_Sphere(
-                POINT(v.longitude, v.latitude), 
-                POINT(:lng, :lat)
-                ) <= :radius
-        ORDER BY ST_Distance_Sphere(
-            POINT(v.longitude, v.latitude), 
-            POINT(:lng, :lat)
-            )
+       SELECT
+           vwd.id AS id,
+           vwd.name AS name
+       FROM (
+           SELECT
+               v.id AS id,
+               v.name AS name,
+               ST_Distance_Sphere(
+                   POINT(v.longitude, v.latitude),
+                   POINT(:lng, :lat)
+               ) AS distance
+           FROM venues v
+           WHERE v.latitude BETWEEN :minLat AND :maxLat
+             AND v.longitude BETWEEN :minLng AND :maxLng
+       ) AS vwd
+       WHERE vwd.distance <= :radius
+       ORDER BY vwd.distance
         LIMIT 1
     """, nativeQuery = true)
     Optional<SimpleVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, double lat, double lng, int radius);
