@@ -51,7 +51,8 @@ public interface VenueControllerDocs {
             description = "사용자의 위도와 경도를 이용하여 근처 공연장 정보를 조회합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "200", description = "근처에 공연장이 없습니다.")
     })
     @GetMapping("/nearby")
     ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> nearbyVenue(

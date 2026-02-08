@@ -36,6 +36,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 공연장 검색
     @GetMapping("/search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
@@ -54,6 +55,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 인기 검색 공연장 조회
     @GetMapping("/trend-search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
 
@@ -62,6 +64,7 @@ public class VenueController implements VenueControllerDocs{
 
     // 근처 공연장 조회
     @GetMapping("/nearby")
+    @Override
     public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> nearbyVenue(
             @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") Double lat,
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") Double lng,
