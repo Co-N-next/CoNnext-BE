@@ -16,13 +16,13 @@ import java.util.List;
 @RequestMapping("/mates")
 public interface MateControllerDocs {
 
-    // 친구 요청
+    // 메이트 요청
     @Operation(
-            summary = "친구 요청",
-            description = "다른 회원에게 친구 요청을 보냅니다."
+            summary = "메이트 요청",
+            description = "다른 회원에게 메이트 요청을 보냅니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "친구 요청 성공"),
+            @ApiResponse(responseCode = "201", description = "메이트 요청 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 요청"),
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음")
     })
@@ -32,14 +32,14 @@ public interface MateControllerDocs {
             @RequestBody MateReqDTO.MateRequestDTO dto
     );
 
-    // 친구 요청 수락
+    // 메이트 요청 수락
     @Operation(
-            summary = "친구 요청 수락",
-            description = "받은 친구 요청을 수락합니다."
+            summary = "메이트 요청 수락",
+            description = "받은 메이트 요청을 수락합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "친구 요청 수락 성공"),
-            @ApiResponse(responseCode = "404", description = "친구 요청이 존재하지 않습니다.")
+            @ApiResponse(responseCode = "200", description = "메이트 요청 수락 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트 요청이 존재하지 않습니다.")
     })
     @PostMapping("/{mateId}/accept")
     ResponseEntity<Response<Void>> acceptMateRequest(
@@ -47,14 +47,14 @@ public interface MateControllerDocs {
             @PathVariable Long mateId
     );
 
-    // 친구 요청 거절
+    // 메이트 요청 거절
     @Operation(
-            summary = "친구 요청 거절",
-            description = "받은 친구 요청을 거절합니다."
+            summary = "메이트 요청 거절",
+            description = "받은 메이트 요청을 거절합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "친구 요청 거절 성공"),
-            @ApiResponse(responseCode = "404", description = "친구 요청이 존재하지 않습니다.")
+            @ApiResponse(responseCode = "200", description = "메이트 요청 거절 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트 요청이 존재하지 않습니다.")
     })
     @PostMapping("/{mateId}/reject")
     ResponseEntity<Response<Void>> rejectMateRequest(
@@ -62,16 +62,90 @@ public interface MateControllerDocs {
             @PathVariable Long mateId
     );
 
-    // 친구 목록 조회
+    // 메이트 목록 조회
     @Operation(
-            summary = "친구 목록 조회",
-            description = "내 친구 목록을 조회합니다."
+            summary = "메이트 목록 조회",
+            description = "내 메이트 목록을 조회합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "친구 목록 조회 성공")
+            @ApiResponse(responseCode = "200", description = "메이트 목록 조회 성공")
     })
     @GetMapping("")
     ResponseEntity<Response<List<MateResDTO.MateListResDTO>>> getMyMates(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    );
+
+    // 메이트 삭제
+    @Operation(
+            summary = "메이트 삭제",
+            description = "메이트 목록에서 메이트를 삭제합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "메이트 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트가 존재하지 않습니다.")
+    })
+    @DeleteMapping("/{mateId}")
+    ResponseEntity<Response<Void>> deleteMate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long mateId
+    );
+
+    // 메이트 검색
+    @Operation(
+            summary = "메이트 검색",
+            description = "닉네임으로 메이트를 검색합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "메이트 검색 성공"),
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 검색어입니다.")
+    })
+    @GetMapping("/search")
+    ResponseEntity<Response<List<MateResDTO.MateSearchResDTO>>> searchMates(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") Integer page
+    );
+
+    // 자주 찾는 메이트 추가
+    @Operation(
+            summary = "자주 찾는 메이트 추가",
+            description = "메이트 목록에서 자주 찾는 메이트로 추가합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "자주 찾는 메이트 추가 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트가 존재하지 않습니다.")
+    })
+    @PostMapping("/{mateId}/favorite")
+    ResponseEntity<Response<Void>> addFavoriteMate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long mateId
+    );
+
+    // 자주 찾는 메이트 제거
+    @Operation(
+            summary = "자주 찾는 메이트 제거",
+            description = "메이트 목록에서 자주 찾는 메이트를 제거합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "자주 찾는 메이트 제거 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트가 존재하지 않습니다.")
+    })
+    @DeleteMapping("/{mateId}/favorite")
+    ResponseEntity<Response<Void>> removeFavoriteMate(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long mateId
+    );
+
+    // 자주 찾는 메이트 목록 조회
+    @Operation(
+            summary = "자주 찾는 메이트 목록 조회",
+            description = "내 자주 찾는 메이트 목록을 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "자주 찾는 메이트 목록 조회 성공")
+    })
+    @GetMapping("/favorite")
+    ResponseEntity<Response<List<MateResDTO.FavoriteMateResDTO>>> getFavoriteMates(
             @AuthenticationPrincipal CustomUserDetails userDetails
     );
 

@@ -23,4 +23,14 @@ public interface MateRepository extends JpaRepository<Mate, Long> {
           AND m.status = 'ACCEPTED'
     """)
     List<Mate> findAllAcceptedMatesByMemberId(@Param("memberId") Long memberId);
+
+    @Query("""
+        SELECT m FROM Mate m
+        WHERE (m.requester.id = :me AND m.addressee.id IN :others)
+            OR (m.requester.id IN :others AND m.addressee.id = :me)
+    """)
+    List<Mate> findRelationsWith(
+            @Param("me") Long me,
+            @Param("others") List<Long> others
+    );
 }

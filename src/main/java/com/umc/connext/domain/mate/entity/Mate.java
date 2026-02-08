@@ -29,7 +29,7 @@ public class Mate extends BaseEntity {
     @Column(name = "status", nullable = false)
     private MateStatus status;
 
-    // 친구 요청
+    // 메이트 요청
     public static Mate request(Member requester, Member addressee) {
         Mate mate = new Mate();
         mate.requester = requester;
@@ -38,12 +38,12 @@ public class Mate extends BaseEntity {
         return mate;
     }
 
-    // 친구 수락
+    // 메이트 수락
     public void accept() {
         this.status = MateStatus.ACCEPTED;
     }
 
-    // 친구 거절
+    // 메이트 거절
     public void reject() {
         this.status = MateStatus.REJECTED;
     }
