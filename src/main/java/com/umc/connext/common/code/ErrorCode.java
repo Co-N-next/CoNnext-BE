@@ -52,7 +52,10 @@ public enum ErrorCode implements Code {
 
     // ==================== 약관동의 ====================
     INVALID_TERM_TYPE(400, "수정할 수 없는 약관 타입입니다."),
-    MISSING_REQUIRED_TERM(400, "필수 약관에 동의해야 합니다.");
+    MISSING_REQUIRED_TERM(400, "필수 약관에 동의해야 합니다."),
+
+    // ==================== 메이트 ====================
+    CONFLICT(409, "이미 메이트 관계이거나 요청이 진행 중입니다.");
 
     private final int statusCode;
     private final String message;
