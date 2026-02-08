@@ -40,5 +40,4 @@ public interface VenueControllerDocs {
     })
     @GetMapping("/trend-search")
     ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
-
 }
