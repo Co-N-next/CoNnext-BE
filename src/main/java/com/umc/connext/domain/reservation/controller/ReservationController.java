@@ -5,9 +5,11 @@ import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.domain.reservation.service.ReservationService;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,21 +24,25 @@ public class ReservationController implements ReservationControllerDocs {
 
     // 예매내역 추가
     @PostMapping("")
+    @Override
     public ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReservationReqDTO.ReservationAddReqDTO dto
     ){
-        Long memberId = 1L; // 임시 회원 (추후 삭제)
+        Long memberId = userDetails.getMemberId();
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS, reservationService.addReservation(memberId, dto), "예매내역 추가 성공"));
     }
 
     // 예매내역 삭제
     @DeleteMapping("/{reservationId}")
+    @Override
     public ResponseEntity<Response> deleteReservation(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reservationId
     ){
 
-        Long memberId = 1L; // 임시 회원 (추후 삭제)
+        Long memberId = userDetails.getMemberId();
 
         reservationService.deleteReservation(memberId, reservationId);
 

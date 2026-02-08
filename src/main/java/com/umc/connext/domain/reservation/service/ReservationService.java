@@ -4,6 +4,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.reservation.converter.ReservationConverter;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
@@ -24,9 +25,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final ConcertDetailRepository concertDetailRepository;
-
-    @PersistenceContext
-    private EntityManager em;
+    private final MemberRepository memberRepository;
 
     // 예매내역 생성
     @Transactional
@@ -35,8 +34,8 @@ public class ReservationService {
             ReservationReqDTO.ReservationAddReqDTO reqDTO
     ) {
         // 회원 존재 확인
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         // 공연 상세 정보 확인
         ConcertDetail concertDetail = concertDetailRepository.findById(reqDTO.concertDetailId())
@@ -64,8 +63,8 @@ public class ReservationService {
             Long reservationId
     ){
         // 회원 존재 확인
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         reservationRepository.deleteByIdAndMemberId(reservationId, memberId);
     }
@@ -75,8 +74,11 @@ public class ReservationService {
     public List<ReservationResDTO.ReservationGetResDTO> myReservations(
             Long memberId
     ){
-        Member member = em.find(Member.class, memberId);
-        if (member == null) throw GeneralException.notFound("존재하지 않는 회원입니다.");
+        // 회원 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
+
+        List<Reservation> reservations = reservationRepository.findAllByMember(member);
 
         return null;
     }

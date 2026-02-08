@@ -1,7 +1,10 @@
 package com.umc.connext.domain.reservation.repository;
 
+import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -16,4 +19,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     void deleteByIdAndMemberId(Long reservationId, Long memberId);
+
+    List<Reservation> findAllByMember(Member member);
 }

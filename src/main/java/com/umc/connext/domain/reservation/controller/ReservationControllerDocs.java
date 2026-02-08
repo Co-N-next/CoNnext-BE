@@ -3,10 +3,12 @@ package com.umc.connext.domain.reservation.controller;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/reservations")
@@ -22,6 +24,7 @@ public interface ReservationControllerDocs {
     })
     @PostMapping("")
     ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReservationReqDTO.ReservationAddReqDTO dto
     );
 
@@ -35,6 +38,7 @@ public interface ReservationControllerDocs {
     })
     @DeleteMapping("/{reservationId}")
     ResponseEntity<Response> deleteReservation(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reservationId
     );
 
