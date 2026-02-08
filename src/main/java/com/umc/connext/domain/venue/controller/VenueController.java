@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/venues")
-public class VenueController implements VenueControllerDocs{
+public class VenueController implements VenueControllerDocs {
 
     private final VenueService venueService;
 
@@ -35,9 +35,7 @@ public class VenueController implements VenueControllerDocs{
         if (page < 0) {
             throw new GeneralException(ErrorCode.INVALID_PAGE_REQUEST, "Page는 0 이상이어야 합니다.");
         }
-
         Page<VenueResDTO.VenuePreviewDTO> result = venueService.searchVenues(query, page);
-
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "공연장 검색 성공"));
     }
 
@@ -46,7 +44,6 @@ public class VenueController implements VenueControllerDocs{
     @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
-
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
     }
 
