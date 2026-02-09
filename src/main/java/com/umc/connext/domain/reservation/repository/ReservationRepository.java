@@ -6,6 +6,7 @@ import com.umc.connext.domain.reservation.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,4 +47,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         ORDER BY r.id DESC
     """)
     List<ReservationGetResDTO> findAllByMember(Member member);
+
+    Optional<Reservation> findFirstByMemberIdAndConcertDetail_StartAtBetweenOrderByConcertDetail_StartAtAsc(Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

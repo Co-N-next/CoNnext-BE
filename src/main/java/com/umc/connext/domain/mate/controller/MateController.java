@@ -6,6 +6,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.mate.dto.MateReqDTO;
 import com.umc.connext.domain.mate.dto.MateResDTO;
+import com.umc.connext.domain.mate.dto.TodayMateResDTO;
 import com.umc.connext.domain.mate.service.MateService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -153,5 +154,19 @@ public class MateController implements MateControllerDocs {
         List<MateResDTO.FavoriteMateResDTO> result = mateService.getFavoriteMates(memberId);
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "즐겨찾기 메이트 목록 조회 성공"));
+    }
+
+    // ==========================================
+
+    // 오늘의 공연 메이트
+    @GetMapping("/today")
+    @Override
+    public ResponseEntity<Response<List<TodayMateResDTO>>> getTodayMates(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long memberId = userDetails.getMemberId();
+        List<TodayMateResDTO> result = mateService.getTodayMates(memberId);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "오늘의 공연 메이트 목록 조회 성공"));
     }
 }

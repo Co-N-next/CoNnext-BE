@@ -3,6 +3,7 @@ package com.umc.connext.domain.mate.controller;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.mate.dto.MateReqDTO;
 import com.umc.connext.domain.mate.dto.MateResDTO;
+import com.umc.connext.domain.mate.dto.TodayMateResDTO;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -146,6 +147,19 @@ public interface MateControllerDocs {
     })
     @GetMapping("/favorite")
     ResponseEntity<Response<List<MateResDTO.FavoriteMateResDTO>>> getFavoriteMates(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    );
+
+    // 오늘의 공연 메이트
+    @Operation(
+            summary = "오늘의 공연 메이트",
+            description = "오늘 공연에 함께하는 메이트 목록을 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "오늘의 공연 메이트 조회 성공")
+    })
+    @GetMapping("/today")
+    ResponseEntity<Response<List<TodayMateResDTO>>> getTodayMates(
             @AuthenticationPrincipal CustomUserDetails userDetails
     );
 

@@ -2,8 +2,10 @@ package com.umc.connext.domain.mate.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.mate.converter.MateConverter;
 import com.umc.connext.domain.mate.dto.MateResDTO;
+import com.umc.connext.domain.mate.dto.TodayMateResDTO;
 import com.umc.connext.domain.mate.entity.FavoriteMate;
 import com.umc.connext.domain.mate.entity.Mate;
 import com.umc.connext.domain.mate.enums.MateStatus;
@@ -11,12 +13,17 @@ import com.umc.connext.domain.mate.repository.FavoriteMateRepository;
 import com.umc.connext.domain.mate.repository.MateRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.reservation.entity.Reservation;
+import com.umc.connext.domain.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +37,8 @@ public class MateService {
     private final MateRepository mateRepository;
     private final MemberRepository memberRepository;
     private final FavoriteMateRepository favoriteMateRepository;
+    private final ConcertDetailRepository concertDetailRepository;
+    private final ReservationRepository reservationRepository;
 
     // 메이트 요청
     @Transactional
@@ -270,5 +279,24 @@ public class MateService {
                             isFavorite
                     );
                 }).toList();
+    }
+
+    // ==========================================
+    // 오늘의 공연 메이트
+    public List<TodayMateResDTO> getTodayMates(Long memberId) {
+        // 오늘의 공연 조회
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        Reservation todayConcert = reservationRepository
+                .findFirstByMemberIdAndConcertDetail_StartAtBetweenOrderByConcertDetail_StartAtAsc(
+                        memberId, startOfDay, endOfDay
+                ).orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "오늘 예정된 공연이 없습니다."));
+
+        Long todayConcertDetailId = todayConcert.getConcertDetail().getId();
+
+        // 오늘 공연을 함께 보는 메이트 조회
+        return mateRepository.findTodayMatesByMemberId(memberId, todayConcertDetailId);
     }
 }

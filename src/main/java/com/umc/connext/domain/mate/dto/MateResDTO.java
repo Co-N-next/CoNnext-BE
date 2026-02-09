@@ -2,6 +2,7 @@ package com.umc.connext.domain.mate.dto;
 
 import com.umc.connext.domain.mate.entity.Mate;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.reservation.dto.SeatInfoDTO;
 import lombok.Builder;
 
 public class MateResDTO {
@@ -63,5 +64,4 @@ public class MateResDTO {
             BLOCKED
         }
     }
-
 }
