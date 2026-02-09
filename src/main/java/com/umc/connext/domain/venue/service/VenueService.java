@@ -1,101 +1,168 @@
 package com.umc.connext.domain.venue.service;
 
-<<<<<<< feat/favorite-venues
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umc.connext.common.enums.FacilityType;
+import com.umc.connext.common.enums.SectionType;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.domain.venue.entity.FavoriteVenue;
-import com.umc.connext.domain.venue.repository.FavoriteVenueRepository;
-=======
-import com.umc.connext.domain.venue.projection.SimpleVenue;
->>>>>>> dev
-import com.umc.connext.domain.venue.repository.VenueRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
+import com.umc.connext.domain.venue.entity.FavoriteVenue;
 import com.umc.connext.domain.venue.entity.Venue;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.umc.connext.domain.venue.entity.VenueFacility;
+import com.umc.connext.domain.venue.entity.VenueSection;
+import com.umc.connext.domain.venue.projection.SimpleVenue;
+import com.umc.connext.domain.venue.repository.FavoriteVenueRepository;
+import com.umc.connext.domain.venue.repository.VenueFacilityRepository;
+import com.umc.connext.domain.venue.repository.VenueRepository;
+import com.umc.connext.domain.venue.repository.VenueSectionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class VenueService {
 
     private final VenueRepository venueRepository;
+    private final VenueSectionRepository venueSectionRepository;
+    private final VenueFacilityRepository venueFacilityRepository;
     private final FavoriteVenueRepository favoriteVenueRepository;
     private final MemberRepository memberRepository;
 
-    // 공연장 검색
-    @Transactional(readOnly = true)
-    public Page<VenueResDTO.VenuePreviewDTO> searchVenues(
-            String query,
-            Integer page
-    ) {
-        PageRequest pageRequest = PageRequest.of(page, 10);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    // ── 검색 ──
+
+    public Page<VenueResDTO.VenuePreviewDTO> searchVenues(String query, Integer page) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
         return venueRepository.searchVenues(query, pageRequest)
                 .map(VenueConverter::toVenuePreviewDTO);
     }
 
-    // 인기 검색 공연장 조회
-    @Transactional(readOnly = true)
     public List<VenueResDTO.VenuePreviewDTO> trendSearchVenues() {
-
-        // searchCount가 가장 높은 것부터 5개 조회
         List<Venue> top5BySearchCount = venueRepository.findTop5ByOrderBySearchCountDesc();
-
-        // DTO 변환
         return top5BySearchCount.stream()
                 .map(VenueConverter::toVenuePreviewDTO)
                 .toList();
     }
 
-<<<<<<< feat/favorite-venues
-    @PersistenceContext
-    private EntityManager em;
+    // ── 맵 & 길찾기 ──
 
-    // 공연장 즐겨찾기 등록
     @Transactional
-    public VenueResDTO.VenueSimpleDTO addFavoriteVenue(
-            Long memberId,
-            Long venueId
-    ){
-        // 공연장 존재 확인
+    public VenueResDTO.VenueMapResponse getVenueMap(Long venueId) {
+        validateVenueId(venueId);
+
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다. ID=" + venueId));
+
+        venueRepository.incrementTotalViews(venueId);
+
+        List<VenueSection> sections = venueSectionRepository.findAllByVenueId(venueId);
+        List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
+
+        Map<Integer, List<VenueSection>> sectionsByFloor = sections.stream()
+                .collect(Collectors.groupingBy(VenueSection::getFloor));
+        Map<Integer, List<VenueFacility>> facilitiesByFloor = facilities.stream()
+                .collect(Collectors.groupingBy(VenueFacility::getFloor));
+
+        Set<Integer> allFloors = new HashSet<>();
+        allFloors.addAll(sectionsByFloor.keySet());
+        allFloors.addAll(facilitiesByFloor.keySet());
+
+        List<VenueResDTO.FloorData> floorDataList = new ArrayList<>();
+
+        for (Integer floor : allFloors) {
+            List<VenueResDTO.SectionDto> sectionDtos = sectionsByFloor.getOrDefault(floor, Collections.emptyList())
+                    .stream()
+                    .map(this::convertToSectionDto)
+                    .collect(Collectors.toList());
+
+            List<VenueResDTO.FacilityDto> facilityDtos = facilitiesByFloor.getOrDefault(floor, Collections.emptyList())
+                    .stream()
+                    .map(this::convertToFacilityDto)
+                    .collect(Collectors.toList());
+
+            floorDataList.add(VenueResDTO.FloorData.builder()
+                    .floor(floor)
+                    .sections(sectionDtos)
+                    .facilities(facilityDtos)
+                    .build());
+        }
+
+        floorDataList.sort(Comparator.comparingInt(VenueResDTO.FloorData::getFloor));
+
+        return VenueResDTO.VenueMapResponse.builder()
+                .venueId(venue.getId())
+                .name(venue.getName())
+                .address(venue.getAddress())
+                .totalFloors(venue.getTotalFloors())
+                .totalViews(venue.getTotalViews())
+                .svgWidth(venue.getSvgWidth())
+                .svgHeight(venue.getSvgHeight())
+                .floors(floorDataList)
+                .build();
+    }
+
+    public List<VenueResDTO.FacilityDto> getVenueFacilities(Long venueId, Integer floor, String type) {
+        validateVenueId(venueId);
+
+        List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
+
+        List<VenueResDTO.FacilityDto> result = facilities.stream()
+                .filter(f -> floor == null || f.getFloor().equals(floor))
+                .filter(f -> type == null || f.getType().equalsIgnoreCase(type))
+                .map(this::convertToFacilityDto)
+                .collect(Collectors.toList());
+
+        log.debug("공연장 {} 시설물 조회 완료 - 조건: floor={}, type={}, 결과: {} 개",
+                venueId, floor, type, result.size());
+
+        return result;
+    }
+
+    public List<VenueResDTO.FacilityDto> getVenueFacilities(Long venueId) {
+        validateVenueId(venueId);
+
+        List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
+
+        return facilities.stream()
+                .map(VenueResDTO.FacilityDto::from)
+                .collect(Collectors.toList());
+    }
+
+    // ── 즐겨찾기 ──
+
+    @Transactional
+    public VenueResDTO.VenueSimpleDTO addFavoriteVenue(Long memberId, Long venueId) {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다."));
 
-        // 회원 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
-        // 이미 즐겨찾기된 경우
         if (favoriteVenueRepository.existsByMemberIdAndVenueId(memberId, venueId)) {
-            return VenueConverter.toVenueSimpleDTO(venue); // 이미 즐겨찾기여도 성공
+            return VenueConverter.toVenueSimpleDTO(venue);
         }
 
-        // 즐겨찾기 생성
         FavoriteVenue favoriteVenue = VenueConverter.toFavoriteVenue(member, venue);
-        // DB 적용
         favoriteVenueRepository.save(favoriteVenue);
 
         return VenueConverter.toVenueSimpleDTO(venue);
-
     }
 
-    // 공연장 즐겨찾기 삭제
     @Transactional
-    public void deleteFavoriteVenue(
-            Long memberId,
-            Long venueId
-    ){
-        // 회원 존재 확인
+    public void deleteFavoriteVenue(Long memberId, Long venueId) {
         memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
@@ -105,12 +172,7 @@ public class VenueService {
         favoriteVenueRepository.deleteByMemberIdAndVenueId(memberId, venueId);
     }
 
-    // 공연장 즐겨찾기 목록 조회
-    @Transactional(readOnly = true)
-    public List<VenueResDTO.VenuePreviewDTO> favoriteVenues(
-            Long memberId
-    ){
-        // 회원 존재 확인
+    public List<VenueResDTO.VenuePreviewDTO> favoriteVenues(Long memberId) {
         memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
@@ -120,39 +182,84 @@ public class VenueService {
                 .map(FavoriteVenue::getVenue)
                 .map(VenueConverter::toVenuePreviewDTO)
                 .toList();
-=======
-    // 근처 공연장 조회
-    @Transactional(readOnly = true)
-    public Optional<SimpleVenue> nearbyVenue(
-            Double lat,
-            Double lng,
-            int radius
-    ) {
-        // BoundingBox 먼저 계산
-        double latDelta = radius / 111_320.0; // 위도
+    }
+
+    // ── 근처 공연장 ──
+
+    public Optional<SimpleVenue> nearbyVenue(Double lat, Double lng, int radius) {
+        double latDelta = radius / 111_320.0;
         double cosLat = Math.cos(Math.toRadians(lat));
         double lngDelta;
 
         if (Math.abs(cosLat) < 1e-6) {
             lngDelta = 180.0;
         } else {
-            lngDelta = radius / (111_320.0 * cosLat); // 경도
+            lngDelta = radius / (111_320.0 * cosLat);
             if (lngDelta > 180.0) lngDelta = 180.0;
         }
 
-        double minLat = lat - latDelta;
-        double maxLat = lat + latDelta;
-        double minLng = lng - lngDelta;
-        double maxLng = lng + lngDelta;
+        double minLat = Math.max(lat - latDelta, -90.0);
+        double maxLat = Math.min(lat + latDelta, 90.0);
+        double minLng = Math.max(lng - lngDelta, -180.0);
+        double maxLng = Math.min(lng + lngDelta, 180.0);
 
-        minLat = Math.max(minLat, -90.0);
-        maxLat = Math.min(maxLat, 90.0);
-        minLng = Math.max(minLng, -180.0);
-        maxLng = Math.min(maxLng, 180.0);
-
-        // BoundingBox 내의 공연장 조회
         return venueRepository.findNearbyVenue(minLat, maxLat, minLng, maxLng, lat, lng, radius);
->>>>>>> dev
     }
 
+    // ── Private helpers ──
+
+    private VenueResDTO.SectionDto convertToSectionDto(VenueSection section) {
+        String finalPathData = section.getFullPath();
+
+        if (finalPathData == null || finalPathData.isEmpty()) {
+            finalPathData = convertVerticesToSvgPath(section.getVertices());
+        }
+
+        String typeStr = (section.getType() != null) ? section.getType().toString() : SectionType.UNKNOWN.toString();
+
+        return VenueResDTO.SectionDto.builder()
+                .sectionId(section.getSectionId())
+                .type(typeStr)
+                .pathData(finalPathData)
+                .build();
+    }
+
+    private VenueResDTO.FacilityDto convertToFacilityDto(VenueFacility facility) {
+        String typeStr = (facility.getType() != null) ? facility.getType() : FacilityType.ETC.toString();
+        return VenueResDTO.FacilityDto.builder()
+                .facilityId(facility.getId())
+                .type(typeStr)
+                .name(facility.getName())
+                .x(facility.getX())
+                .y(facility.getY())
+                .build();
+    }
+
+    private String convertVerticesToSvgPath(String verticesJson) {
+        if (verticesJson == null || verticesJson.isEmpty()) return "";
+        try {
+            List<Map<String, Object>> points = objectMapper.readValue(verticesJson, new TypeReference<>() {});
+            if (points.isEmpty()) return "";
+
+            StringBuilder sb = new StringBuilder();
+            Map<String, Object> start = points.get(0);
+            sb.append("M ").append(start.get("x")).append(" ").append(start.get("y"));
+
+            for (int i = 1; i < points.size(); i++) {
+                Map<String, Object> p = points.get(i);
+                sb.append(" L ").append(p.get("x")).append(" ").append(p.get("y"));
+            }
+            sb.append(" Z");
+            return sb.toString();
+        } catch (Exception e) {
+            log.warn("SVG 변환 오류: {}", e.getMessage());
+            return "";
+        }
+    }
+
+    private void validateVenueId(Long venueId) {
+        if (venueId == null || venueId <= 0) {
+            throw GeneralException.notFound("유효하지 않은 공연장 ID입니다.");
+        }
+    }
 }

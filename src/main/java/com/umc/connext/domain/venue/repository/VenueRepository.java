@@ -6,13 +6,24 @@ import com.umc.connext.domain.venue.projection.SearchVenue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface VenueRepository extends JpaRepository<Venue, Long> {
+
+    Optional<Venue> findByName(String name);
+
+    boolean existsByName(String name);
+
+    @Modifying
+    @Query("UPDATE Venue v SET v.totalViews = v.totalViews + 1 WHERE v.id = :venueId")
+    int incrementTotalViews(@Param("venueId") Long venueId);
 
     @Query(value = """
         SELECT 
