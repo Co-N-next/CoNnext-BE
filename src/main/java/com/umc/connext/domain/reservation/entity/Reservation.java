@@ -37,4 +37,14 @@ public class Reservation extends BaseEntity {
     @Column(name = "seat_number")
     private Integer seat;
 
+    public void changeConcertDetail(ConcertDetail concertDetail) {
+        this.concertDetail = concertDetail;
+    }
+
+    public void changeSeatInfo(Integer floor, String section, String row, Integer seat) {
+        this.floor = floor;
+        this.section = section;
+        this.row = row;
+        this.seat = seat;
+    }
 }

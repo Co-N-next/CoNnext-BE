@@ -10,4 +10,11 @@ public class ReservationResDTO {
             Long concertDetailId
     ){}
 
+    @Builder
+    public record ReservationUpdateResDTO(
+            Long reservationId,
+            Long concertDetailId,
+            SeatInfoDTO seat
+    ){}
+
 }

@@ -1,5 +1,6 @@
 package com.umc.connext.domain.reservation.service;
 
+import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
@@ -9,6 +10,7 @@ import com.umc.connext.domain.reservation.converter.ReservationConverter;
 import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
+import com.umc.connext.domain.reservation.dto.SeatInfoDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import com.umc.connext.domain.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class ReservationService {
     @Transactional
     public ReservationResDTO.ReservationAddResDTO addReservation(
             Long memberId,
-            ReservationReqDTO.ReservationAddReqDTO reqDTO
+            ReservationReqDTO reqDTO
     ) {
         // 회원 존재 확인
         Member member = memberRepository.findById(memberId)
@@ -80,6 +82,55 @@ public class ReservationService {
         List<ReservationGetResDTO> reservations = reservationRepository.findAllByMember(member);
 
         return reservations;
+    }
+
+    // 예매내역 수정
+    @Transactional
+    public ReservationResDTO.ReservationUpdateResDTO updateReservation(
+            Long memberId,
+            Long reservationId,
+            ReservationReqDTO reqDTO
+    ){
+        // 회원 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
+
+        // 예매내역 존재 확인
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 예매내역입니다."));
+
+        // 예매내역 소유자 확인
+        if (!reservation.getMember().getId().equals(memberId)) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "예매내역 수정 권한이 없습니다.");
+        }
+
+        // concertDetail 변경
+        if (reqDTO.concertDetailId() != null && !reqDTO.concertDetailId().equals(reservation.getConcertDetail().getId())) {
+            ConcertDetail newDetail = concertDetailRepository.findById(reqDTO.concertDetailId())
+                    .orElseThrow(() -> GeneralException.notFound("공연 상세 정보를 찾을 수 없습니다."));
+            reservation.changeConcertDetail(newDetail);
+        }
+
+        // 좌석 정보 변경
+        if (reqDTO.seatInfo() != null) {
+            Integer floor = reqDTO.seatInfo().floor() != null ? reqDTO.seatInfo().floor() : reservation.getFloor();
+            String section = reqDTO.seatInfo().section() != null ? reqDTO.seatInfo().section() : reservation.getSection();
+            String row = reqDTO.seatInfo().row() != null ? reqDTO.seatInfo().row() : reservation.getRow();
+            Integer seat = reqDTO.seatInfo().seat() != null ? reqDTO.seatInfo().seat() : reservation.getSeat();
+
+            reservation.changeSeatInfo(floor, section, row, seat);
+        }
+
+        return ReservationResDTO.ReservationUpdateResDTO.builder()
+                .reservationId(reservation.getId())
+                .concertDetailId(reservation.getConcertDetail().getId())
+                .seat(new SeatInfoDTO(
+                        reservation.getFloor(),
+                        reservation.getSection(),
+                        reservation.getRow(),
+                        reservation.getSeat()
+                ))
+                .build();
     }
 
 }

@@ -28,7 +28,7 @@ public interface ReservationControllerDocs {
     @PostMapping("")
     ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody ReservationReqDTO.ReservationAddReqDTO dto
+            @RequestBody ReservationReqDTO dto
     );
 
     @Operation(
@@ -56,6 +56,22 @@ public interface ReservationControllerDocs {
     @GetMapping("")
     ResponseEntity<Response<List<ReservationGetResDTO>>> myReservations(
             @AuthenticationPrincipal CustomUserDetails userDetails
+    );
+
+    // 예매내역 수정
+    @Operation(
+            summary = "예매내역 수정",
+            description = "예매내역을 수정합니다. 수정하고 싶은 정보만 입력해주세요."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "404", description = "예매내역을 찾을 수 없습니다.")
+    })
+    @PatchMapping("/{reservationId}")
+    ResponseEntity<Response<ReservationResDTO.ReservationUpdateResDTO>> updateReservation(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long reservationId,
+            @RequestBody ReservationReqDTO dto
     );
 
 }

@@ -28,7 +28,7 @@ public class ReservationController implements ReservationControllerDocs {
     @Override
     public ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody ReservationReqDTO.ReservationAddReqDTO dto
+            @RequestBody ReservationReqDTO dto
     ){
         Long memberId = userDetails.getMemberId();
 
@@ -59,6 +59,19 @@ public class ReservationController implements ReservationControllerDocs {
         Long memberId = userDetails.getMemberId();
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, reservationService.getMyReservations(memberId), "예매내역 조회 성공"));
+    }
+
+    // 예매내역 수정
+    @PatchMapping("/{reservationId}")
+    @Override
+    public ResponseEntity<Response<ReservationResDTO.ReservationUpdateResDTO>> updateReservation(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @PathVariable Long reservationId,
+        @RequestBody ReservationReqDTO dto
+    ){
+        Long memberId = userDetails.getMemberId();
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.UPDATE_SUCCESS, reservationService.updateReservation(memberId, reservationId, dto), "예매내역 수정 성공"));
     }
 
 }
