@@ -27,6 +27,7 @@ public class VenueController implements VenueControllerDocs {
 
     // 공연장 검색
     @GetMapping("/search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
@@ -43,6 +44,7 @@ public class VenueController implements VenueControllerDocs {
 
     // 인기 검색 공연장 조회
     @GetMapping("/trend-search")
+    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
