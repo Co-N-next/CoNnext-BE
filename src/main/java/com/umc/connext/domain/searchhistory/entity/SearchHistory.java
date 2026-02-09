@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
         indexes = {
                 @Index(
                         name = "idx_search_history_member_type_created",
-                        columnList = "member_id, type, created_at DESC"
+                        columnList = "member_id, search_type, created_at DESC"
                 )
         })
 public class SearchHistory extends BaseEntity {
