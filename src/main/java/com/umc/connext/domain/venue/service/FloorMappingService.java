@@ -1,5 +1,6 @@
 package com.umc.connext.domain.venue.service;
 
+import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.domain.venue.entity.VenueFloorConfig;
 import com.umc.connext.domain.venue.repository.VenueFloorConfigRepository;
 import com.umc.connext.common.exception.GeneralException;
@@ -15,6 +16,7 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FloorMappingService {
 
     private final VenueFloorConfigRepository floorConfigRepository;
@@ -24,7 +26,7 @@ public class FloorMappingService {
     public int getFloor(Long venueId, String sectionId) {
         return floorConfigRepository.findByVenueIdAndSectionId(venueId, sectionId)
                 .map(VenueFloorConfig::getFloor)
-                .orElse(1);
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "섹션 ID에 해당하는 층 설정을 찾을 수 없습니다."));
     }
 
     // 특정 층의 모든 섹션 ID 조회 (캐시 적용)
@@ -131,11 +133,6 @@ public class FloorMappingService {
         return 1;
     }
 
-    // ==================== Private Methods ====================
-
-    /**
-     * 층 설정 입력값 검증
-     */
     private void validateFloorInput(Long venueId, String sectionId, Integer floor) {
         if (venueId == null || venueId <= 0) {
             throw GeneralException.notFound("유효하지 않은 공연장 ID입니다.");
