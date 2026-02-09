@@ -169,4 +169,17 @@ public class MateController implements MateControllerDocs {
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "오늘의 공연 메이트 목록 조회 성공"));
     }
+
+    // 메이트 프로필 조회
+    @GetMapping("/{mateId}/profile")
+    @Override
+    public ResponseEntity<Response<MateResDTO.MateProfileResDTO>> getMateProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long mateId
+    ){
+        Long memberId = userDetails.getMemberId();
+        MateResDTO.MateProfileResDTO result = mateService.getMateProfile(memberId, mateId);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "메이트 프로필 조회 성공"));
+    }
 }

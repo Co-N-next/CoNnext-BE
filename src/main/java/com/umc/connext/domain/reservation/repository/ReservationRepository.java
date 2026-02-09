@@ -1,14 +1,18 @@
 package com.umc.connext.domain.reservation.repository;
 
+import com.umc.connext.domain.mate.dto.MateResDTO;
+import com.umc.connext.domain.mate.projection.MateReservationProjection;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -49,4 +53,24 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<ReservationGetResDTO> findAllByMember(Member member);
 
     Optional<Reservation> findFirstByMemberIdAndConcertDetail_StartAtBetweenOrderByConcertDetail_StartAtAsc(Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    @Query("""
+        SELECT
+            c.id              AS concertId,
+            c.name            AS concertName,
+            c.posterImage     AS concertPosterImage,
+            cast.name         AS concertArtist,
+            cd.startAt        AS startAt,
+            v.name            AS concertVenue
+        FROM Reservation r
+            JOIN r.concertDetail cd
+            JOIN cd.concert c
+            JOIN c.concertCasts cc
+            JOIN cc.cast cast
+            JOIN c.concertVenues cv
+            JOIN cv.venue v
+        WHERE r.member.id = :memberId
+        ORDER BY cd.startAt DESC
+    """)
+    List<MateReservationProjection> findReservationSummariesByMemberId(@Param("memberId") Long memberId);
 }

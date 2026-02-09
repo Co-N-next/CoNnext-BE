@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @RequiredArgsConstructor
 public class MateService {
@@ -298,5 +300,46 @@ public class MateService {
 
         // 오늘 공연을 함께 보는 메이트 조회
         return mateRepository.findTodayMatesByMemberId(memberId, todayConcertDetailId);
+    }
+
+    // 메이트 프로필 조회
+    public MateResDTO.MateProfileResDTO getMateProfile(Long memberId, Long mateId) {
+        Mate mate = mateRepository.findById(mateId)
+                .orElseThrow(() -> GeneralException.notFound("메이트 관계를 찾을 수 없습니다."));
+
+        // 권한 확인
+        if (!isParticipant(mate, memberId)) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "메이트 프로필 조회 권한이 없습니다.");
+        }
+
+        // 상대 유저 찾기
+        var partner = mate.getRequester().getId().equals(memberId) ? mate.getAddressee() : mate.getRequester();
+
+        // 자주 찾는 메이트 설정 여부
+        boolean isFavorite = favoriteMateRepository.existsByMemberIdAndMateId(memberId, mateId);
+
+        // 상대 예약 목록 조회
+        List<MateResDTO.MateReservationSummaryDTO> reservations =
+                reservationRepository.findReservationSummariesByMemberId(partner.getId())
+                        .stream()
+                        .map(p -> MateResDTO.MateReservationSummaryDTO.builder()
+                                    .concertName(p.getConcertName())
+                                    .concertPosterImage(p.getConcertPosterImage())
+                                    .concertArtist(p.getConcertArtist())
+                                    .startAt(p.getStartAt())
+                                    .concertVenue(p.getConcertVenue())
+                                    .build()
+                        )
+                        .toList();
+
+        return MateResDTO.MateProfileResDTO.builder()
+                .mateId(mate.getId())
+                .memberId(partner.getId())
+                .nickname(partner.getNickname())
+                .profileImage(partner.getProfileImage())
+                .isFavorite(isFavorite)
+                .reservations(reservations)
+                .build();
+
     }
 }

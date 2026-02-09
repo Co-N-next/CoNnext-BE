@@ -163,4 +163,19 @@ public interface MateControllerDocs {
             @AuthenticationPrincipal CustomUserDetails userDetails
     );
 
+    // 메이트 프로필 조회
+    @Operation(
+            summary = "메이트 프로필 조회",
+            description = "메이트의 프로필을 조회합니다. 해당 메이트와의 관계 ID가 필요합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "메이트 프로필 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "메이트가 존재하지 않습니다.")
+    })
+    @GetMapping("/{mateId}/profile")
+    ResponseEntity<Response<MateResDTO.MateProfileResDTO>> getMateProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long mateId
+    );
+
 }
