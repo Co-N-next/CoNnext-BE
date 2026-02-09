@@ -8,39 +8,55 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Schema(
-        name = "VenueResponse",
-        description = "공연장 상세 정보 및 지도 데이터 응답 DTO"
-)
-public class VenueResponse {
+public class VenueResDTO {
 
-    @Schema(description = "공연장 ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long venueId;
+    @Builder
+    public record VenuePreviewDTO(
+            Long id,
+            String name,
+            String city,
+            String imageUrl
+    ) {}
 
-    @Schema(description = "공연장 이름", example = "올림픽홀", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    @Builder
+    public record VenueSimpleDTO(
+            Long id,
+            String name
+    ) {}
 
-    @Schema(description = "공연장 주소", example = "서울 송파구 올림픽로 424")
-    private String address;
+    // ── 맵 & 길찾기 관련 DTO ──
 
-    @Schema(description = "총 층수", example = "3", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer totalFloors;
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "VenueMapResponse", description = "공연장 상세 정보 및 지도 데이터 응답 DTO")
+    public static class VenueMapResponse {
 
-    @Schema(description = "공연장 조회수", example = "1523")
-    private Long totalViews;
+        @Schema(description = "공연장 ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+        private Long venueId;
 
-    @Schema(description = "SVG 지도 가로 크기", example = "1920")
-    private Integer svgWidth;
+        @Schema(description = "공연장 이름", example = "올림픽홀", requiredMode = Schema.RequiredMode.REQUIRED)
+        private String name;
 
-    @Schema(description = "SVG 지도 세로 크기", example = "1080")
-    private Integer svgHeight;
+        @Schema(description = "공연장 주소", example = "서울 송파구 올림픽로 424")
+        private String address;
 
-    @Schema(description = "층별 지도 데이터", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<FloorData> floors;
+        @Schema(description = "총 층수", example = "3", requiredMode = Schema.RequiredMode.REQUIRED)
+        private Integer totalFloors;
+
+        @Schema(description = "공연장 조회수", example = "1523")
+        private Long totalViews;
+
+        @Schema(description = "SVG 지도 가로 크기", example = "1920")
+        private Integer svgWidth;
+
+        @Schema(description = "SVG 지도 세로 크기", example = "1080")
+        private Integer svgHeight;
+
+        @Schema(description = "층별 지도 데이터", requiredMode = Schema.RequiredMode.REQUIRED)
+        private List<FloorData> floors;
+    }
 
     @Getter
     @Builder
@@ -101,7 +117,7 @@ public class VenueResponse {
         @Schema(description = "시설물 이름", example = "여자 화장실")
         private String name;
 
-        @Schema(description = "층 정보 (검색 시 필요)", example = "1")
+        @Schema(description = "층 정보", example = "1")
         private Integer floor;
 
         @Schema(description = "X 좌표", example = "345.67")
@@ -121,12 +137,4 @@ public class VenueResponse {
                     .build();
         }
     }
-
-    @Builder
-    public record VenuePreviewDTO(
-            Long id,
-            String name,
-            String city,
-            String imageUrl
-    ){}
 }
