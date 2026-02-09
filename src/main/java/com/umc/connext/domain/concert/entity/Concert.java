@@ -1,6 +1,7 @@
 package com.umc.connext.domain.concert.entity;
 
 import com.umc.connext.common.entity.BaseEntity;
+import com.umc.connext.domain.concertVenue.entity.ConcertVenue;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,4 +40,8 @@ public class Concert extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConcertDetail> concertDetails = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConcertVenue> concertVenues = new ArrayList<>();
 }

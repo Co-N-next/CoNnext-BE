@@ -1,6 +1,7 @@
 package com.umc.connext.domain.reservation.controller;
 
 import com.umc.connext.common.response.Response;
+import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/reservations")
 public interface ReservationControllerDocs {
@@ -40,6 +43,19 @@ public interface ReservationControllerDocs {
     ResponseEntity<Response> deleteReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reservationId
+    );
+
+    // 예매내역 조회
+    @Operation(
+            summary = "예매내역 조회",
+            description = "내 예매내역을 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("")
+    ResponseEntity<Response<List<ReservationGetResDTO>>> myReservations(
+            @AuthenticationPrincipal CustomUserDetails userDetails
     );
 
 }

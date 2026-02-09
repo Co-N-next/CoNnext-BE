@@ -2,6 +2,7 @@ package com.umc.connext.domain.reservation.controller;
 
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
+import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.domain.reservation.service.ReservationService;
@@ -51,10 +52,13 @@ public class ReservationController implements ReservationControllerDocs {
 
     // 예매내역 조회
     @GetMapping("")
-    public ResponseEntity<Response<List<ReservationResDTO.ReservationGetResDTO>>> myReservations(){
-        Long memberId = 1L; // 임시 회원 (추후 삭제)
+    @Override
+    public ResponseEntity<Response<List<ReservationGetResDTO>>> myReservations(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long memberId = userDetails.getMemberId();
 
-        return null;
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, reservationService.getMyReservations(memberId), "예매내역 조회 성공"));
     }
 
 }

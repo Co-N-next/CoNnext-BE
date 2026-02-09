@@ -2,6 +2,7 @@ package com.umc.connext.domain.reservation.converter;
 
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;

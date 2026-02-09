@@ -6,12 +6,11 @@ import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.reservation.converter.ReservationConverter;
+import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import com.umc.connext.domain.reservation.repository.ReservationRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,16 +70,16 @@ public class ReservationService {
 
     // 예매내역 조회
     @Transactional(readOnly = true)
-    public List<ReservationResDTO.ReservationGetResDTO> myReservations(
+    public List<ReservationGetResDTO> getMyReservations(
             Long memberId
     ){
         // 회원 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
-        List<Reservation> reservations = reservationRepository.findAllByMember(member);
+        List<ReservationGetResDTO> reservations = reservationRepository.findAllByMember(member);
 
-        return null;
+        return reservations;
     }
 
 }
