@@ -61,7 +61,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             c.posterImage     AS concertPosterImage,
             cast.name         AS concertArtist,
             cd.startAt        AS startAt,
-            v.name            AS concertVenue
+            v.name            AS concertVenue,
+            r.floor           AS floor,
+            r.section         AS section,
+            r.row             AS row,
+            r.seat            AS seat
         FROM Reservation r
             JOIN r.concertDetail cd
             JOIN cd.concert c

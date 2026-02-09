@@ -84,7 +84,8 @@ public class MateResDTO {
             String concertPosterImage,
             String concertArtist,
             LocalDateTime startAt,
-            String concertVenue
+            String concertVenue,
+            SeatInfoDTO seatInfo
     ){}
 
 }

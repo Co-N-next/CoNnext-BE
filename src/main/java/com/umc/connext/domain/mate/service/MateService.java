@@ -13,6 +13,7 @@ import com.umc.connext.domain.mate.repository.FavoriteMateRepository;
 import com.umc.connext.domain.mate.repository.MateRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.reservation.dto.SeatInfoDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import com.umc.connext.domain.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -323,12 +324,20 @@ public class MateService {
                 reservationRepository.findReservationSummariesByMemberId(partner.getId())
                         .stream()
                         .map(p -> MateResDTO.MateReservationSummaryDTO.builder()
-                                    .concertName(p.getConcertName())
-                                    .concertPosterImage(p.getConcertPosterImage())
-                                    .concertArtist(p.getConcertArtist())
-                                    .startAt(p.getStartAt())
-                                    .concertVenue(p.getConcertVenue())
-                                    .build()
+                                .concertName(p.getConcertName())
+                                .concertPosterImage(p.getConcertPosterImage())
+                                .concertArtist(p.getConcertArtist())
+                                .startAt(p.getStartAt())
+                                .concertVenue(p.getConcertVenue())
+                                .seatInfo(
+                                        SeatInfoDTO.builder()
+                                                .floor(p.getFloor())
+                                                .section(p.getSection())
+                                                .row(p.getRow())
+                                                .seat(p.getSeat())
+                                                .build()
+                                )
+                                .build()
                         )
                         .toList();
 
