@@ -33,6 +33,10 @@ public class Concert extends BaseEntity {
     private String reservationLink;
 
     @Builder.Default
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
+    @Builder.Default
     @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConcertCast> concertCasts = new ArrayList<>();
 

@@ -5,6 +5,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
 import com.umc.connext.domain.concert.dto.ConcertResponse;
 import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
+import com.umc.connext.domain.concert.dto.UpcomingConcertResponse;
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
@@ -70,4 +71,33 @@ public class ConcertService {
                 .map(ConcertResponse::from);
     }
 
+    /**
+     * 다가오는 공연 목록 조회
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 크기
+     * @param sortBy 정렬 기준 ("latest": 최신순, "popular": 조회수순)
+     * @return 다가오는 공연 목록
+     */
+    public Page<UpcomingConcertResponse> getUpcomingConcerts(int page, int size, String sortBy) {
+        LocalDateTime now = LocalDateTime.now();
+        Pageable pageable;
+        Page<Concert> concerts;
+
+        if ("popular".equalsIgnoreCase(sortBy)) {
+            // 조회수 순
+            pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "viewCount"));
+            concerts = concertRepository.findUpcomingConcertsOrderByViewCount(now, pageable);
+        } else {
+            // 최신순 (기본)
+            pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+            concerts = concertRepository.findUpcomingConcertsOrderByCreated(now, pageable);
+        }
+
+        return concerts.map(concert -> {
+            LocalDateTime nextShowTime = concertDetailRepository.findNextShowTime(concert, now);
+            return UpcomingConcertResponse.of(concert, nextShowTime, concert.getViewCount());
+        });
+    }
+
 }
+

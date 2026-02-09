@@ -4,8 +4,8 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
 import com.umc.connext.domain.concert.dto.ConcertResponse;
-import com.umc.connext.domain.concert.dto.ConcertSearchResponse;
 import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
+import com.umc.connext.domain.concert.dto.UpcomingConcertResponse;
 import com.umc.connext.domain.concert.service.ConcertService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -96,4 +96,36 @@ public class ConcertController {
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "공연 상세 회차 조회 성공"));
     }
+
+    @Operation(summary = "다가오는 공연 목록 조회", description = "현재 시간 이후의 공연들을 조회합니다. 정렬 기준: latest(최신순), popular(조회수순)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/upcoming")
+    public ResponseEntity<Response<List<UpcomingConcertResponse>>> getUpcomingConcerts(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "정렬 기준 (latest: 최신순, popular: 조회수순)", example = "latest")
+            @RequestParam(defaultValue = "latest") String sortBy
+    ) {
+        Page<UpcomingConcertResponse> result = concertService.getUpcomingConcerts(page, size, sortBy);
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "다가오는 공연 목록 조회 성공"));
+    }
+
+    // TODO: 예매 기능 추가 후 구현 필요
+    // @Operation(summary = "다가오는 내 공연 조회", description = "내가 예매한 다가오는 공연 3개를 조회합니다.")
+    // @GetMapping("/my-upcoming")
+    // public ResponseEntity<Response<List<UpcomingConcertResponse>>> getMyUpcomingConcerts(
+    //         @AuthenticationPrincipal CustomUserDetails userDetails
+    // ) {
+    //     Long memberId = userDetails.getMemberId();
+    //     List<UpcomingConcertResponse> result = concertService.getMyUpcomingConcerts(memberId);
+    //     return ResponseEntity.ok()
+    //             .body(Response.success(SuccessCode.GET_SUCCESS, result, "내 다가오는 공연 조회 성공"));
+    // }
 }
+
+
