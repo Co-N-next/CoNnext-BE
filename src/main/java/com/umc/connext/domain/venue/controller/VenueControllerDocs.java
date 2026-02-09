@@ -2,6 +2,7 @@ package com.umc.connext.domain.venue.controller;
 
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -10,9 +11,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,6 +45,50 @@ public interface VenueControllerDocs {
     @GetMapping("/trend-search")
     ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
 
+<<<<<<< feat/favorite-venues
+    // 즐겨찾기 공연장 등록
+    @Operation(
+            summary = "즐겨찾기 공연장 등록",
+            description = "해당 공연장을 즐겨찾기 목록에 추가합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "추가 성공"),
+            @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없습니다.")
+    })
+    @PostMapping("/favorites/{venueId}")
+    ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long venueId
+    );
+
+    // 즐겨찾기 공연장 삭제
+    @Operation(
+            summary = "즐겨찾기 공연장 삭제",
+            description = "해당 공연장을 즐겨찾기 목록에서 삭제합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "삭제 성공")
+    })
+    @DeleteMapping("/favorites/{venueId}")
+    ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long venueId
+    );
+
+    // 즐겨찾기 공연장 목록 조회
+    @Operation(
+            summary = "즐겨찾기 공연장 목록 조회",
+            description = "사용자가 즐겨찾기에 추가한 공연장 목록을 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/favorites")
+    ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    );
+
+=======
     // 근처 공연장 조회
     @Operation(
             summary = "근처 공연장 조회",
@@ -60,4 +104,5 @@ public interface VenueControllerDocs {
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") Double lng,
             @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
     );
+>>>>>>> dev
 }

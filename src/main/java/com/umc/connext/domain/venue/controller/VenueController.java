@@ -8,6 +8,7 @@ import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.service.VenueService;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -16,11 +17,16 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+<<<<<<< feat/favorite-venues
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+=======
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+>>>>>>> dev
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +53,9 @@ public class VenueController implements VenueControllerDocs {
         if (page < 0) {
             throw new GeneralException(ErrorCode.INVALID_PAGE_REQUEST, "Page는 0 이상이어야 합니다.");
         }
+
         Page<VenueResDTO.VenuePreviewDTO> result = venueService.searchVenues(query, page);
+
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "공연장 검색 성공"));
     }
 
@@ -56,9 +64,49 @@ public class VenueController implements VenueControllerDocs {
     @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
+
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
     }
 
+<<<<<<< feat/favorite-venues
+    // 공연장 즐겨찾기 등록
+    @PostMapping("/favorites/{venueId}")
+    @Override
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> addFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long venueId
+    ){
+        Long memberId = userDetails.getMemberId();
+        return ResponseEntity.ok().body(Response.success(SuccessCode.INSERT_SUCCESS,
+                venueService.addFavoriteVenue(memberId, venueId),
+                "즐겨찾기 공연장 등록 성공"));
+    }
+
+    // 공연장 즐겨찾기 삭제
+    @DeleteMapping("/favorites/{venueId}")
+    @Override
+    public ResponseEntity<Response<VenueResDTO.VenueSimpleDTO>> deleteFavoriteVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long venueId
+    ){
+        Long memberId = userDetails.getMemberId();
+
+        venueService.deleteFavoriteVenue(memberId, venueId);
+        return ResponseEntity.ok().body(Response.success(SuccessCode.DELETE_SUCCESS, "즐겨찾기 공연장 삭제 성공"));
+    }
+
+    // 공연장 즐겨찾기 목록 조회
+    @GetMapping("/favorites")
+    @Override
+    public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> favoriteVenues(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long memberId = userDetails.getMemberId();
+
+        List<VenueResDTO.VenuePreviewDTO> result = venueService.favoriteVenues(memberId);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "즐겨찾기 공연장 조회 성공"));
+=======
     // 근처 공연장 조회
     @GetMapping("/nearby")
     @Override
@@ -79,6 +127,7 @@ public class VenueController implements VenueControllerDocs {
         VenueResDTO.VenueSimpleDTO dto = VenueConverter.toVenueSimpleDTO(result.get());
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, dto, "근처 공연장 조회 성공"));
 
+>>>>>>> dev
     }
 
 }
