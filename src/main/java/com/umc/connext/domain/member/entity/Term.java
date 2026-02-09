@@ -28,6 +28,9 @@ public class Term extends BaseEntity {
     @Column(nullable = false)
     private boolean active; // 현재 사용중
 
+    @Column(nullable = false)
+    private String content;
+
     protected Term(String title, TermType type) {
         this.title = title;
         this.type = type;
