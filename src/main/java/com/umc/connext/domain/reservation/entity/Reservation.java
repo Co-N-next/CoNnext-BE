@@ -7,7 +7,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "reservations")
+@Table(
+        name = "reservations",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_reservation_member_concert_seat",
+                        columnNames = {"member_id", "concert_detail_id", "floor", "section", "seat_row", "seat_number"}
+                )
+        }
+)
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

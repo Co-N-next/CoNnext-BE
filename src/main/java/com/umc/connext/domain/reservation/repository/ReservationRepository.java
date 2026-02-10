@@ -13,17 +13,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Optional<Reservation> findByMemberIdAndConcertDetailIdAndFloorAndSectionAndRowAndSeat(
             Long memberId,
-            Long aLong,
+            Long concertDetailId,
             Integer floor,
             String section,
             String row,
             Integer seat
     );
 
-    void deleteByIdAndMemberId(Long reservationId, Long memberId);
-
     @Query("""
-        SELECT new com.umc.connext.domain.reservation.dto.ReservationGetResDTO(
+        SELECT DISTINCT new com.umc.connext.domain.reservation.dto.ReservationGetResDTO(
             r.id,
             c.name,
             cast.name,
