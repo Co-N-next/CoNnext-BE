@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
@@ -75,7 +76,9 @@ public class  SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/concerts/upcoming", "/concerts/details/").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/concerts/**").permitAll()
+                        // TODO: 내가 예매한 공연 관련해서는 컨트롤러 단에서 막을 것
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/", "/auth/**").permitAll()
                         .anyRequest().hasRole("USER"));
@@ -115,7 +118,8 @@ public class  SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "https://con-next.xyz"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
