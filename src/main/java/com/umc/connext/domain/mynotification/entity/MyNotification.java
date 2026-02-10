@@ -22,7 +22,7 @@ public class MyNotification extends BaseEntity {
     @Column(name="member_id", nullable=false)
     private Long memberId;
 
-    @Column(name="sender_id", nullable=false)
+    @Column(name="sender_id")
     private Long senderId;
 
     @Column(name="title", nullable=false)
@@ -49,6 +49,7 @@ public class MyNotification extends BaseEntity {
     @Column(name="is_read", nullable=false)
     private Boolean isRead;
 
+    // 단순 알림
     public static MyNotification createNotice(
             Long memberId,
             String title,
@@ -57,6 +58,7 @@ public class MyNotification extends BaseEntity {
     ) {
         MyNotification n = new MyNotification();
         n.memberId = memberId;
+        n.senderId = null;
         n.title = title;
         n.content = content;
         n.img = img;
@@ -65,5 +67,43 @@ public class MyNotification extends BaseEntity {
         n.actionStatus = ActionStatus.PENDING;
         n.isRead = false;
         return n;
+    }
+
+    // 메이트 요청 및 위치 공유 요청
+    public static MyNotification createSocial(
+            Long memberId,
+            Long senderId,
+            String title,
+            String content,
+            String img,
+            Category category,
+            ActionType actionType
+    ) {
+        MyNotification n = new MyNotification();
+        n.memberId = memberId;
+        n.senderId = senderId;
+        n.title = title;
+        n.content = content;
+        n.img = img;
+        n.category = category;
+        n.actionType = actionType;
+        n.actionStatus = ActionStatus.PENDING;
+        n.isRead = false;
+        return n;
+    }
+
+
+    public void markAsRead(){
+        this.isRead = true;
+    }
+
+    public void accept() {
+        this.actionStatus = ActionStatus.ACCEPTED;
+        this.isRead = true;
+    }
+
+    public void reject() {
+        this.actionStatus = ActionStatus.REJECTED;
+        this.isRead = true;
     }
 }

@@ -10,9 +10,12 @@ import com.umc.connext.common.entity.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name="announcements")
 public class Announcement extends BaseEntity {
@@ -33,7 +36,4 @@ public class Announcement extends BaseEntity {
 
     @Column(name="logo_img")
     private String logoImg;
-
-    @Column(name="is_read", nullable=false)
-    private Boolean isRead;
 }

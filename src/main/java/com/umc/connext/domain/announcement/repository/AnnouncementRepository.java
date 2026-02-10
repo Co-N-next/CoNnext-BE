@@ -7,10 +7,7 @@ import org.springframework.data.domain.Page;
 
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
 
-    boolean existsByIsReadFalse();
-
-    Page<Announcement> findAllBySenderId(
-            Long senderId,
+    Page<Announcement> findAll(
             Pageable pageable
     );
 }

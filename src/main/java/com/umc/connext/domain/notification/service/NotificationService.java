@@ -12,10 +12,10 @@ public class NotificationService {
     private final MyNotificationService myNotificationService;
     private final AnnouncementService announcementService;
 
-    public boolean hasUnreadNotification(NotificationType type) {
+    public boolean hasUnreadNotification(Long memberId, NotificationType type) {
         return switch (type) {
-            case NEWS -> myNotificationService.existsUnread();
-            case NOTICES -> announcementService.existsUnread();
+            case NEWS -> myNotificationService.existsUnread(memberId);
+            case NOTICES -> false; // 수정필요
         };
     }
 }
