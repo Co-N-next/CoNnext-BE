@@ -1,12 +1,14 @@
 package com.umc.connext.domain.venue.entity;
 
 import com.umc.connext.common.enums.FacilityType;
+import com.umc.connext.domain.concert.entity.ConcertVenue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,6 +68,9 @@ public class VenueFacility {
             example = "1,2"
     )
     private String connectedFloors;
+
+    @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
+    private List<ConcertVenue> concertVenues = new ArrayList<>();
 
     @Transient
     public FacilityType getFacilityType() {

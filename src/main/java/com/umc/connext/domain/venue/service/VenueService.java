@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,22 @@ public class VenueService {
                 .toList();
     }
 
+    public List<VenueResDTO.VenueHomeDTO> getPopularVenues() {
+        List<Venue> top8Venues = venueRepository.findTop8WithConcertsByViewCount();
+        LocalDate today = LocalDate.now();
+
+        return top8Venues.stream()
+                .map(venue -> {
+                    boolean isToday = venue.getConcertVenues().stream()
+                            .flatMap(cv -> cv.getConcert().getConcertDetails().stream())
+                            .anyMatch(detail -> detail.getStartAt().toLocalDate().equals(today));
+
+                    boolean isNew = venue.getCreatedAt().toLocalDate().equals(today);
+
+                    return VenueConverter.toVenueHomeDTO(venue, isToday, isNew);
+                })
+                .toList();
+    }
     // ── 맵 & 길찾기 ──
 
     @Transactional
@@ -112,23 +129,6 @@ public class VenueService {
                 .svgHeight(venue.getSvgHeight())
                 .floors(floorDataList)
                 .build();
-    }
-
-    public List<VenueResDTO.FacilityDto> getVenueFacilities(Long venueId, Integer floor, String type) {
-        validateVenueId(venueId);
-
-        List<VenueFacility> facilities = venueFacilityRepository.findAllByVenueId(venueId);
-
-        List<VenueResDTO.FacilityDto> result = facilities.stream()
-                .filter(f -> floor == null || f.getFloor().equals(floor))
-                .filter(f -> type == null || f.getType().equalsIgnoreCase(type))
-                .map(this::convertToFacilityDto)
-                .collect(Collectors.toList());
-
-        log.debug("공연장 {} 시설물 조회 완료 - 조건: floor={}, type={}, 결과: {} 개",
-                venueId, floor, type, result.size());
-
-        return result;
     }
 
     public List<VenueResDTO.FacilityDto> getVenueFacilities(Long venueId) {

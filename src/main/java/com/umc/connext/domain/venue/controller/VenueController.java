@@ -54,6 +54,13 @@ public class VenueController implements VenueControllerDocs {
     }
 
     @Override
+    @GetMapping("/")
+    public ResponseEntity<Response<List<VenueResDTO.VenueHomeDTO>>> getPopularVenues() {
+        List<VenueResDTO.VenueHomeDTO> result = venueService.getPopularVenues();
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "홈 화면 공연장 조회 성공"));
+    }
+
+    @Override
     @GetMapping("/{venueId}/map")
     public ResponseEntity<Response<VenueResDTO.VenueMapResponse>> getVenueMap(@PathVariable Long venueId) {
         VenueResDTO.VenueMapResponse mapData = venueService.getVenueMap(venueId);
