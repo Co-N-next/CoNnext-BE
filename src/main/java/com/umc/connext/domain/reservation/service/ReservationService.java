@@ -7,10 +7,7 @@ import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.reservation.converter.ReservationConverter;
-import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
-import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
-import com.umc.connext.domain.reservation.dto.ReservationResDTO;
-import com.umc.connext.domain.reservation.dto.SeatInfoDTO;
+import com.umc.connext.domain.reservation.dto.*;
 import com.umc.connext.domain.reservation.entity.Reservation;
 import com.umc.connext.domain.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +29,7 @@ public class ReservationService {
     @Transactional
     public ReservationResDTO.ReservationAddResDTO addReservation(
             Long memberId,
-            ReservationReqDTO reqDTO
+            ReservationAddReqDTO reqDTO
     ) {
         // 회원 존재 확인
         Member member = memberRepository.findById(memberId)
@@ -67,7 +64,16 @@ public class ReservationService {
         memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
-        reservationRepository.deleteByIdAndMemberId(reservationId, memberId);
+        // 예매내역 존재 확인
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 예매내역입니다."));
+
+        // 예매내역 소유자 확인
+        if (!reservation.getMember().getId().equals(memberId)) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "예매내역 삭제 권한이 없습니다.");
+        }
+
+        reservationRepository.delete(reservation);
     }
 
     // 예매내역 조회
@@ -89,10 +95,10 @@ public class ReservationService {
     public ReservationResDTO.ReservationUpdateResDTO updateReservation(
             Long memberId,
             Long reservationId,
-            ReservationReqDTO reqDTO
+            ReservationUpdateReqDTO reqDTO
     ){
         // 회원 존재 확인
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
         // 예매내역 존재 확인

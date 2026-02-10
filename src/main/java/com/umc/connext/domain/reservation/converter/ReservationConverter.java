@@ -2,7 +2,7 @@ package com.umc.connext.domain.reservation.converter;
 
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.member.entity.Member;
-import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
+import com.umc.connext.domain.reservation.dto.ReservationAddReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
 
@@ -10,7 +10,7 @@ public class ReservationConverter {
 
     // DTO -> Entity
     public static Reservation toReservation(
-            ReservationReqDTO dto,
+            ReservationAddReqDTO dto,
             Member member,
             ConcertDetail concertDetail
     ){

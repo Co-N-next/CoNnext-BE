@@ -1,9 +1,10 @@
 package com.umc.connext.domain.reservation.controller;
 
 import com.umc.connext.common.response.Response;
+import com.umc.connext.domain.reservation.dto.ReservationAddReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
-import com.umc.connext.domain.reservation.dto.ReservationReqDTO;
 import com.umc.connext.domain.reservation.dto.ReservationResDTO;
+import com.umc.connext.domain.reservation.dto.ReservationUpdateReqDTO;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,20 +18,22 @@ import java.util.List;
 @RequestMapping("/reservations")
 public interface ReservationControllerDocs {
 
+    // 예매내역 추가
     @Operation(
             summary = "예매내역 추가",
             description = "공연 상세 정보를 바탕으로 예매내역을 추가합니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "추가 성공"),
+            @ApiResponse(responseCode = "201", description = "추가 성공"),
             @ApiResponse(responseCode = "404", description = "공연 정보를 찾을 수 없습니다.")
     })
     @PostMapping("")
     ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody ReservationReqDTO dto
+            @RequestBody ReservationAddReqDTO dto
     );
 
+    // 예매내역 삭제
     @Operation(
             summary = "예매내역 삭제",
             description = "예매내역을 삭제합니다."
@@ -40,7 +43,7 @@ public interface ReservationControllerDocs {
             @ApiResponse(responseCode = "404", description = "예매내역을 찾을 수 없습니다.")
     })
     @DeleteMapping("/{reservationId}")
-    ResponseEntity<Response> deleteReservation(
+    ResponseEntity<Response<Void>> deleteReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reservationId
     );
@@ -64,14 +67,14 @@ public interface ReservationControllerDocs {
             description = "예매내역을 수정합니다. 수정하고 싶은 정보만 입력해주세요."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "204", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "예매내역을 찾을 수 없습니다.")
     })
     @PatchMapping("/{reservationId}")
     ResponseEntity<Response<ReservationResDTO.ReservationUpdateResDTO>> updateReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reservationId,
-            @RequestBody ReservationReqDTO dto
+            @RequestBody ReservationUpdateReqDTO dto
     );
 
 }
