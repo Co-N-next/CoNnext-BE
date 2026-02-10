@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,18 +33,26 @@ public class ConcertService {
     private final ConcertDetailRepository concertDetailRepository;
     private final ConcertRepository concertRepository;
 
+    @Transactional
     public ConcertResponse getConcert(Long concertId) {
         Concert concert = concertRepository.findById(concertId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "존재하지 않는 공연입니다. id=" + concertId));
 
+        incrementViewCount(concertId);
         List<ConcertDetail> details = concertDetailRepository.findAllByConcertOrderByStartAtAsc(concert);
 
         return ConcertResponse.of(concert, details);
     }
 
+    @Transactional
     public ConcertDetailResponse getConcertDetail(Long detailId) {
         ConcertDetail concertDetail = concertDetailRepository.findByIdWithConcert(detailId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "존재하지 않는 공연 회차입니다. id=" + detailId));
+
+        Concert concert = concertDetail.getConcert();
+        if (concert != null && concert.getId() != null) {
+            incrementViewCount(concert.getId());
+        }
 
         return ConcertDetailResponse.from(concertDetail);
     }
@@ -71,32 +81,37 @@ public class ConcertService {
                 .map(ConcertResponse::from);
     }
 
-    /**
-     * 다가오는 공연 목록 조회
-     * @param page 페이지 번호 (0부터 시작)
-     * @param size 페이지 크기
-     * @param sortBy 정렬 기준 ("latest": 최신순, "popular": 조회수순)
-     * @return 다가오는 공연 목록
-     */
     public Page<UpcomingConcertResponse> getUpcomingConcerts(int page, int size, String sortBy) {
         LocalDateTime now = LocalDateTime.now();
         Pageable pageable;
-        Page<Concert> concerts;
 
         if ("popular".equalsIgnoreCase(sortBy)) {
-            // 조회수 순
             pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "viewCount"));
-            concerts = concertRepository.findUpcomingConcertsOrderByViewCount(now, pageable);
         } else {
-            // 최신순 (기본)
             pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-            concerts = concertRepository.findUpcomingConcertsOrderByCreated(now, pageable);
         }
 
-        return concerts.map(concert -> {
-            LocalDateTime nextShowTime = concertDetailRepository.findNextShowTime(concert, now);
-            return UpcomingConcertResponse.of(concert, nextShowTime, concert.getViewCount());
-        });
+        Page<Concert> concerts = concertRepository.findUpcomingConcerts(now, pageable);
+
+        // 한 번에 다음 공연 시간 조회
+        Map<Long, LocalDateTime> nextShowTimeMap = concertDetailRepository
+                .findNextShowTimes(concerts.getContent(), now)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (LocalDateTime) row[1]
+                ));
+
+        return concerts.map(concert -> UpcomingConcertResponse.of(
+                concert,
+                nextShowTimeMap.get(concert.getId()),
+                concert.getViewCount()
+        ));
+    }
+
+    @Transactional
+    public void incrementViewCount(Long concertId) {
+        concertRepository.incrementViewCount(concertId);
     }
 
 }

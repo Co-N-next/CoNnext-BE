@@ -20,9 +20,11 @@ public interface ConcertDetailRepository extends JpaRepository<ConcertDetail, Lo
 
     List<ConcertDetail> findByStartAtBetween(LocalDateTime start, LocalDateTime end);
 
-    /**
-     * 특정 공연의 다음 공연 시간 조회 (현재 이후 가장 가까운 시간)
-     */
-    @Query("SELECT MIN(cd.startAt) FROM ConcertDetail cd WHERE cd.concert = :concert AND cd.startAt >= :now")
-    LocalDateTime findNextShowTime(@Param("concert") Concert concert, @Param("now") LocalDateTime now);
+    @Query("""
+    SELECT cd.concert.id, MIN(cd.startAt)
+    FROM ConcertDetail cd
+    WHERE cd.concert IN :concerts AND cd.startAt >= :now
+    GROUP BY cd.concert.id
+    """)
+    List<Object[]> findNextShowTimes(@Param("concerts") List<Concert> concerts, @Param("now") LocalDateTime now);
 }

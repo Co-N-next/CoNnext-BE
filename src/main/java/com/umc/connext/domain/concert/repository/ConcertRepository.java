@@ -4,6 +4,7 @@ import com.umc.connext.domain.concert.entity.Concert;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,25 +16,15 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
 
     Page<Concert> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    /**
-     * 다가오는 공연 목록 조회 (최신순)
-     */
     @Query("""
-        SELECT DISTINCT c
-        FROM Concert c
-        JOIN c.concertDetails cd
-        WHERE cd.startAt >= :now
-        """)
-    Page<Concert> findUpcomingConcertsOrderByCreated(@Param("now") LocalDateTime now, Pageable pageable);
+    SELECT DISTINCT c
+    FROM Concert c
+    JOIN c.concertDetails cd
+    WHERE cd.startAt >= :now
+    """)
+    Page<Concert> findUpcomingConcerts(@Param("now") LocalDateTime now, Pageable pageable);
 
-    /**
-     * 다가오는 공연 목록 조회 (조회수순)
-     */
-    @Query("""
-        SELECT DISTINCT c
-        FROM Concert c
-        JOIN c.concertDetails cd
-        WHERE cd.startAt >= :now
-        """)
-    Page<Concert> findUpcomingConcertsOrderByViewCount(@Param("now") LocalDateTime now, Pageable pageable);
+    @Modifying
+    @Query("UPDATE Concert c SET c.viewCount = c.viewCount + 1 WHERE c.id = :id")
+    void incrementViewCount(@Param("id") Long id);
 }
