@@ -16,12 +16,19 @@ import com.umc.connext.domain.announcement.dto.response.AnnouncementPageResponse
 import com.umc.connext.domain.announcement.dto.response.AnnouncementResponseDTO;
 import com.umc.connext.domain.announcement.dto.response.AnnouncementPayload;
 import com.umc.connext.common.response.PageInfo;
+import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.mynotification.entity.MyNotification;
+import com.umc.connext.domain.mynotification.repository.MyNotificationRepository;
 
 @Service
 @RequiredArgsConstructor
 public class AnnouncementService {
     private final AnnouncementRepository repository;
+    private final MemberRepository memberRepository;
+    private final MyNotificationRepository myNotificationRepository;
 
+    @Transactional
     public AnnouncementPageResponse getAnnouncements(
             Long memberId,
             int page,
@@ -60,7 +67,22 @@ public class AnnouncementService {
                 .build();
 
         repository.save(announcement);
+
+        List<Long> memberIds = memberRepository.findAllActiveMemberIds();
+
+        List<MyNotification> notifications =
+                memberIds.stream()
+                        .map(id -> MyNotification.createNotice(
+                                id,
+                                request.getTitle(),
+                                request.getContent(),
+                                request.getLogoImg()
+                        ))
+                        .toList();
+
+        myNotificationRepository.saveAll(notifications);
     }
+
 
     private AnnouncementResponseDTO toDto(Announcement entity) {
         return AnnouncementResponseDTO.builder()

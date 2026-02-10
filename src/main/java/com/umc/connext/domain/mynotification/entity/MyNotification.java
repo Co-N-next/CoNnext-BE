@@ -22,7 +22,7 @@ public class MyNotification extends BaseEntity {
     @Column(name="member_id", nullable=false)
     private Long memberId;
 
-    @Column(name="sender_id")
+    @Column(name="sender_id", nullable = true)
     private Long senderId;
 
     @Column(name="title", nullable=false)

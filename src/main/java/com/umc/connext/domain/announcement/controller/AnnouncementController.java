@@ -15,12 +15,14 @@ import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.umc.connext.domain.announcement.dto.response.AnnouncementPageResponse;
 import com.umc.connext.domain.announcement.dto.response.AnnouncementCreateRequestDTO;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.constraints.Min;
 
 @Tag(name = "Notifications-NOTICES", description = "공지사항 알림 관련 API")
 @RestController
 @RequestMapping("/notifications/notices")
 @RequiredArgsConstructor
-
+@Validated
 public class AnnouncementController {
     private final AnnouncementService announcementService;
 
@@ -34,8 +36,8 @@ public class AnnouncementController {
     @GetMapping
     public ResponseEntity<Response<AnnouncementPageResponse>> getAnnouncements(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) int size
     ) {
         AnnouncementPageResponse result =
                 announcementService.getAnnouncements(

@@ -18,10 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.constraints.Min;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Tag(name = "Notifications-NEWS", description = "내소식 알림 관련 API")
 @RestController
+@Validated
 @RequestMapping("/notifications/news")
 @RequiredArgsConstructor
 public class MyNotificationController {
@@ -37,8 +40,8 @@ public class MyNotificationController {
     @GetMapping
     public ResponseEntity<Response<MyNotificationPageResponse>> getMyNotifications(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) int size
     ) {
         MyNotificationPageResponse result =
                 myNotificationService.getMyNotifications(

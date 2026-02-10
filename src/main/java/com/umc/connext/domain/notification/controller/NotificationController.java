@@ -35,20 +35,22 @@ public class NotificationController {
             @ApiResponse(responseCode = "200", description = "알림 존재 여부 확인 성공")
     })
     @GetMapping
-    public ResponseEntity<Response<Void>> hasUnreadNotification(
+    public ResponseEntity<Response<Boolean>> hasUnreadNotification(
             @RequestParam NotificationType type,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long memberId = userDetails.getMemberId();
 
-        boolean result = notificationService.hasUnreadNotification(memberId, type);
-
+        boolean result =
+                notificationService.hasUnreadNotification(memberId, type);
 
         return ResponseEntity.ok(
                 Response.success(
                         SuccessCode.GET_SUCCESS,
-                        result ? "안 읽은 알림이 존재합니다." : "안 읽은 알림이 존재하지 않습니다."
+                        result,
+                        result ? "안 읽은 알림 존재" : "안 읽은 알림 없음"
                 )
         );
     }
+
 }
