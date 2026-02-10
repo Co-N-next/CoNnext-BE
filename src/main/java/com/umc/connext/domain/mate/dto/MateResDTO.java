@@ -31,13 +31,11 @@ public class MateResDTO {
                 Member m,
                 boolean isFavorite
         ) {
-            Member friend = mate.getRequester().equals(m) ? mate.getAddressee() : mate.getRequester();
-
             return MateListResDTO.builder()
                     .mateId(mate.getId())
-                    .memberId(friend.getId())
-                    .nickname(friend.getNickname())
-                    .profileImage(friend.getProfileImage())
+                    .memberId(m.getId())
+                    .nickname(m.getNickname())
+                    .profileImage(m.getProfileImage())
                     .isFavorite(isFavorite)
                     .build();
         }

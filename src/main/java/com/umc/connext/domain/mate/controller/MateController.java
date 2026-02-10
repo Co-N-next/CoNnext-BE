@@ -62,7 +62,7 @@ public class MateController implements MateControllerDocs {
             @PathVariable Long mateId
     ) {
         Long memberId = userDetails.getMemberId();
-        mateService.rejectMateRequest(memberId, mateId);
+        mateService.rejectMateRequest(mateId, memberId);
 
         return ResponseEntity.ok().body(Response.success(SuccessCode.UPDATE_SUCCESS, "메이트 요청 거절 성공"));
     }

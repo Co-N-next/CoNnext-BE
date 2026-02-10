@@ -1,6 +1,5 @@
 package com.umc.connext.domain.reservation.repository;
 
-import com.umc.connext.domain.mate.dto.MateResDTO;
 import com.umc.connext.domain.mate.projection.MateReservationProjection;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
@@ -12,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 

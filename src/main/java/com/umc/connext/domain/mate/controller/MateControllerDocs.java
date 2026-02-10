@@ -23,7 +23,7 @@ public interface MateControllerDocs {
             description = "다른 회원에게 메이트 요청을 보냅니다."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "메이트 요청 성공"),
+            @ApiResponse(responseCode = "200", description = "메이트 요청 성공"),
             @ApiResponse(responseCode = "400", description = "유효하지 않은 요청"),
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음")
     })

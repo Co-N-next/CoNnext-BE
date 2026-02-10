@@ -121,6 +121,10 @@ public class MateService {
     @Transactional(readOnly = true)
     public List<MateResDTO.MateListResDTO> getMyMates(Long memberId) {
         List<Mate> mates = mateRepository.findAllAcceptedMatesByMemberId(memberId);
+        List<FavoriteMate> favoriteMates = favoriteMateRepository.findAllByMemberId(memberId);
+        Set<Long> favoriteMateIds = favoriteMates.stream()
+                .map(fav -> fav.getMate().getId())
+                .collect(Collectors.toSet());
 
         return mates.stream()
                 .map(mate -> {
@@ -128,8 +132,7 @@ public class MateService {
                             mate.getRequester().getId().equals(memberId) ?
                             mate.getAddressee() :
                             mate.getRequester();
-                    return MateResDTO.MateListResDTO.from(mate, friend,
-                            favoriteMateRepository.existsByMemberIdAndMateId(memberId, mate.getId()));
+                    return MateResDTO.MateListResDTO.from(mate, friend, favoriteMateIds.contains(mate.getId()));
                 })
                 .toList();
     }
