@@ -65,7 +65,7 @@ public class TermService {
 
     public List<ActiveTermResponseDTO> getActiveTerms() {
         return termRepository.findAll().stream()
-                .filter(Term::isActive)
+                .filter(Term::getActive)
                 .map(ActiveTermResponseDTO::from)
                 .toList();
     }
@@ -74,6 +74,9 @@ public class TermService {
         Term term = termRepository.findById(termsId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "해당 약관을 찾을 수 없습니다."));
 
+        if (!term.getActive()) {
+            throw new GeneralException(ErrorCode.NOT_FOUND, "비활성화된 약관입니다.");
+        }
         return TermsDetailResponseDTO.from(term);
     }
 

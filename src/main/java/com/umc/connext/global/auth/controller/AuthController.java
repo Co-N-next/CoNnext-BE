@@ -285,7 +285,7 @@ public class AuthController {
     public ResponseEntity<Response<TermsDetailResponseDTO>> getTermsDetail(@PathVariable Long termsId) {
         TermsDetailResponseDTO result = termService.getTermsDetail(termsId);
         return ResponseEntity.ok()
-                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 세부 정보 조히 성공"));
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 세부 정보 조회 성공"));
     }
 
     @Operation(summary = "동의한 optional 약관 목록 조회",
