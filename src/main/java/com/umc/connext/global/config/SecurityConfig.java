@@ -59,14 +59,14 @@ public class  SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable);
 
         //OAuth2
-//        http
-//                .oauth2Login((oauth2) -> oauth2
-//                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-//                                .userService(customOAuth2UserService))
-//                        .successHandler(customOAuth2SuccessHandler)
-//                        .failureHandler(CustomOAuth2FailureHandler)
-//                )
-//        ;
+        http
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService))
+                        .successHandler(customOAuth2SuccessHandler)
+                        .failureHandler(CustomOAuth2FailureHandler)
+                )
+        ;
 
         http
                 .authorizeHttpRequests((auth) -> auth
