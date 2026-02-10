@@ -93,7 +93,10 @@ public class ConcertService {
 
         Page<Concert> concerts = concertRepository.findUpcomingConcerts(now, pageable);
 
-        // 한 번에 다음 공연 시간 조회
+        if (concerts.isEmpty()) {
+            return concerts.map(concert -> UpcomingConcertResponse.of(concert, null, concert.getViewCount()));
+        }
+
         Map<Long, LocalDateTime> nextShowTimeMap = concertDetailRepository
                 .findNextShowTimes(concerts.getContent(), now)
                 .stream()

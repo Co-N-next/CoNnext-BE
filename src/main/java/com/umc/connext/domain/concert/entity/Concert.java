@@ -33,7 +33,7 @@ public class Concert extends BaseEntity {
     private String reservationLink;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bigint default 0")
     private Long viewCount = 0L;
 
     @Builder.Default
