@@ -10,6 +10,10 @@ spring:
       ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: ${JPA_SHOW_SQL:true}
 
+  session:
+    jdbc:
+      initialize-schema: always
+
   security:
     oauth2:
       client:
@@ -75,3 +79,4 @@ app:
   oauth2:
     success: ${FRONTEND_BASE_URL:http://localhost:3000}
     signup: ${FRONTEND_BASE_URL:http://localhost:3000}/signup/terms
+
