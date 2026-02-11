@@ -5,6 +5,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
 import com.umc.connext.domain.concert.dto.ConcertResponse;
 import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
+import com.umc.connext.domain.concert.dto.ConcertUpcomingResponse;
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
@@ -70,4 +71,11 @@ public class ConcertService {
                 .map(ConcertResponse::from);
     }
 
+    public List<ConcertUpcomingResponse> getUpcomingConcerts() {
+        return concertDetailRepository
+                .findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime.now())
+                .stream()
+                .map(ConcertUpcomingResponse::from)
+                .toList();
+    }
 }

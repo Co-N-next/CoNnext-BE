@@ -69,9 +69,6 @@ public class VenueFacility {
     )
     private String connectedFloors;
 
-    @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
-    private List<ConcertVenue> concertVenues = new ArrayList<>();
-
     @Transient
     public FacilityType getFacilityType() {
         return FacilityType.fromString(this.type);
