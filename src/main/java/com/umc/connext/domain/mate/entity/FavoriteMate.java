@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "favorite_mate")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FavoriteMate extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

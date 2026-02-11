@@ -31,7 +31,7 @@ public class ReservationService {
             Long memberId,
             ReservationAddReqDTO reqDTO
     ) {
-        // 회원 존재 확인
+        // 회원 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
@@ -60,10 +60,6 @@ public class ReservationService {
             Long memberId,
             Long reservationId
     ){
-        // 회원 존재 확인
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
-
         // 예매내역 존재 확인
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 예매내역입니다."));
@@ -81,7 +77,7 @@ public class ReservationService {
     public List<ReservationGetResDTO> getMyReservations(
             Long memberId
     ){
-        // 회원 존재 확인
+        // 회원 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
 
@@ -97,10 +93,6 @@ public class ReservationService {
             Long reservationId,
             ReservationUpdateReqDTO reqDTO
     ){
-        // 회원 존재 확인
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> GeneralException.notFound("존재하지 않는 회원입니다."));
-
         // 예매내역 존재 확인
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> GeneralException.notFound("존재하지 않는 예매내역입니다."));

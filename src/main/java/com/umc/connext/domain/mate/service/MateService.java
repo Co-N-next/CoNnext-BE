@@ -40,7 +40,6 @@ public class MateService {
     private final MateRepository mateRepository;
     private final MemberRepository memberRepository;
     private final FavoriteMateRepository favoriteMateRepository;
-    private final ConcertDetailRepository concertDetailRepository;
     private final ReservationRepository reservationRepository;
 
     // 메이트 요청
@@ -245,7 +244,7 @@ public class MateService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> GeneralException.notFound("회원을 찾을 수 없습니다."));
 
-        favoriteMateRepository.save(new FavoriteMate(null, member, mate));
+        favoriteMateRepository.save(FavoriteMate.of(member, mate));
     }
 
     // 자주 찾는 메이트 해제
