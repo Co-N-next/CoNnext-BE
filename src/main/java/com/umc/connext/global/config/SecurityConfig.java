@@ -118,8 +118,7 @@ public class  SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "https://con-next.xyz",
-                "https://www.con-next.xyz",
-                "https://api.con-next.xyz"
+                "https://www.con-next.xyz"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

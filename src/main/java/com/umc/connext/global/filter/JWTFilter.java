@@ -29,6 +29,12 @@ public class JWTFilter extends OncePerRequestFilter {
     private final MemberService memberService;
 
     @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/signup/");
+    }
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         // 헤더에서 access 키에 담긴 토큰을 꺼냄

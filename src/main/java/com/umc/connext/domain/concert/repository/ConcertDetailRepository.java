@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,6 @@ public interface ConcertDetailRepository extends JpaRepository<ConcertDetail, Lo
     List<ConcertDetail> findByStartAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<ConcertDetail> findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime now);
+
+    List<ConcertDetail> findByConcertIdIn(Collection<Long> concertIds);
 }
