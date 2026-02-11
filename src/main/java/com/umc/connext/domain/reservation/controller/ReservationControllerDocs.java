@@ -9,6 +9,8 @@ import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +32,7 @@ public interface ReservationControllerDocs {
     @PostMapping("")
     ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody ReservationAddReqDTO dto
+            @Valid @NotNull @RequestBody ReservationAddReqDTO dto
     );
 
     // 예매내역 삭제

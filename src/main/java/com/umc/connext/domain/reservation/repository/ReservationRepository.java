@@ -36,10 +36,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         ) FROM Reservation r
         JOIN r.concertDetail cd
         JOIN cd.concert c
-        JOIN c.concertCasts cc
-        JOIN cc.cast cast
-        JOIN c.concertVenues cv
-        JOIN cv.venue v
+        LEFT JOIN c.concertCasts cc
+        LEFT JOIN cc.cast cast
+        LEFT JOIN c.concertVenues cv
+        LEFT JOIN cv.venue v
         WHERE r.member = :member
         ORDER BY r.id DESC
     """)

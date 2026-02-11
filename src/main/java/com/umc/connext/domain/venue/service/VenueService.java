@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc.connext.common.enums.FacilityType;
 import com.umc.connext.common.enums.SectionType;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.concert.entity.ConcertDetail;
+import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
@@ -28,6 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,6 +46,7 @@ public class VenueService {
     private final VenueFacilityRepository venueFacilityRepository;
     private final FavoriteVenueRepository favoriteVenueRepository;
     private final MemberRepository memberRepository;
+    private final ConcertDetailRepository concertDetailRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final FloorMappingService floorMappingService;
@@ -64,10 +70,13 @@ public class VenueService {
         List<Venue> top8Venues = venueRepository.findTop8WithConcertsByViewCount();
         LocalDate today = LocalDate.now();
 
+        Map<Long, List<ConcertDetail>> detailsByConcertId = loadConcertDetails(top8Venues);
+
         return top8Venues.stream()
                 .map(venue -> {
                     boolean isToday = venue.getConcertVenues().stream()
-                            .flatMap(cv -> cv.getConcert().getConcertDetails().stream())
+                            .map(cv -> detailsByConcertId.getOrDefault(cv.getConcert().getId(), List.of()))
+                            .flatMap(Collection::stream)
                             .anyMatch(detail -> detail.getStartAt().toLocalDate().equals(today));
 
                     boolean isNew = venue.getCreatedAt().toLocalDate().equals(today);
@@ -75,6 +84,20 @@ public class VenueService {
                     return VenueConverter.toVenueHomeDTO(venue, isToday, isNew);
                 })
                 .toList();
+    }
+
+    private Map<Long, List<ConcertDetail>> loadConcertDetails(List<Venue> venues) {
+        Set<Long> concertIds = venues.stream()
+                .flatMap(venue -> venue.getConcertVenues().stream())
+                .map(cv -> cv.getConcert().getId())
+                .collect(Collectors.toSet());
+
+        if (concertIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return concertDetailRepository.findByConcertIdIn(concertIds).stream()
+                .collect(Collectors.groupingBy(detail -> detail.getConcert().getId()));
     }
     // ── 맵 & 길찾기 ──
 

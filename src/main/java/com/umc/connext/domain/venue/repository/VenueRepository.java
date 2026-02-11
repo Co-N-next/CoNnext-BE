@@ -21,7 +21,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
     SELECT DISTINCT v FROM Venue v
     LEFT JOIN FETCH v.concertVenues cv
     LEFT JOIN FETCH cv.concert c
-    LEFT JOIN FETCH c.concertDetails
     ORDER BY v.totalViews DESC
     LIMIT 8
     """)

@@ -31,7 +31,7 @@ public class ReservationController implements ReservationControllerDocs {
     @Override
     public ResponseEntity<Response<ReservationResDTO.ReservationAddResDTO>> addReservation(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody @Valid @NotBlank ReservationAddReqDTO dto
+            @RequestBody ReservationAddReqDTO dto
     ){
         Long memberId = userDetails.getMemberId();
 
