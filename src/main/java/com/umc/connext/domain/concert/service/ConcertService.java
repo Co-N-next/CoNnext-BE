@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -73,7 +74,7 @@ public class ConcertService {
 
     public List<ConcertUpcomingResponse> getUpcomingConcerts() {
         return concertDetailRepository
-                .findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime.now())
+                .findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .stream()
                 .map(ConcertUpcomingResponse::from)
                 .toList();
