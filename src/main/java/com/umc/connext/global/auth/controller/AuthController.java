@@ -4,10 +4,7 @@ import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.member.dto.ActiveTermResponseDTO;
-import com.umc.connext.domain.member.dto.MyTermResponseDTO;
-import com.umc.connext.domain.member.dto.OptionalTermsChangeRequestDTO;
-import com.umc.connext.domain.member.dto.RandomNicknameResponseDTO;
+import com.umc.connext.domain.member.dto.*;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.domain.member.service.NicknameService;
@@ -17,6 +14,7 @@ import com.umc.connext.global.auth.enums.TokenCategory;
 import com.umc.connext.global.auth.service.AuthService;
 import com.umc.connext.global.auth.service.ReissueService;
 import com.umc.connext.global.auth.util.JWTUtil;
+import com.umc.connext.global.auth.util.SecurityResponseWriter;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.auth.util.JWTProperties;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
@@ -34,6 +32,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +55,8 @@ public class AuthController {
     private final NicknameService nicknameService;
     private final TermService termService;
     private final JWTUtil jwtUtil;
+    private final SecurityResponseWriter securityResponseWriter;
+    private final AuthenticationManager authenticationManager;
 
     @Operation(
             summary = "Local 회원가입",
@@ -246,9 +249,41 @@ public class AuthController {
             }
     )
     @PostMapping("/login/local")
-    public Response<LoginResponseDTO> loginLocal(@RequestBody LoginRequestDTO loginRequest) {
-        throw new IllegalStateException("This method is intercepted by Spring Security Filter.");
+    public void loginLocal(@RequestBody LoginRequestDTO loginRequest,
+                           HttpServletResponse response) throws IOException {
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
+
+        Authentication authentication = authenticationManager.authenticate(authToken);
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long memberId = userDetails.getMemberId();
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+
+        String access = jwtUtil.createJwt(TokenCategory.ACCESS, role, memberId);
+        String refresh = jwtUtil.createJwt(TokenCategory.REFRESH, role, memberId);
+
+        refreshTokenService.removeAllByAuthKey(memberId);
+        refreshTokenService.saveRefreshToken(refresh, memberId);
+
+        response.setHeader("Authorization", "Bearer " + access);
+
+        Cookie cookie = new Cookie("refresh", refresh);
+        cookie.setMaxAge(Math.toIntExact(jwtProperties.getRefreshTokenValiditySeconds()));
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername());
+        Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS, loginResponseDto);
+
+        securityResponseWriter.write(response, body);
     }
+
+//    public Response<LoginResponseDTO> loginLocal(@RequestBody LoginRequestDTO loginRequest) {
+//        throw new IllegalStateException("This method is intercepted by Spring Security Filter.");
+//    }
 
     @Operation(
             summary = "로그아웃",
@@ -278,6 +313,18 @@ public class AuthController {
         List<ActiveTermResponseDTO> result = termService.getActiveTerms();
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 목록 조회 성공"));
+    }
+
+    @Operation(summary = "약관 세부 정보 조회", description = "회원가입 시 사용되는 약관 세부 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 약관")
+    })
+    @GetMapping("/terms/{termsId}")
+    public ResponseEntity<Response<TermsDetailResponseDTO>> getTermsDetail(@PathVariable Long termsId) {
+        TermsDetailResponseDTO result = termService.getTermsDetail(termsId);
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 세부 정보 조회 성공"));
     }
 
     @Operation(summary = "동의한 optional 약관 목록 조회",

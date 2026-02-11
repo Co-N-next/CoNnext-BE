@@ -39,4 +39,8 @@ public class Concert extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConcertDetail> concertDetails = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "concert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConcertVenue> concertVenues = new ArrayList<>();
 }
