@@ -56,6 +56,8 @@ jobs:
             echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env.prod
             echo "BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}" >> .env.prod
             echo "FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}" >> .env.prod
+            echo "OAUTH2_SUCCESS_URL=${{ secrets.OAUTH2_SUCCESS_URL }}" >> .env.prod
+            echo "OAUTH2_SIGNUP_URL=${{ secrets.OAUTH2_SIGNUP_URL }}" >> .env.prod
             echo "SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}" >> .env.prod
             echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.prod
             echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.prod

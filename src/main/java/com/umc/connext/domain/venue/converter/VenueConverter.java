@@ -47,4 +47,15 @@ public class VenueConverter {
                 .imageUrl(venue.getImageUrl())
                 .build();
     }
+
+    public static VenueResDTO.VenueHomeDTO toVenueHomeDTO(Venue venue, boolean isToday, boolean isNew) {
+        return VenueResDTO.VenueHomeDTO.builder()
+                .id(venue.getId())
+                .name(venue.getName())
+                .city(venue.getCity())
+                .imageUrl(venue.getImageUrl())
+                .isToday(isToday)
+                .isNew(isNew)
+                .build();
+    }
 }

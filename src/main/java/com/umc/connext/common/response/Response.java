@@ -98,6 +98,7 @@ public class Response<T> {
                 .build();
     }
 
+
     public static <T> Response<T> fail(Code code) {
         return Response.<T>builder()
                 .statusCode(code.getStatusCode())

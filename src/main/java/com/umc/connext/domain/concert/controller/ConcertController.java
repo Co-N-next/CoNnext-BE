@@ -2,10 +2,7 @@ package com.umc.connext.domain.concert.controller;
 
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
-import com.umc.connext.domain.concert.dto.ConcertResponse;
-import com.umc.connext.domain.concert.dto.ConcertSearchResponse;
-import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
+import com.umc.connext.domain.concert.dto.*;
 import com.umc.connext.domain.concert.service.ConcertService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -95,5 +92,16 @@ public class ConcertController {
         ConcertDetailResponse result = concertService.getConcertDetail(detailId);
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "공연 상세 회차 조회 성공"));
+    }
+
+    @Operation(summary = "다가오는 공연 조회", description = "오늘 이후 예정된 공연을 D-Day와 함께 20개씩 페이지네이션하여 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/upcoming")
+    public ResponseEntity<Response<List<ConcertUpcomingResponse>>> getUpcomingConcerts() {
+        List<ConcertUpcomingResponse> result = concertService.getUpcomingConcerts();
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "다가오는 공연 조회 성공"));
     }
 }

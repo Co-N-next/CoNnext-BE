@@ -68,14 +68,17 @@ public class  SecurityConfig {
                 )
         ;
 
-        http
-                .authorizeHttpRequests((auth) -> auth
+//        http
+//                .authorizeHttpRequests((auth) -> auth
 //                        .requestMatchers(
 //                                "/swagger-ui.html", "/swagger-ui/**",
 //                                "/v3/api-docs", "/v3/api-docs/**").permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")
 //                        .requestMatchers("/", "/auth/**").permitAll()
 //                        .anyRequest().hasRole("USER"));
+
+        http
+                .authorizeHttpRequests((auth) -> auth
                         .anyRequest().permitAll());
 
         //1️ login filter
@@ -114,7 +117,8 @@ public class  SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://con-next.xyz"
+                "https://con-next.xyz",
+                "https://www.con-next.xyz"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

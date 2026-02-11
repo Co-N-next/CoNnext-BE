@@ -26,11 +26,9 @@ public class Term extends BaseEntity {
     private TermType type; // REQUIRED / OPTIONAL
 
     @Column(nullable = false)
-    private boolean active; // 현재 사용중
+    private Boolean active; // 현재 사용중
 
-    protected Term(String title, TermType type) {
-        this.title = title;
-        this.type = type;
-        this.active = true;
-    }
+    @Lob
+    @Column(nullable = false)
+    private String content;
 }

@@ -6,6 +6,8 @@ services:
       - .env
     container_name: connext
     restart: always
+    environment:
+      - TZ=Asia/Seoul
     ports:
       - "8080:8080"
     depends_on:

@@ -1,12 +1,15 @@
 package com.umc.connext.domain.venue.entity;
 
 import com.umc.connext.common.entity.BaseEntity;
+import com.umc.connext.domain.concert.entity.ConcertVenue;
 import com.umc.connext.domain.venue.enums.VenueType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "venues")
@@ -78,4 +81,8 @@ public class Venue extends BaseEntity {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
+    private List<ConcertVenue> concertVenues = new ArrayList<>();
 }

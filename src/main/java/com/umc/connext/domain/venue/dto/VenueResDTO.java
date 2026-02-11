@@ -19,6 +19,16 @@ public class VenueResDTO {
     ) {}
 
     @Builder
+    public record VenueHomeDTO(
+            Long id,
+            String name,
+            String city,
+            String imageUrl,
+            Boolean isToday,
+            Boolean isNew
+    ) {}
+
+    @Builder
     public record VenueSimpleDTO(
             Long id,
             String name

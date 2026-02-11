@@ -15,6 +15,7 @@ public interface SearchHistoryRepository
             Long memberId,
             SearchType type
     );
+
     @Modifying
     @Query("DELETE FROM SearchHistory sh WHERE sh.memberId = :memberId AND sh.type = :type")
     void deleteByMemberIdAndType(Long memberId, SearchType type);
