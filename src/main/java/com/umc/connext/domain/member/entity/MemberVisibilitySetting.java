@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@ToString(exclude = "member")
 public class MemberVisibilitySetting {
 
     @Id

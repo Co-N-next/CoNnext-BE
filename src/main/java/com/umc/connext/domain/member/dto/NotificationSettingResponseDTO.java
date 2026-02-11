@@ -33,9 +33,9 @@ public class NotificationSettingResponseDTO {
 
     public static NotificationSettingResponseDTO from(MemberNotificationSetting setting) {
         return NotificationSettingResponseDTO.builder()
-                .serviceEnabled(setting.isServiceNotificationEnabled())
-                .pushEnabled(setting.isPushNotificationEnabled())
-                .smsEnabled(setting.isSmsNotificationEnabled())
+                .serviceEnabled(setting.getServiceNotificationEnabled())
+                .pushEnabled(setting.getPushNotificationEnabled())
+                .smsEnabled(setting.getSmsNotificationEnabled())
                 .build();
     }
 }

@@ -6,11 +6,9 @@ import com.umc.connext.domain.member.dto.NotificationSettingRequestDTO;
 import com.umc.connext.domain.member.dto.NotificationSettingResponseDTO;
 import com.umc.connext.domain.member.dto.VisibilitySettingRequestDTO;
 import com.umc.connext.domain.member.dto.VisibilitySettingResponseDTO;
-import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.entity.MemberNotificationSetting;
 import com.umc.connext.domain.member.entity.MemberVisibilitySetting;
 import com.umc.connext.domain.member.repository.MemberNotificationSettingRepository;
-import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.member.repository.MemberVisibilitySettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,20 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberSettingService {
 
-    private final MemberRepository memberRepository;
     private final MemberNotificationSettingRepository memberNotificationSettingRepository;
     private final MemberVisibilitySettingRepository memberVisibilitySettingRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public VisibilitySettingResponseDTO getVisibility(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER,"존재하지 않는 회원입니다."));
-
-
-        MemberVisibilitySetting setting =
-                memberVisibilitySettingRepository.findByMember(member)
-                        .orElseGet(() -> memberVisibilitySettingRepository.save(MemberVisibilitySetting.from(member)));
+        MemberVisibilitySetting setting = memberVisibilitySettingRepository.findByMemberId(memberId)
+                        .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "공개 범위 설정이 존재하지 않습니다."));
 
         return VisibilitySettingResponseDTO.from(setting);
     }
@@ -41,13 +33,8 @@ public class MemberSettingService {
     @Transactional
     public void updateVisibility(Long memberId, VisibilitySettingRequestDTO req) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER,"존재하지 않는 회원입니다."));
-
-
-        MemberVisibilitySetting setting =
-                memberVisibilitySettingRepository.findByMember(member)
-                        .orElseGet(() -> memberVisibilitySettingRepository.save(MemberVisibilitySetting.from(member)));
+        MemberVisibilitySetting setting =   memberVisibilitySettingRepository.findByMemberId(memberId)
+                        .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "공개 범위 설정이 존재하지 않습니다."));
 
         setting.update(req.getPerformanceVisibility(), req.getSeatVisibility());
     }
@@ -55,12 +42,8 @@ public class MemberSettingService {
     @Transactional
     public NotificationSettingResponseDTO getNotification(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER,"존재하지 않는 회원입니다."));
-
-        MemberNotificationSetting setting =
-                memberNotificationSettingRepository.findByMember(member)
-                        .orElseGet(() -> memberNotificationSettingRepository.save(MemberNotificationSetting.from(member)));
+        MemberNotificationSetting setting = memberNotificationSettingRepository.findByMemberId(memberId)
+                        .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "알림 설정이 존재하지 않습니다."));
 
         return NotificationSettingResponseDTO.from(setting);
     }
@@ -68,13 +51,9 @@ public class MemberSettingService {
     @Transactional
     public void updateNotification(Long memberId, NotificationSettingRequestDTO req) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER,"존재하지 않는 회원입니다."));
+        MemberNotificationSetting setting = memberNotificationSettingRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "알림 설정이 존재하지 않습니다."));
 
-        MemberNotificationSetting setting =
-                memberNotificationSettingRepository.findByMember(member)
-                        .orElseGet(() -> memberNotificationSettingRepository.save(MemberNotificationSetting.from(member)));
-
-        setting.update(req.isServiceEnabled(), req.isPushEnabled(), req.isSmsEnabled());
+        setting.update(req.getServiceEnabled(), req.getPushEnabled(), req.getSmsEnabled());
     }
 }

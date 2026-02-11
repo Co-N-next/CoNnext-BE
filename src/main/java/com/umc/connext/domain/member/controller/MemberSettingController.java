@@ -1,8 +1,6 @@
 package com.umc.connext.domain.member.controller;
 
-import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
-import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.member.dto.NotificationSettingRequestDTO;
 import com.umc.connext.domain.member.dto.NotificationSettingResponseDTO;
@@ -39,10 +37,6 @@ public class MemberSettingController {
     @GetMapping("/visibility")
     public ResponseEntity<Response<VisibilitySettingResponseDTO>> getVisibility(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
-
         VisibilitySettingResponseDTO result = memberSettingService.getVisibility(userDetails.getMemberId());
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result,"공개 범위 설정 조회 성공"));
@@ -63,10 +57,6 @@ public class MemberSettingController {
             @RequestBody @Valid VisibilitySettingRequestDTO req
     ) {
 
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
-
         memberSettingService.updateVisibility(userDetails.getMemberId(), req);
 
         return ResponseEntity.ok()
@@ -83,10 +73,6 @@ public class MemberSettingController {
     })
     @GetMapping("/notifications")
     public ResponseEntity<Response<NotificationSettingResponseDTO>> getNotification(@AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
 
         NotificationSettingResponseDTO result = memberSettingService.getNotification(userDetails.getMemberId());
 
@@ -108,10 +94,6 @@ public class MemberSettingController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid NotificationSettingRequestDTO req
     ) {
-
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
 
         memberSettingService.updateNotification(userDetails.getMemberId(), req);
 

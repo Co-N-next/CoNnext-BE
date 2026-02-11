@@ -1,10 +1,8 @@
 package com.umc.connext.domain.member.schedular;
 
+import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.enums.MemberStatus;
-import com.umc.connext.domain.member.repository.MemberNotificationSettingRepository;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.domain.member.repository.MemberTermRepository;
-import com.umc.connext.domain.member.repository.MemberVisibilitySettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,9 +17,6 @@ import java.util.List;
 @Slf4j
 public class MemberCleanupScheduler {
     private final MemberRepository memberRepository;
-    private final MemberTermRepository memberTermRepository;
-    private final MemberVisibilitySettingRepository memberVisibilitySettingRepository;
-    private final MemberNotificationSettingRepository memberNotificationSettingRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 4 * * *")
@@ -29,23 +24,15 @@ public class MemberCleanupScheduler {
 
         LocalDateTime threshold = LocalDateTime.now().minusDays(7);
 
-        List<Long> memberIds =
-                memberRepository.findIdsByMemberStatusAndDeletedAtBefore(
-                        MemberStatus.DELETED, threshold
-                );
+        List<Member> targets = memberRepository.findAllByMemberStatusAndDeletedAtBefore(MemberStatus.DELETED, threshold);
 
-        if (memberIds.isEmpty()) {
+        if (targets.isEmpty()) {
             log.info("Member cleanup skipped: no targets");
             return;
         }
 
-        //연관 데이터 삭제
-        memberTermRepository.deleteByMemberIds(memberIds);
-        memberVisibilitySettingRepository.deleteByMemberIds(memberIds);
-        memberNotificationSettingRepository.deleteByMemberIds(memberIds);
-
-        log.info("Deleted member cleanup started. target count={}", memberIds.size());
-
-        memberRepository.hardDeletedMembers(threshold);
+        log.info("Deleted member cleanup started. target count={}", targets.size());
+        memberRepository.deleteAll(targets);
+        log.info("Deleted member cleanup executed.");
     }
 }

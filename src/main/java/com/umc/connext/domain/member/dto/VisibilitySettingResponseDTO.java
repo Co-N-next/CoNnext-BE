@@ -4,7 +4,6 @@ import com.umc.connext.domain.member.entity.MemberVisibilitySetting;
 import com.umc.connext.domain.member.enums.PerformanceVisibility;
 import com.umc.connext.domain.member.enums.SeatVisibility;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,15 +15,14 @@ import lombok.Getter;
 @Builder
 public class VisibilitySettingResponseDTO {
 
-    @NotNull
     @Schema(
-            description = "좌석 공개 레벨",
+            description = "공연 공개 범위",
             example = "TODAY_ONLY"
     )
     private PerformanceVisibility performanceVisibility;
 
     @Schema(
-            description = "좌석 공개 레벨",
+            description = "좌석 공개 범위",
             example = "EXACT_SEAT"
     )
     private SeatVisibility seatVisibility;

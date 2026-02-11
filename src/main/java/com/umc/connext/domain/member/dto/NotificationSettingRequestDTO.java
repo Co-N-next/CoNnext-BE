@@ -11,17 +11,17 @@ public class NotificationSettingRequestDTO {
             description = "서비스 이용 알림 수신 여부 (마스터 스위치)",
             example = "true"
     )
-    private boolean serviceEnabled;
+    private Boolean serviceEnabled;
 
     @Schema(
             description = "푸시 알림 수신 여부",
             example = "true"
     )
-    private boolean pushEnabled;
+    private Boolean pushEnabled;
 
     @Schema(
             description = "문자(SMS) 알림 수신 여부",
             example = "false"
     )
-    private boolean smsEnabled;
+    private Boolean smsEnabled;
 }

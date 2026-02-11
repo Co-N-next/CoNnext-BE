@@ -153,7 +153,7 @@ public class OAuth2Controller {
             }
     )
 
-    @GetMapping("auth/signup-info/social")
+    @GetMapping("/auth/signup-info/social")
     public ResponseEntity<Response<SignupInfoResponseDTO>> getSignupInfo(
             @CookieValue(value = "signup",  required = false) String signupToken) {
 
@@ -166,7 +166,13 @@ public class OAuth2Controller {
         // 2. memberId 추출
         Long memberId = jwtUtil.getMemberId(signupToken);
 
-        String email = memberService.findById(memberId).getEmail();
+        // 3. 회원 조회
+        Member member = memberService.findById(memberId);
+
+        if (member.getMemberStatus() == null || !"PENDING".equals(member.getMemberStatus().name())) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "회원가입 진행 중인 사용자가 아닙니다.");
+        }
+        String email = member.getEmail();
 
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS ,SignupInfoResponseDTO.of(email),"소셜 회원가입 정보 조회 성공"));

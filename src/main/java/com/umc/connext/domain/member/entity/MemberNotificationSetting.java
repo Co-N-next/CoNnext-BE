@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@ToString(exclude = "member")
 public class MemberNotificationSetting {
 
     @Id
@@ -21,13 +22,13 @@ public class MemberNotificationSetting {
     private Member member;
 
     @Column(name = "service_notification_enabled", nullable = false)
-    private boolean serviceNotificationEnabled;
+    private Boolean serviceNotificationEnabled;
 
     @Column(name = "push_notification_enabled", nullable = false)
-    private boolean pushNotificationEnabled;
+    private Boolean pushNotificationEnabled;
 
     @Column(name = "sms_notification_enabled", nullable = false)
-    private boolean smsNotificationEnabled;
+    private Boolean smsNotificationEnabled;
 
     public static MemberNotificationSetting from(Member member) {
         return MemberNotificationSetting.builder()

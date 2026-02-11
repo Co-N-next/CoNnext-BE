@@ -16,7 +16,7 @@ public class VisibilitySettingRequestDTO {
             example = "TODAY_ONLY",
             allowableValues = {
                     "TODAY_ONLY",
-                    "ALL_MY_BOOKED_PERFORMANCES"
+                    "ALL_RESERVED"
             }
     )
     private PerformanceVisibility performanceVisibility;
@@ -24,7 +24,7 @@ public class VisibilitySettingRequestDTO {
     @NotNull
     @Schema(
             description = "좌석 공개 레벨",
-            example = "SECTION_ROW",
+            example = "ROW_ONLY",
             allowableValues = {
                     "SECTION_ONLY",
                     "ROW_ONLY",
