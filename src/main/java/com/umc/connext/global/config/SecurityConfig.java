@@ -50,13 +50,11 @@ public class  SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
 
         http
-                .cors(cors ->  cors.configurationSource(corsConfigurationSource()));
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http
                 .csrf(AbstractHttpConfigurer::disable);
-
         http
                 .formLogin(AbstractHttpConfigurer::disable);
-
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
@@ -84,30 +82,30 @@ public class  SecurityConfig {
                         .anyRequest().permitAll());
 
         //1️ login filter
-        http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter, jwtProperties), UsernamePasswordAuthenticationFilter.class);
+//        http
+//                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, securityResponseWriter, jwtProperties), UsernamePasswordAuthenticationFilter.class);
 
         //2️ JWT filter
-        http.
-                addFilterBefore(new JWTFilter(jwtUtil, memberService), LoginFilter.class);
+//        http.
+//                addFilterBefore(new JWTFilter(jwtUtil, memberService), LoginFilter.class);
 
         //3️ logout filter
-        http.
-                addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, securityResponseWriter), JWTFilter.class);
+//        http.
+//                addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenService, securityResponseWriter), JWTFilter.class);
 
         //4️ exception filter
-        http.
-                addFilterBefore(jwtExceptionFilter, CustomLogoutFilter.class);
+//        http.
+//                addFilterBefore(jwtExceptionFilter, CustomLogoutFilter.class);
 
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 처리
-                        .accessDeniedHandler(customAccessDeniedHandler) // 403 처리
-                );
+//        http
+//                .exceptionHandling(exception -> exception
+//                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 처리
+//                        .accessDeniedHandler(customAccessDeniedHandler) // 403 처리
+//                );
 
         return http.build();
     }
