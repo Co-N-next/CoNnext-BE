@@ -14,6 +14,7 @@ import com.umc.connext.global.auth.enums.TokenCategory;
 import com.umc.connext.global.auth.service.AuthService;
 import com.umc.connext.global.auth.service.ReissueService;
 import com.umc.connext.global.auth.util.JWTUtil;
+import com.umc.connext.global.auth.util.SecurityResponseWriter;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import com.umc.connext.global.auth.util.JWTProperties;
 import com.umc.connext.global.refreshtoken.service.RefreshTokenService;
@@ -31,6 +32,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +55,8 @@ public class AuthController {
     private final NicknameService nicknameService;
     private final TermService termService;
     private final JWTUtil jwtUtil;
+    private final SecurityResponseWriter securityResponseWriter;
+    private final AuthenticationManager authenticationManager;
 
     @Operation(
             summary = "Local 회원가입",
@@ -242,9 +248,41 @@ public class AuthController {
             }
     )
     @PostMapping("/login/local")
-    public Response<LoginResponseDTO> loginLocal(@RequestBody LoginRequestDTO loginRequest) {
-        throw new IllegalStateException("This method is intercepted by Spring Security Filter.");
+    public void loginLocal(@RequestBody LoginRequestDTO loginRequest,
+                           HttpServletResponse response) throws IOException {
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
+
+        Authentication authentication = authenticationManager.authenticate(authToken);
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long memberId = userDetails.getMemberId();
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+
+        String access = jwtUtil.createJwt(TokenCategory.ACCESS, role, memberId);
+        String refresh = jwtUtil.createJwt(TokenCategory.REFRESH, role, memberId);
+
+        refreshTokenService.removeAllByAuthKey(memberId);
+        refreshTokenService.saveRefreshToken(refresh, memberId);
+
+        response.setHeader("Authorization", "Bearer " + access);
+
+        Cookie cookie = new Cookie("refresh", refresh);
+        cookie.setMaxAge(Math.toIntExact(jwtProperties.getRefreshTokenValiditySeconds()));
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername());
+        Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS, loginResponseDto);
+
+        securityResponseWriter.write(response, body);
     }
+
+//    public Response<LoginResponseDTO> loginLocal(@RequestBody LoginRequestDTO loginRequest) {
+//        throw new IllegalStateException("This method is intercepted by Spring Security Filter.");
+//    }
 
     @Operation(
             summary = "로그아웃",
