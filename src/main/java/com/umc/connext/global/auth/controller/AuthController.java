@@ -60,7 +60,16 @@ public class AuthController {
 
     @Operation(
             summary = "Local 회원가입",
-            description = "email, password, 약관동의 목록을 받아 회원가입을 진행합니다.",
+            description = """
+            email, password, 약관 동의 목록을 받아 회원가입을 진행합니다.
+        
+            회원가입 성공 시 자동으로 로그인 처리됩니다.
+        
+            - Access Token은 응답 헤더(Authorization)에 포함됩니다.
+            - Refresh Token은 HttpOnly 쿠키(refresh)에 저장됩니다.
+            """
+
+            ,
             responses = {
                     @ApiResponse(responseCode = "200", description = "회원가입 성공"),
                     @ApiResponse(responseCode = "400", description = "유효성 검증 실패"),
@@ -100,10 +109,6 @@ public class AuthController {
     )
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
 
         authService.withdrawCurrentUser(userDetails.getMemberId());
 
@@ -227,10 +232,6 @@ public class AuthController {
     public ResponseEntity<Response<Void>> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                          @RequestBody @Valid NicknameChangeRequestDTO nicknameChangeRequestDTO){
 
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
-
         nicknameService.changeNickname(userDetails.getMemberId(), nicknameChangeRequestDTO.getNickname());
         return ResponseEntity
                 .status(SuccessCode.NICKNAME_UPDATE_SUCCESS.getStatusCode())
@@ -333,12 +334,8 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
-    @GetMapping("terms/me")
+    @GetMapping("/terms/me")
     public ResponseEntity<Response<List<MyTermResponseDTO>>> myTerms(@AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
 
         List<MyTermResponseDTO> result = termService.getMyOptionalTerms(userDetails.getMemberId());
         return ResponseEntity.ok()
@@ -359,10 +356,6 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid OptionalTermsChangeRequestDTO request
     ) {
-
-        if (userDetails == null) {
-            throw new GeneralException(ErrorCode.UNAUTHORIZED, "인증이 필요합니다.");
-        }
 
         termService.changeOptionalTerms(userDetails.getMemberId(), request.getAgreements());
 

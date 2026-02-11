@@ -1,8 +1,8 @@
 package com.umc.connext.domain.member.schedular;
 
+import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.domain.member.repository.MemberRepository;
-import com.umc.connext.domain.member.repository.MemberTermRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +18,6 @@ import java.util.List;
 @Slf4j
 public class MemberCleanupScheduler {
     private final MemberRepository memberRepository;
-    private final MemberTermRepository memberTermRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 4 * * *")
@@ -26,20 +25,15 @@ public class MemberCleanupScheduler {
 
         LocalDateTime threshold = LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(7);
 
-        List<Long> memberIds =
-                memberRepository.findIdsByMemberStatusAndDeletedAtBefore(
-                        MemberStatus.DELETED, threshold
-                );
+        List<Member> targets = memberRepository.findAllByMemberStatusAndDeletedAtBefore(MemberStatus.DELETED, threshold);
 
-        if (memberIds.isEmpty()) {
+        if (targets.isEmpty()) {
             log.info("Member cleanup skipped: no targets");
             return;
         }
 
-
-        memberTermRepository.deleteByMemberIds(memberIds);
-        log.info("Deleted member cleanup started. target count={}", memberIds.size());
-
-        memberRepository.hardDeletedMembers(threshold);
+        log.info("Deleted member cleanup started. target count={}", targets.size());
+        memberRepository.deleteAll(targets);
+        log.info("Deleted member cleanup executed.");
     }
 }
