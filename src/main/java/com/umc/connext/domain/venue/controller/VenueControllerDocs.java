@@ -48,6 +48,12 @@ public interface VenueControllerDocs {
     @GetMapping("/trend-search")
     ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues();
 
+    @Operation(summary = "홈 화면 공연장 정보 조회", description = "조회수 기준으로 인기 공연장 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "홈 화면 공연장 조회 성공")
+    })
+    ResponseEntity<Response<List<VenueResDTO.VenueHomeDTO>>> getPopularVenues();
+
     @Operation(
             summary = "공연장 전체 맵 데이터 조회",
             description = "공연장 지도 데이터를 조회합니다. (층별 구역 좌표 + 시설물 좌표) 일반적으로 최초 1회 호출 후 캐싱하여 사용합니다."

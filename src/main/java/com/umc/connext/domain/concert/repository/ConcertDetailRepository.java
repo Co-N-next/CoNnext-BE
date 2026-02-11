@@ -2,6 +2,7 @@ package com.umc.connext.domain.concert.repository;
 
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,6 @@ public interface ConcertDetailRepository extends JpaRepository<ConcertDetail, Lo
     List<ConcertDetail> findAllByConcertOrderByStartAtAsc(Concert concert);
 
     List<ConcertDetail> findByStartAtBetween(LocalDateTime start, LocalDateTime end);
+
+    List<ConcertDetail> findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime now);
 }
