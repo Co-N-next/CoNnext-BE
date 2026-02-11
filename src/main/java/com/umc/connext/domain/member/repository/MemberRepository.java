@@ -41,6 +41,14 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
             @Param("providerId") String providerId
     );
 
+    @Query("""
+    SELECT m.id
+    FROM Member m
+    WHERE m.memberStatus = 'ACTIVE'
+""")
+    List<Long> findAllActiveMemberIds();
+
+
     @Modifying
     @Query("""
         DELETE FROM Member m

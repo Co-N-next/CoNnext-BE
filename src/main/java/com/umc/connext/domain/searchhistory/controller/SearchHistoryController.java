@@ -14,7 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 
 @Tag(name = "SearchHistory", description = "검색 관련 API")
@@ -35,12 +36,11 @@ public class SearchHistoryController {
     })
     @GetMapping
     public ResponseEntity<Response<List<SearchHistoryResponseDTO>>> getSearchHistory(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam SearchType type
     ) {
-        Long memberId = getMemberId();
-
         List<SearchHistoryResponseDTO> result =
-                searchHistoryService.getSearchHistory(memberId, type);
+                searchHistoryService.getSearchHistory(user.getMemberId(), type);
 
         return ResponseEntity.ok()
                 .body(Response.success(
@@ -59,13 +59,11 @@ public class SearchHistoryController {
     })
     @PostMapping
     public ResponseEntity<Response<Void>> addSearchHistory(
+            @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody SearchHistoryCreateRequestDTO request
     ) {
-        Long memberId = getMemberId();
-        searchHistoryService.addSearchHistory(memberId, request);
-        return ResponseEntity.ok(
-                Response.success(SuccessCode.OK, "최근 검색어 저장 성공")
-        );
+        searchHistoryService.addSearchHistory(user.getMemberId(), request);
+        return ResponseEntity.ok(Response.success(SuccessCode.OK, "최근 검색어 저장 성공"));
     }
 
     @Operation(
@@ -79,15 +77,11 @@ public class SearchHistoryController {
     })
     @DeleteMapping("/{searchHistoryId}")
     public ResponseEntity<Response<Void>> deleteSearchHistory(
+            @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long searchHistoryId
     ) {
-        Long memberId = getMemberId();
-        searchHistoryService.deleteSearchHistory(memberId, searchHistoryId);
-        return ResponseEntity.ok(
-                Response.success(SuccessCode.DELETE_SUCCESS,
-                        "최근 검색어 한개 삭제 성공"
-                )
-        );
+        searchHistoryService.deleteSearchHistory(user.getMemberId(), searchHistoryId);
+        return ResponseEntity.ok(Response.success(SuccessCode.DELETE_SUCCESS, "최근 검색어 한개 삭제 성공"));
     }
 
     @Operation(
@@ -99,19 +93,11 @@ public class SearchHistoryController {
     })
     @DeleteMapping("/all")
     public ResponseEntity<Response<Void>> deleteAllSearchHistory(
-            @RequestParam SearchType type
-    ) {
-        Long memberId = getMemberId();
-        searchHistoryService.deleteAllSearchHistory(memberId, type);
-        return ResponseEntity.ok(
-                Response.success(
-                        SuccessCode.DELETE_SUCCESS,
-                        "최근 검색어 전체 삭제 성공"
-                )
-        );
+            @RequestParam SearchType type,
+            @AuthenticationPrincipal CustomUserDetails user
+            ) {
+        searchHistoryService.deleteAllSearchHistory(user.getMemberId(), type);
+        return ResponseEntity.ok(Response.success(SuccessCode.DELETE_SUCCESS, "최근 검색어 전체 삭제 성공"));
     }
 
-    private Long getMemberId() {
-        return 1L;
-    }
 }
