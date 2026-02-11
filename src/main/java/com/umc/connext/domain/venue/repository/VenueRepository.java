@@ -17,9 +17,15 @@ import java.util.Optional;
 @Repository
 public interface VenueRepository extends JpaRepository<Venue, Long> {
 
-    Optional<Venue> findByName(String name);
-
-    boolean existsByName(String name);
+    @Query("""
+    SELECT DISTINCT v FROM Venue v
+    LEFT JOIN FETCH v.concertVenues cv
+    LEFT JOIN FETCH cv.concert c
+    LEFT JOIN FETCH c.concertDetails
+    ORDER BY v.totalViews DESC
+    LIMIT 8
+    """)
+    List<Venue> findTop8WithConcertsByViewCount();
 
     @Modifying
     @Query("UPDATE Venue v SET v.totalViews = v.totalViews + 1 WHERE v.id = :venueId")
@@ -75,4 +81,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
         LIMIT 1
     """, nativeQuery = true)
     Optional<SimpleVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, double lat, double lng, int radius);
+
+
 }

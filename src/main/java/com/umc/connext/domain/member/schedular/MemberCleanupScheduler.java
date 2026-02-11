@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -23,7 +24,7 @@ public class MemberCleanupScheduler {
     @Scheduled(cron = "0 0 4 * * *")
     public void cleanupDeletedMembers() {
 
-        LocalDateTime threshold = LocalDateTime.now().minusDays(7);
+        LocalDateTime threshold = LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(7);
 
         List<Long> memberIds =
                 memberRepository.findIdsByMemberStatusAndDeletedAtBefore(

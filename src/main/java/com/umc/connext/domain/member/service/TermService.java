@@ -5,6 +5,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.dto.ActiveTermResponseDTO;
 import com.umc.connext.domain.member.dto.MyTermResponseDTO;
 import com.umc.connext.domain.member.dto.OptionalTermsChangeRequestDTO;
+import com.umc.connext.domain.member.dto.TermsDetailResponseDTO;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.entity.MemberTerm;
 import com.umc.connext.domain.member.entity.Term;
@@ -64,9 +65,19 @@ public class TermService {
 
     public List<ActiveTermResponseDTO> getActiveTerms() {
         return termRepository.findAll().stream()
-                .filter(Term::isActive)
+                .filter(Term::getActive)
                 .map(ActiveTermResponseDTO::from)
                 .toList();
+    }
+
+    public TermsDetailResponseDTO getTermsDetail(Long termsId) {
+        Term term = termRepository.findById(termsId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "해당 약관을 찾을 수 없습니다."));
+
+        if (!term.getActive()) {
+            throw new GeneralException(ErrorCode.NOT_FOUND, "비활성화된 약관입니다.");
+        }
+        return TermsDetailResponseDTO.from(term);
     }
 
     public List<MyTermResponseDTO> getMyOptionalTerms(Long memberId) {

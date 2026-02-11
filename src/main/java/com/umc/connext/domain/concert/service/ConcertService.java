@@ -5,6 +5,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
 import com.umc.connext.domain.concert.dto.ConcertResponse;
 import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
+import com.umc.connext.domain.concert.dto.ConcertUpcomingResponse;
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -70,4 +72,11 @@ public class ConcertService {
                 .map(ConcertResponse::from);
     }
 
+    public List<ConcertUpcomingResponse> getUpcomingConcerts() {
+        return concertDetailRepository
+                .findTop20ByStartAtAfterOrderByStartAtAsc(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
+                .stream()
+                .map(ConcertUpcomingResponse::from)
+                .toList();
+    }
 }

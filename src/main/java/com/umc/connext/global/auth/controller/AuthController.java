@@ -4,10 +4,7 @@ import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
-import com.umc.connext.domain.member.dto.ActiveTermResponseDTO;
-import com.umc.connext.domain.member.dto.MyTermResponseDTO;
-import com.umc.connext.domain.member.dto.OptionalTermsChangeRequestDTO;
-import com.umc.connext.domain.member.dto.RandomNicknameResponseDTO;
+import com.umc.connext.domain.member.dto.*;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.service.MemberService;
 import com.umc.connext.domain.member.service.NicknameService;
@@ -277,6 +274,18 @@ public class AuthController {
         List<ActiveTermResponseDTO> result = termService.getActiveTerms();
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 목록 조회 성공"));
+    }
+
+    @Operation(summary = "약관 세부 정보 조회", description = "회원가입 시 사용되는 약관 세부 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 약관")
+    })
+    @GetMapping("/terms/{termsId}")
+    public ResponseEntity<Response<TermsDetailResponseDTO>> getTermsDetail(@PathVariable Long termsId) {
+        TermsDetailResponseDTO result = termService.getTermsDetail(termsId);
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "약관 세부 정보 조회 성공"));
     }
 
     @Operation(summary = "동의한 optional 약관 목록 조회",
