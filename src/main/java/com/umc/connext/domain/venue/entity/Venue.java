@@ -82,6 +82,7 @@ public class Venue extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Builder.Default
     @OneToMany(mappedBy = "venue", fetch = FetchType.LAZY)
     private List<ConcertVenue> concertVenues = new ArrayList<>();
 }

@@ -59,7 +59,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
     );
 
     List<Venue> findTop5ByOrderBySearchCountDesc();
-    List<Venue> findTop8ByOrderByViewCountDesc();
 
     @Query(value = """
        SELECT
