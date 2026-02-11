@@ -82,4 +82,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
         LIMIT 1
     """, nativeQuery = true)
     Optional<SimpleVenue> findNearbyVenue(double minLat, double maxLat, double minLng, double maxLng, double lat, double lng, int radius);
+
+
 }

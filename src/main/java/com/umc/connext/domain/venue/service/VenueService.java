@@ -8,6 +8,7 @@ import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
+import com.umc.connext.domain.venue.dto.VenueLayoutResponse;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.entity.FavoriteVenue;
 import com.umc.connext.domain.venue.entity.Venue;
@@ -42,6 +43,7 @@ public class VenueService {
     private final MemberRepository memberRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final FloorMappingService floorMappingService;
 
     // ── 검색 ──
 
@@ -206,7 +208,86 @@ public class VenueService {
         return venueRepository.findNearbyVenue(minLat, maxLat, minLng, maxLng, lat, lng, radius);
     }
 
-    // ── Private helpers ──
+    public VenueLayoutResponse getVenueLayout(Long venueId, Integer floor) {
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다. ID=" + venueId));
+
+        // 섹션 조회
+        List<VenueSection> sections = (floor != null)
+                ? venueSectionRepository.findAllByVenueIdAndFloor(venueId, floor)
+                : venueSectionRepository.findAllByVenueId(venueId);
+
+        // 시설물 조회
+        List<VenueFacility> facilities = (floor != null)
+                ? venueFacilityRepository.findAllByVenueIdAndFloor(venueId, floor)
+                : venueFacilityRepository.findAllByVenueId(venueId);
+
+        // 사용 가능한 층 목록
+        List<Integer> floors = floorMappingService.getFloors(venueId);
+
+        return VenueLayoutResponse.builder()
+                .venue(mapToVenueInfo(venue))
+                .sections(mapToSectionInfoList(sections))
+                .facilities(mapToFacilityInfoList(facilities))
+                .floors(floors)
+                .build();
+    }
+
+    public VenueLayoutResponse.VenueInfo getVenueInfo(Long venueId) {
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() -> GeneralException.notFound("공연장을 찾을 수 없습니다. ID=" + venueId));
+
+        return mapToVenueInfo(venue);
+    }
+
+    // ===== 매핑 메서드 =====
+
+    private VenueLayoutResponse.VenueInfo mapToVenueInfo(Venue venue) {
+        return VenueLayoutResponse.VenueInfo.builder()
+                .venueId(venue.getId())
+                .name(venue.getName())
+                .address(venue.getAddress())
+                .svgWidth(venue.getSvgWidth())
+                .svgHeight(venue.getSvgHeight())
+                .totalFloors(venue.getTotalFloors())
+                .build();
+    }
+
+    private List<VenueLayoutResponse.SectionInfo> mapToSectionInfoList(List<VenueSection> sections) {
+        return sections.stream()
+                .map(this::mapToSectionInfo)
+                .collect(Collectors.toList());
+    }
+
+    private VenueLayoutResponse.SectionInfo mapToSectionInfo(VenueSection section) {
+        return VenueLayoutResponse.SectionInfo.builder()
+                .sectionId(section.getSectionId())
+                .floor(section.getFloor())
+                .svgPath(section.getFullPath())
+                .centerX(section.getCenterX())
+                .centerY(section.getCenterY())
+                .type(section.getType())
+                .vertices(section.getVerticesList())
+                .build();
+    }
+
+    private List<VenueLayoutResponse.FacilityInfo> mapToFacilityInfoList(List<VenueFacility> facilities) {
+        return facilities.stream()
+                .map(this::mapToFacilityInfo)
+                .collect(Collectors.toList());
+    }
+
+    private VenueLayoutResponse.FacilityInfo mapToFacilityInfo(VenueFacility facility) {
+        return VenueLayoutResponse.FacilityInfo.builder()
+                .id(facility.getId())
+                .name(facility.getName())
+                .type(facility.getType())
+                .floor(facility.getFloor())
+                .x(facility.getX())
+                .y(facility.getY())
+                .connectedFloors(facility.getConnectedFloors())
+                .build();
+    }
 
     private VenueResDTO.SectionDto convertToSectionDto(VenueSection section) {
         String finalPathData = section.getFullPath();

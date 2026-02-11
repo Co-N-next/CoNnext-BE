@@ -5,10 +5,17 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.venue.converter.VenueConverter;
+import com.umc.connext.domain.venue.dto.VenueLayoutResponse;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
 import com.umc.connext.domain.venue.projection.SimpleVenue;
 import com.umc.connext.domain.venue.service.VenueService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -122,5 +129,43 @@ public class VenueController implements VenueControllerDocs {
 
         VenueResDTO.VenueSimpleDTO dto = VenueConverter.toVenueSimpleDTO(result.get());
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, dto, "근처 공연장 조회 성공"));
+    }
+
+    @Operation(
+            summary = "공연장 레이아웃 조회",
+            description = "공연장의 SVG 레이아웃 정보를 조회합니다. 섹션, 시설물 좌표를 포함하여 프론트엔드에서 SVG 렌더링 및 경로 오버레이에 사용됩니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = VenueLayoutResponse.class))),
+            @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없음")
+    })
+    @GetMapping("/{venueId}/layout")
+    public ResponseEntity<Response<VenueLayoutResponse>> getVenueLayout(
+            @Parameter(description = "공연장 ID", example = "1", required = true)
+            @PathVariable Long venueId,
+
+            @Parameter(description = "특정 층만 조회 (미지정 시 전체)", example = "1")
+            @RequestParam(required = false) Integer floor
+    ) {
+        VenueLayoutResponse layout = venueService.getVenueLayout(venueId, floor);
+        return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, layout));
+    }
+
+    @Operation(
+            summary = "공연장 기본 정보 조회",
+            description = "공연장의 이름, 주소, SVG 크기 등 기본 정보만 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "공연장을 찾을 수 없음")
+    })
+    @GetMapping("/{venueId}")
+    public ResponseEntity<Response<VenueLayoutResponse.VenueInfo>> getVenueInfo(
+            @Parameter(description = "공연장 ID", example = "1", required = true)
+            @PathVariable Long venueId
+    ) {
+        VenueLayoutResponse.VenueInfo info = venueService.getVenueInfo(venueId);
+        return ResponseEntity.ok(Response.success(SuccessCode.GET_SUCCESS, info));
     }
 }
