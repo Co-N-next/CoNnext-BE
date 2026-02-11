@@ -5,21 +5,24 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "search_history",
         indexes = {
                 @Index(
                         name = "idx_search_history_member_type_created",
-                        columnList = "member_id, type, created_at DESC"
+                        columnList = "member_id, search_type, created_at DESC"
                 )
         })
 public class SearchHistory extends BaseEntity {
+
     @Id
-    @Column(name = "search_history_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "search_history_id")
     private Long id;
 
     @Column(name = "keyword", nullable = false)

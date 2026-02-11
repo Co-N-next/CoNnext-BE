@@ -6,7 +6,10 @@ import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.global.oauth2.enums.SocialType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -19,7 +22,6 @@ import org.hibernate.annotations.SQLDelete;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@SQLDelete(sql = "UPDATE member SET deleted_at = NOW(), member_status = 'DELETED' WHERE member_id = ?")
 public class Member extends BaseEntity {
 
     @Id
@@ -34,7 +36,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String providerId;
 
-    @Column(nullable = true)
+    @Column
     private String password;
 
     @Column(nullable = false, length = 50)
@@ -54,6 +56,15 @@ public class Member extends BaseEntity {
     @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'ROLE_USER'")
     private Role role;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private MemberNotificationSetting notificationSetting;
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private MemberVisibilitySetting visibilitySetting;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<MemberTerm> memberTerms = new ArrayList<>();
+
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
     }
@@ -68,6 +79,11 @@ public class Member extends BaseEntity {
 
     public void updateProfileImage(String imageUrl) {
         this.profileImage = imageUrl;
+    }
+
+    public void softDelete() {
+        this.memberStatus = MemberStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public static Member local(
