@@ -1,0 +1,89 @@
+package com.umc.connext.domain.mate.dto;
+
+import com.umc.connext.domain.mate.entity.Mate;
+import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.reservation.dto.SeatInfoDTO;
+import lombok.Builder;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class MateResDTO {
+
+    @Builder
+    public record MateRequestResDTO(
+            Long mateId,
+            Long requesterId,
+            Long addresseeId,
+            String status
+    ){}
+
+    @Builder
+    public record MateListResDTO(
+            Long mateId,
+            Long memberId,
+            String nickname,
+            String profileImage,
+            boolean isFavorite
+    ){
+        public static MateListResDTO from(
+                Mate mate,
+                Member m,
+                boolean isFavorite
+        ) {
+            return MateListResDTO.builder()
+                    .mateId(mate.getId())
+                    .memberId(m.getId())
+                    .nickname(m.getNickname())
+                    .profileImage(m.getProfileImage())
+                    .isFavorite(isFavorite)
+                    .build();
+        }
+    }
+
+    @Builder
+    public record FavoriteMateResDTO(
+            Long memberId,
+            String nickname,
+            String profileImage,
+            boolean isFavorite
+    ){}
+
+    @Builder
+    public record MateSearchResDTO(
+            Long memberId,
+            String nickname,
+            String profileImage,
+            RelationStatus relationStatus,
+            Long mateId // null일 수 있음
+    ) {
+        public enum RelationStatus {
+            NONE,
+            PENDING_SENT,
+            PENDING_RECEIVED,
+            ACCEPTED,
+            BLOCKED
+        }
+    }
+
+    @Builder
+    public record MateProfileResDTO(
+            Long mateId,
+            Long memberId,
+            String nickname,
+            String profileImage,
+            boolean isFavorite,
+            List<MateReservationSummaryDTO> reservations
+    ){}
+
+    @Builder
+    public record MateReservationSummaryDTO(
+            String concertName,
+            String concertPosterImage,
+            String concertArtist,
+            LocalDateTime startAt,
+            String concertVenue,
+            SeatInfoDTO seatInfo
+    ){}
+
+}

@@ -3,6 +3,9 @@ package com.umc.connext.domain.member.repository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.enums.MemberStatus;
 import com.umc.connext.global.oauth2.enums.SocialType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -58,4 +61,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     void hardDeletedMembers(@Param("threshold") LocalDateTime threshold);
 
     List<Long> findIdsByMemberStatusAndDeletedAtBefore(MemberStatus memberStatus, LocalDateTime threshold);
+
+    Page<Member> findByNicknameContainingIgnoreCaseAndIdNotOrderByNicknameAsc(
+            String keyword,
+            Long excludeId,
+            Pageable pageable
+    );
 }

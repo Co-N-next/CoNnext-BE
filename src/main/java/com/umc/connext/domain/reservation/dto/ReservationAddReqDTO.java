@@ -1,9 +1,11 @@
 package com.umc.connext.domain.reservation.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record ReservationAddReqDTO(
-        Long concertDetailId,
-        SeatInfoDTO seatInfo
+        @NotNull Long concertDetailId,
+        @Valid @NotNull SeatInfoDTO seatInfo
 ){}
