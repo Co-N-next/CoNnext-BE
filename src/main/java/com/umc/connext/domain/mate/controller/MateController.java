@@ -8,7 +8,6 @@ import com.umc.connext.domain.mate.dto.TodayMateResDTO;
 import com.umc.connext.domain.mate.service.MateService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +31,7 @@ public class MateController implements MateControllerDocs {
     @Override
     public ResponseEntity<Response<MateResDTO.MateRequestResDTO>> requestMate(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody MateReqDTO.MateRequestDTO dto
+            @RequestBody MateReqDTO.MateRequestDTO dto
     ) {
         Long requesterId = userDetails.getMemberId();
         Long addresseeId = dto.addresseeId();

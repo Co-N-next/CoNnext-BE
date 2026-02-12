@@ -8,6 +8,7 @@ import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public interface MateControllerDocs {
     @PostMapping("/request")
     ResponseEntity<Response<MateResDTO.MateRequestResDTO>> requestMate(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MateReqDTO.MateRequestDTO dto
+            @Valid @RequestBody MateReqDTO.MateRequestDTO dto  // ← @Valid 여기로
     );
 
     // 메이트 요청 수락
