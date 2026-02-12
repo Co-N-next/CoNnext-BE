@@ -1,7 +1,6 @@
 package com.umc.connext.domain.concert.entity;
 
 import com.umc.connext.common.entity.BaseEntity;
-import com.umc.connext.domain.concertVenue.entity.ConcertVenue;
 import jakarta.persistence.*;
 import lombok.*;
 

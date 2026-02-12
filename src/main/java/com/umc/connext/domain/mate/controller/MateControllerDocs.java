@@ -8,6 +8,8 @@ import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -104,8 +106,8 @@ public interface MateControllerDocs {
     @GetMapping("/search")
     ResponseEntity<Response<List<MateResDTO.MateSearchResDTO>>> searchMates(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") Integer page
+            @RequestParam @NotBlank(message = "검색어는 공백일 수 없습니다.") String keyword,
+            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page는 0 이상이어야 합니다.") Integer page
     );
 
     // 자주 찾는 메이트 추가

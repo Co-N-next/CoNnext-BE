@@ -1,8 +1,6 @@
 package com.umc.connext.domain.mate.controller;
 
-import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.code.SuccessCode;
-import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.mate.dto.MateReqDTO;
 import com.umc.connext.domain.mate.dto.MateResDTO;
@@ -11,8 +9,6 @@ import com.umc.connext.domain.mate.service.MateService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -102,10 +98,9 @@ public class MateController implements MateControllerDocs {
     @GetMapping("/search")
     public ResponseEntity<Response<List<MateResDTO.MateSearchResDTO>>> searchMates(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam @NotBlank(message = "검색어는 공백일 수 없습니다.") String keyword,
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page는 0 이상이어야 합니다.") Integer page
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") Integer page
     ) {
-        // if문 검증 로직 전부 제거
         Page<MateResDTO.MateSearchResDTO> result = mateService.searchMates(
                 userDetails.getMemberId(), keyword, page
         );
