@@ -13,8 +13,7 @@ public class MateShareService {
     private final MyNotificationRepository myNotificationRepository;
 
     @Transactional
-    public void accept(Long memberId, Long notificationId) {
-
+    public boolean accept(Long memberId, Long notificationId) {
         MyNotification notification =
                 myNotificationRepository
                         .findByMyNotificationIdAndMemberId(notificationId, memberId)
@@ -33,7 +32,9 @@ public class MateShareService {
         }
 
         notification.accept();
+        return true;
     }
+
 
     @Transactional
     public void reject(Long memberId, Long notificationId) {

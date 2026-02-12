@@ -8,16 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.umc.connext.domain.notification.service.NotificationService;
 import com.umc.connext.domain.notification.type.NotificationType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import com.umc.connext.global.jwt.principal.CustomUserDetails;
 
 @Tag(name = "Notifications", description = "알림 관련 API")
 @RestController
@@ -26,6 +19,8 @@ import com.umc.connext.global.jwt.principal.CustomUserDetails;
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    private static final Long TEMP_MEMBER_ID = 1L;
 
     @Operation(
             summary = "내소식/공지사항 알림 존재 여부",
@@ -36,13 +31,11 @@ public class NotificationController {
     })
     @GetMapping
     public ResponseEntity<Response<Boolean>> hasUnreadNotification(
-            @RequestParam NotificationType type,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @RequestParam NotificationType type
     ) {
-        Long memberId = userDetails.getMemberId();
 
         boolean result =
-                notificationService.hasUnreadNotification(memberId, type);
+                notificationService.hasUnreadNotification(TEMP_MEMBER_ID, type);
 
         return ResponseEntity.ok(
                 Response.success(
@@ -52,5 +45,4 @@ public class NotificationController {
                 )
         );
     }
-
 }

@@ -24,25 +24,23 @@ import jakarta.validation.constraints.Min;
 @RequiredArgsConstructor
 @Validated
 public class AnnouncementController {
+
     private final AnnouncementService announcementService;
 
-    @Operation(
-            summary = "공지사항 알림 조회",
-            description = "공지사항 알림을 페이징해서 조회합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "공지사항 알림 조회 성공")
-    })
+    private static final Long TEMP_MEMBER_ID = 1L;
+
     @GetMapping
     public ResponseEntity<Response<AnnouncementPageResponse>> getAnnouncements(
-            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) int size
     ) {
+
         AnnouncementPageResponse result =
                 announcementService.getAnnouncements(
-                        user.getMemberId(),
-                        page, size);
+                        TEMP_MEMBER_ID,
+                        page,
+                        size
+                );
 
         return ResponseEntity.ok(
                 Response.success(
@@ -53,20 +51,13 @@ public class AnnouncementController {
         );
     }
 
-    @Operation(
-            summary = "공지사항 전송 (관리자)",
-            description = "모든 사용자에게 공지사항을 전송합니다. 관리자 권한이 필요합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "공지사항 전송 성공")
-    })
     @PostMapping
     public ResponseEntity<Response<Void>> createAnnouncement(
-            @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody AnnouncementCreateRequestDTO request
     ) {
+
         announcementService.createAnnouncement(
-                user.getMemberId(),
+                TEMP_MEMBER_ID,
                 request
         );
 
