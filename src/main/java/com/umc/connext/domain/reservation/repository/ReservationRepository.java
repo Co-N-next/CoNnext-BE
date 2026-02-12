@@ -27,9 +27,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         SELECT DISTINCT new com.umc.connext.domain.reservation.dto.ReservationGetResDTO(
             r.id,
             c.name,
-            cast.name,
+            COALESCE(cast.name, '미정'),
             cd.startAt,
-            v.name,
+            COALESCE(v.name, '미정'),
             new com.umc.connext.domain.reservation.dto.SeatInfoDTO(
                 r.floor,
                 r.section,
@@ -39,10 +39,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         ) FROM Reservation r
         JOIN r.concertDetail cd
         JOIN cd.concert c
-        JOIN c.concertCasts cc
-        JOIN cc.cast cast
-        JOIN c.concertVenues cv
-        JOIN cv.venue v
+        LEFT JOIN c.concertCasts cc
+        LEFT JOIN cc.cast cast
+        LEFT JOIN c.concertVenues cv
+        LEFT JOIN cv.venue v
         WHERE r.member = :member
         ORDER BY r.id DESC
     """)
@@ -55,9 +55,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             c.id              AS concertId,
             c.name            AS concertName,
             c.posterImage     AS concertPosterImage,
-            cast.name         AS concertArtist,
+            COALESCE(cast.name, '미정')         AS concertArtist,
             cd.startAt        AS startAt,
-            v.name            AS concertVenue,
+            COALESCE(v.name, '미정')            AS concertVenue,
             r.floor           AS floor,
             r.section         AS section,
             r.row             AS row,
@@ -65,12 +65,47 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         FROM Reservation r
             JOIN r.concertDetail cd
             JOIN cd.concert c
-            JOIN c.concertCasts cc
-            JOIN cc.cast cast
-            JOIN c.concertVenues cv
-            JOIN cv.venue v
+            LEFT JOIN c.concertCasts cc
+            LEFT JOIN cc.cast cast
+            LEFT JOIN c.concertVenues cv
+            LEFT JOIN cv.venue v
         WHERE r.member.id = :memberId
         ORDER BY cd.startAt DESC
     """)
     List<MateReservationProjection> findReservationSummariesByMemberId(@Param("memberId") Long memberId);
+
+    @Query("""
+        SELECT r
+        FROM Reservation r
+        JOIN FETCH r.concertDetail cd
+        JOIN FETCH cd.concert c
+        WHERE r.member.id = :memberId
+            AND CAST(cd.startAt AS date) = CAST(:today AS date)
+        ORDER BY cd.startAt ASC
+    """)
+    List<Reservation> findMyTodayReservations(@Param("memberId") Long memberId, @Param("today") LocalDateTime today);
+
+    // 진단용 단순 쿼리 - cast나 venue 없어도 작동
+    @Query("""
+        SELECT r
+        FROM Reservation r
+        JOIN FETCH r.concertDetail cd
+        JOIN FETCH cd.concert c
+        WHERE r.member.id = :memberId
+            AND YEAR(cd.startAt) = YEAR(CURRENT_DATE)
+            AND MONTH(cd.startAt) = MONTH(CURRENT_DATE)
+            AND DAY(cd.startAt) = DAY(CURRENT_DATE)
+        ORDER BY cd.startAt ASC
+    """)
+    List<Reservation> findMyTodayReservationsSimple(@Param("memberId") Long memberId);
+
+    // 네이티브 쿼리로 정확한 데이터 확인
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM reservations r
+        JOIN concert_details cd ON r.concert_detail_id = cd.id
+        WHERE r.member_id = :memberId
+            AND DATE(cd.start_at) = CURDATE()
+    """, nativeQuery = true)
+    int countTodayReservations(@Param("memberId") Long memberId);
 }
