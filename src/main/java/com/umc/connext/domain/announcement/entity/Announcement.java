@@ -1,17 +1,13 @@
 package com.umc.connext.domain.announcement.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import com.umc.connext.common.entity.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.experimental.SuperBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,4 +32,7 @@ public class Announcement extends BaseEntity {
 
     @Column(name="logo_img")
     private String logoImg;
+
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL)
+    private List<AnnouncementReadStatus> readStatuses = new ArrayList<>();
 }

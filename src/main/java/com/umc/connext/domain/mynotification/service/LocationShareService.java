@@ -16,10 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class LocationShareService {
 
     private final MyNotificationRepository myNotificationRepository;
-
     @Transactional
-    public void accept(Long memberId, Long notificationId) {
-
+    public boolean accept(Long memberId, Long notificationId) {
         MyNotification notification =
                 myNotificationRepository
                         .findByMyNotificationIdAndMemberId(notificationId, memberId)
@@ -38,6 +36,8 @@ public class LocationShareService {
         }
 
         notification.accept();
+        return true;
     }
+
 
 }
