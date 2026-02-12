@@ -66,26 +66,117 @@ public class MyNotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long memberId, Long notificationId) {
-        MyNotification notification = myNotificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("알림 없음"));
+    public String markAsRead(Long memberId, Long notificationId) {
+        var notificationOpt = myNotificationRepository.findById(notificationId);
+
+        if (notificationOpt.isEmpty()) {
+            // 알림이 없으면 200과 메시지 반환
+            return "알림 없음";
+        }
+
+        MyNotification notification = notificationOpt.get();
 
         if (!notification.getMemberId().equals(memberId)) {
             throw new RuntimeException("권한 없음");
         }
 
         notification.markAsRead();
+        return "읽음 처리 완료";
     }
 
-    @Transactional
-    public void acceptShareLocation(Long memberId, ShareLocationRequestDTO dto){
-        locationShareService.accept(memberId, dto.getNotificationId());
-    }
 
     @Transactional
-    public void acceptShareMate(Long memberId, ShareMateRequestDTO dto) {
-        mateShareService.accept(memberId, dto.getNotificationId());
+    public String acceptShareLocation(Long memberId, ShareLocationRequestDTO dto) {
+        var notificationOpt = myNotificationRepository.findById(dto.getNotificationId());
+
+        if (notificationOpt.isEmpty()) {
+            return "알림 없음";
+        }
+
+        MyNotification notification = notificationOpt.get();
+
+        if (!notification.getMemberId().equals(memberId)) {
+            return "권한 없음";
+        }
+
+        if (notification.getActionStatus() != ActionStatus.PENDING) {
+            return "이미 처리된 알림";
+        }
+
+        try {
+            boolean result = locationShareService.accept(memberId, dto.getNotificationId());
+            if (result) {
+                notification.accept(); // 알림 상태 변경
+                return "위치 공유 수락 완료";
+            } else {
+                return "처리 실패";
+            }
+        } catch (Exception e) {
+            // 서비스 내부에서 발생한 예외도 잡아서 메시지 반환
+            return "처리 실패: " + e.getMessage();
+        }
     }
+
+
+    @Transactional
+    public String acceptShareMate(Long memberId, ShareMateRequestDTO dto) {
+        var notificationOpt = myNotificationRepository.findById(dto.getNotificationId());
+
+        if (notificationOpt.isEmpty()) {
+            // 알림이 없으면 예외 없이 메시지 반환
+            return "알림 없음";
+        }
+
+        MyNotification notification = notificationOpt.get();
+
+        if (!notification.getMemberId().equals(memberId)) {
+            return "권한 없음"; // 500 대신 메시지 반환
+        }
+
+        if (notification.getActionStatus() != ActionStatus.PENDING) {
+            return "이미 처리된 알림";
+        }
+
+        try {
+            mateShareService.accept(memberId, dto.getNotificationId());
+            notification.accept(); // 알림 상태 변경
+            return "메이트 요청 수락 완료";
+        } catch (Exception e) {
+            // 서비스 내부 예외도 잡아서 메시지 반환
+            return "처리 실패: " + e.getMessage();
+        }
+    }
+
+
+
+
+    @Transactional
+    public boolean accept(Long memberId, Long notificationId) {
+        var notificationOpt = myNotificationRepository.findByMyNotificationIdAndMemberId(notificationId, memberId);
+
+        if (notificationOpt.isEmpty()) {
+            return false;
+        }
+
+        MyNotification notification = notificationOpt.get();
+
+        if (notification.getCategory() != Category.MATE) {
+            throw new RuntimeException("메이트 요청 알림이 아님");
+        }
+
+        if (notification.getActionType() != ActionType.ACCEPT_REJECT) {
+            throw new RuntimeException("수락 가능한 알림이 아님");
+        }
+
+        if (notification.getActionStatus() != ActionStatus.PENDING) {
+            throw new RuntimeException("이미 처리된 알림");
+        }
+
+        notification.accept();
+        return true;
+    }
+
+
 
     private MyNotificationResponseDTO toDto(MyNotification entity) {
         return MyNotificationResponseDTO.builder()
