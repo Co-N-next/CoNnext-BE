@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +38,6 @@ public class VenueController implements VenueControllerDocs {
 
     @Override
     @GetMapping("/search")
-    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> searchVenues(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") Integer page
@@ -54,7 +55,6 @@ public class VenueController implements VenueControllerDocs {
 
     @Override
     @GetMapping("/trend-search")
-    @Override
     public ResponseEntity<Response<List<VenueResDTO.VenuePreviewDTO>>> trendSearchVenues() {
         List<VenueResDTO.VenuePreviewDTO> result = venueService.trendSearchVenues();
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "인기 검색 공연장 조회 성공"));
