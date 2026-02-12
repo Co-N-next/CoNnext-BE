@@ -15,7 +15,7 @@ public class NotificationService {
     public boolean hasUnreadNotification(Long memberId, NotificationType type) {
         return switch (type) {
             case NEWS -> myNotificationService.existsUnread(memberId);
-            case NOTICES -> false; // 수정필요
+            case NOTICES -> announcementService.existsUnread(memberId); // 수정필요
         };
     }
 }

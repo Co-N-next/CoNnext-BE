@@ -5,12 +5,11 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "search_history",
         indexes = {
                 @Index(
@@ -35,15 +34,22 @@ public class SearchHistory extends BaseEntity {
     @Column(name = "search_type", nullable = false)
     private SearchType type;
 
+    @Builder
+    private SearchHistory(String keyword, Long memberId, SearchType type) {
+        this.keyword = keyword;
+        this.memberId = memberId;
+        this.type = type;
+    }
+
     public static SearchHistory create(
             String keyword,
             Long memberId,
             SearchType type
     ) {
-        SearchHistory history = new SearchHistory();
-        history.keyword = keyword;
-        history.memberId = memberId;
-        history.type = type;
-        return history;
+        return SearchHistory.builder()
+                .keyword(keyword)
+                .memberId(memberId)
+                .type(type)
+                .build();
     }
 }
