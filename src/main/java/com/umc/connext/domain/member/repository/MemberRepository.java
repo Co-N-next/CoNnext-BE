@@ -12,10 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member,Long> {
+public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
     boolean existsByEmail(String email);
-
     boolean existsByEmailAndSocialType(String email, SocialType socialType);
     Optional<Member> findByEmail(String email);
 
@@ -41,13 +40,14 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
             @Param("providerId") String providerId
     );
 
-    @Query("""
-    SELECT m.id
-    FROM Member m
-    WHERE m.memberStatus = 'ACTIVE'
-""")
-    List<Long> findAllActiveMemberIds();
+    List<Member> findAllByMemberStatusAndDeletedAtBefore(MemberStatus memberStatus, LocalDateTime threshold);
 
+    @Query("""
+        SELECT m.id
+        FROM Member m
+        WHERE m.memberStatus = 'ACTIVE'
+    """)
+    List<Long> findAllActiveMemberIds();
 
     @Modifying
     @Query("""

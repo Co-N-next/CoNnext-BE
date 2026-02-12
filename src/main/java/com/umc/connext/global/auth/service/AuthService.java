@@ -3,8 +3,12 @@ package com.umc.connext.global.auth.service;
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.member.entity.MemberNotificationSetting;
+import com.umc.connext.domain.member.entity.MemberVisibilitySetting;
 import com.umc.connext.domain.member.enums.MemberStatus;
+import com.umc.connext.domain.member.repository.MemberNotificationSettingRepository;
 import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.member.repository.MemberVisibilitySettingRepository;
 import com.umc.connext.domain.member.service.TermService;
 import com.umc.connext.global.auth.dto.JoinLocalRequestDTO;
 import com.umc.connext.domain.member.service.NicknameService;
@@ -27,6 +31,8 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final NicknameService nicknameService;
     private final TermService termService;
+    private final MemberNotificationSettingRepository memberNotificationSettingRepository;
+    private final MemberVisibilitySettingRepository memberVisibilitySettingRepository;
 
     @Transactional
     public Member joinLocal(JoinLocalRequestDTO joinLocalRequestDTO){
@@ -54,6 +60,10 @@ public class AuthService {
 
         Member member = Member.local(email, bCryptPasswordEncoder.encode(password), nicknameService.generateRandomNickname());
         memberRepository.save(member);
+
+        memberNotificationSettingRepository.save(MemberNotificationSetting.from(member));
+        memberVisibilitySettingRepository.save(MemberVisibilitySetting.from(member));
+
         termService.saveAgreements(member, joinLocalRequestDTO.getAgreedTermIds());
 
         return member;
@@ -67,6 +77,14 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND_MEMBER, "해당 사용자를 찾을 수 없습니다."));
         member.updateMemberStatus(MemberStatus.ACTIVE);
+
+        if (!memberNotificationSettingRepository.existsByMember(member)) {
+            memberNotificationSettingRepository.save(MemberNotificationSetting.from(member));
+        }
+
+        if (!memberVisibilitySettingRepository.existsByMember(member)) {
+            memberVisibilitySettingRepository.save(MemberVisibilitySetting.from(member));
+        }
 
         termService.saveAgreements(member, joinSocialRequestDTO.getAgreedTermIds());
 
@@ -82,8 +100,8 @@ public class AuthService {
         //Refresh Token 전부 제거
         refreshTokenService.removeAllByAuthKey(member.getId());
 
-        //삭제
-        memberRepository.delete(member);
+        //soft 삭제
+        member.softDelete();
     }
 }
 
