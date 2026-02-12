@@ -4,14 +4,17 @@ import com.umc.connext.common.code.SuccessCode;
 import com.umc.connext.common.response.Response;
 import com.umc.connext.domain.concert.dto.*;
 import com.umc.connext.domain.concert.service.ConcertService;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -103,5 +106,55 @@ public class ConcertController {
         List<ConcertUpcomingResponse> result = concertService.getUpcomingConcerts();
         return ResponseEntity.ok()
                 .body(Response.success(SuccessCode.GET_SUCCESS, result, "다가오는 공연 조회 성공"));
+    }
+
+    @Operation(
+            summary = "내 오늘의 공연 조회",
+            description = "현재 로그인한 사용자가 예매한 공연 중 오늘 공연을 조회합니다. 아티스트, 장소, 좌석 정보를 포함합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증이 필요합니다")
+    })
+    @GetMapping("/my-today")
+    public ResponseEntity<Response<List<ConcertMyTodayResponse>>> getMyTodayConcerts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Parameter(description = "디버그 모드 (더 간단한 쿼리 사용)", example = "false")
+            @RequestParam(value = "debug", defaultValue = "false") boolean debug
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401)
+                    .body(Response.fail(com.umc.connext.common.code.ErrorCode.UNAUTHORIZED));
+        }
+
+        List<ConcertMyTodayResponse> result = debug
+            ? concertService.getMyTodayConcertsDebug(userDetails.getMemberId())
+            : concertService.getMyTodayConcerts(userDetails.getMemberId());
+
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, result, "내 오늘의 공연 조회 성공"));
+    }
+
+    @Operation(
+            summary = "내 오늘의 공연 개수 진단",
+            description = "DB에 실제로 있는 오늘 예매 개수를 조회합니다. (디버깅용)",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    @GetMapping("/my-today/count")
+    public ResponseEntity<Response<Integer>> countMyTodayReservations(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401)
+                    .body(Response.fail(com.umc.connext.common.code.ErrorCode.UNAUTHORIZED));
+        }
+
+        int count = concertService.countTodayReservations(userDetails.getMemberId());
+        return ResponseEntity.ok()
+                .body(Response.success(SuccessCode.GET_SUCCESS, count, "오늘 예매 개수: " + count));
     }
 }

@@ -82,3 +82,4 @@ app:
 logging:
   level:
     com.umc.connext.domain.venue.service.PathFindingService: DEBUG
+    com.umc.connext.domain.concert.service.ConcertService: DEBUG
