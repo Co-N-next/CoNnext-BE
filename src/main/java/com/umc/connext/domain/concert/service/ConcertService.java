@@ -2,10 +2,7 @@ package com.umc.connext.domain.concert.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
-import com.umc.connext.domain.concert.dto.ConcertDetailResponse;
-import com.umc.connext.domain.concert.dto.ConcertResponse;
-import com.umc.connext.domain.concert.dto.ConcertTodayResponse;
-import com.umc.connext.domain.concert.dto.UpcomingConcertResponse;
+import com.umc.connext.domain.concert.dto.*;
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
@@ -51,7 +48,8 @@ public class ConcertService {
 
         Concert concert = concertDetail.getConcert();
         if (concert != null && concert.getId() != null) {
-            incrementViewCount(concert.getId());
+            concertRepository.incrementViewCount(concert.getId());
+            concert.increaseViewCount();
         }
 
         return ConcertDetailResponse.from(concertDetail);
@@ -101,8 +99,8 @@ public class ConcertService {
                 .findNextShowTimes(concerts.getContent(), now)
                 .stream()
                 .collect(Collectors.toMap(
-                        row -> (Long) row[0],
-                        row -> (LocalDateTime) row[1]
+                        ConcertStartResponse::concertId, // dto.concertId() (record인 경우)
+                        ConcertStartResponse::startAt    // dto.startAt()
                 ));
 
         return concerts.map(concert -> UpcomingConcertResponse.of(

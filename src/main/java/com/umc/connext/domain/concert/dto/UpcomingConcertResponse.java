@@ -45,7 +45,7 @@ public class UpcomingConcertResponse {
                 .nextShowTime(nextShowTime)
                 .price(concert.getPrice())
                 .reservationLink(concert.getReservationLink())
-                .viewCount(viewCount)
+                .viewCount(concert.getViewCount())
                 .build();
     }
 }

@@ -24,7 +24,7 @@ public interface ConcertRepository extends JpaRepository<Concert, Long> {
     """)
     Page<Concert> findUpcomingConcerts(@Param("now") LocalDateTime now, Pageable pageable);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Concert c SET c.viewCount = c.viewCount + 1 WHERE c.id = :id")
     void incrementViewCount(@Param("id") Long id);
 }

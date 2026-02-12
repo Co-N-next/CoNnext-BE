@@ -1,5 +1,6 @@
 package com.umc.connext.domain.concert.repository;
 
+import com.umc.connext.domain.concert.dto.ConcertStartResponse;
 import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,10 +22,10 @@ public interface ConcertDetailRepository extends JpaRepository<ConcertDetail, Lo
     List<ConcertDetail> findByStartAtBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("""
-    SELECT cd.concert.id, MIN(cd.startAt)
+    SELECT new com.umc.connext.domain.concert.dto.ConcertStartResponse(cd.concert.id, MIN(cd.startAt))
     FROM ConcertDetail cd
     WHERE cd.concert IN :concerts AND cd.startAt >= :now
     GROUP BY cd.concert.id
-    """)
-    List<Object[]> findNextShowTimes(@Param("concerts") List<Concert> concerts, @Param("now") LocalDateTime now);
+""")
+    List<ConcertStartResponse> findNextShowTimes(@Param("concerts") List<Concert> concerts, @Param("now") LocalDateTime now);;
 }
