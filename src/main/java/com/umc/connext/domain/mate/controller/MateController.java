@@ -10,10 +10,14 @@ import com.umc.connext.domain.mate.dto.TodayMateResDTO;
 import com.umc.connext.domain.mate.service.MateService;
 import com.umc.connext.global.jwt.principal.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mates")
+@Validated
 public class MateController implements MateControllerDocs {
 
     private final MateService mateService;
@@ -31,7 +36,7 @@ public class MateController implements MateControllerDocs {
     @Override
     public ResponseEntity<Response<MateResDTO.MateRequestResDTO>> requestMate(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MateReqDTO.MateRequestDTO dto
+            @Valid @RequestBody MateReqDTO.MateRequestDTO dto
     ) {
         Long requesterId = userDetails.getMemberId();
         Long addresseeId = dto.addresseeId();
@@ -93,26 +98,17 @@ public class MateController implements MateControllerDocs {
     }
 
     // 메이트 검색
-    @GetMapping("/search")
     @Override
+    @GetMapping("/search")
     public ResponseEntity<Response<List<MateResDTO.MateSearchResDTO>>> searchMates(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") Integer page
-    ){
-        if (keyword.trim().isEmpty()) {
-            throw new GeneralException(ErrorCode.INVALID_SEARCH_KEYWORD, "검색어는 공백일 수 없습니다.");
-        }
-        if (page < 0) {
-            throw new GeneralException(ErrorCode.INVALID_PAGE_REQUEST, "Page는 0 이상이어야 합니다.");
-        }
-
+            @RequestParam @NotBlank(message = "검색어는 공백일 수 없습니다.") String keyword,
+            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page는 0 이상이어야 합니다.") Integer page
+    ) {
+        // if문 검증 로직 전부 제거
         Page<MateResDTO.MateSearchResDTO> result = mateService.searchMates(
-                userDetails.getMemberId(),
-                keyword,
-                page
+                userDetails.getMemberId(), keyword, page
         );
-
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result, "메이트 검색 성공"));
     }
 

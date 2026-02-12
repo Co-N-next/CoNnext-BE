@@ -55,7 +55,8 @@ public enum ErrorCode implements Code {
     MISSING_REQUIRED_TERM(400, "필수 약관에 동의해야 합니다."),
 
     // ==================== 메이트 ====================
-    CONFLICT(409, "이미 메이트 관계이거나 요청이 진행 중입니다.");
+    MATE_CONFLICT(409, "이미 메이트 관계이거나 요청이 진행 중입니다."),
+    MATE_NOT_FOUND(400, "메이트를 찾을 수 없습니다.");
 
     private final int statusCode;
     private final String message;

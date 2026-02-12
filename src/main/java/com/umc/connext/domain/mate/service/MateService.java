@@ -2,7 +2,6 @@ package com.umc.connext.domain.mate.service;
 
 import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.exception.GeneralException;
-import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.mate.converter.MateConverter;
 import com.umc.connext.domain.mate.dto.MateResDTO;
 import com.umc.connext.domain.mate.dto.TodayMateResDTO;
@@ -30,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -61,9 +58,9 @@ public class MateService {
         mateRepository.findBetween(requesterId, addresseeId)
                 .ifPresent(mate -> {
                     switch (mate.getStatus()) {
-                        case PENDING -> throw new GeneralException(ErrorCode.CONFLICT, "이미 대기 중인 메이트 요청이 있습니다.");
-                        case ACCEPTED -> throw new GeneralException(ErrorCode.CONFLICT, "이미 메이트인 사용자입니다.");
-                        case REJECTED -> throw new GeneralException(ErrorCode.CONFLICT, "이미 거절된 메이트 요청이 있습니다.");
+                        case PENDING -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 대기 중인 메이트 요청이 있습니다.");
+                        case ACCEPTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 메이트인 사용자입니다.");
+                        case REJECTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 거절된 메이트 요청이 있습니다.");
                         case BLOCKED -> throw new GeneralException(ErrorCode.FORBIDDEN, "차단된 사용자입니다.");
                         default -> throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR, "처리할 수 없는 상태입니다.");
                     }
@@ -79,39 +76,16 @@ public class MateService {
     // 메이트 요청 수락
     @Transactional
     public void acceptMateRequest(Long memberId, Long mateId) {
-        // 메이트 요청 조회
-        Mate mate = mateRepository.findById(mateId)
-                .orElseThrow(() -> GeneralException.notFound("메이트 요청을 찾을 수 없습니다."));
+        Mate mate = findMateOrThrow(mateId);
+        validateAddressee(mate, memberId);
 
-        // 수신자 확인
-        if (!mate.getAddressee().getId().equals(memberId)) {
-            throw new GeneralException(ErrorCode.FORBIDDEN, "메이트 요청을 수락할 권한이 없습니다.");
-        }
-
-        // 상태 확인
-        if (mate.getStatus() != MateStatus.PENDING) {
-            throw new GeneralException(ErrorCode.CONFLICT, "대기 중인 메이트 요청만 수락할 수 있습니다.");
-        }
-
-        // 메이트 요청 수락
         mate.accept();
     }
 
     @Transactional
     public void rejectMateRequest(Long mateId, Long memberId) {
-        // 메이트 요청 조회
-        Mate mate = mateRepository.findById(mateId)
-                .orElseThrow(() -> GeneralException.notFound("메이트 요청을 찾을 수 없습니다."));
-
-        // 수신자 확인
-        if (!mate.getAddressee().getId().equals(memberId)) {
-            throw new GeneralException(ErrorCode.FORBIDDEN, "메이트 요청을 거절할 권한이 없습니다.");
-        }
-
-        // 상태 확인
-        if (mate.getStatus() != MateStatus.PENDING) {
-            throw new GeneralException(ErrorCode.CONFLICT, "대기 중인 메이트 요청만 거절할 수 있습니다.");
-        }
+        Mate mate = findMateOrThrow(mateId);
+        validateAddressee(mate, memberId);
 
         mate.reject();
     }
@@ -139,23 +113,11 @@ public class MateService {
     // 메이트 삭제
     @Transactional
     public void deleteMate(Long memberId, Long mateId) {
-        Mate mate = mateRepository.findById(mateId)
-                .orElseThrow(() -> GeneralException.notFound("메이트 관계를 찾을 수 없습니다."));
+        Mate mate = findMateOrThrow(mateId);
+        validateMateParticipant(mate, memberId);
 
-        // 권한 확인
-        if (!isParticipant(mate, memberId)) {
-            throw new GeneralException(ErrorCode.FORBIDDEN, "메이트 삭제 권한이 없습니다.");
-        }
-
-        // 메이트 상태일 때에만 삭제 가능
-        if (mate.getStatus() != MateStatus.ACCEPTED) {
-            throw new GeneralException(ErrorCode.CONFLICT, "메이트 관계가 아닌 사용자입니다.");
-        }
-
-        // 즐겨찾기 해제
         favoriteMateRepository.deleteAllByMateId(mateId);
 
-        // 메이트 삭제
         mateRepository.delete(mate);
     }
 
@@ -233,12 +195,12 @@ public class MateService {
 
         // 상태 확인
         if (mate.getStatus() != MateStatus.ACCEPTED) {
-            throw new GeneralException(ErrorCode.CONFLICT, "메이트 관계가 아닌 사용자입니다.");
+            throw new GeneralException(ErrorCode.MATE_CONFLICT, "메이트 관계가 아닌 사용자입니다.");
         }
 
         // 중복 체크
         if (favoriteMateRepository.existsByMemberIdAndMateId(memberId, mateId)) {
-            throw new GeneralException(ErrorCode.CONFLICT, "이미 즐겨찾기에 추가된 메이트입니다.");
+            throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 즐겨찾기에 추가된 메이트입니다.");
         }
 
         Member member = memberRepository.findById(memberId)
@@ -272,22 +234,23 @@ public class MateService {
                 .collect(Collectors.toSet());
 
         return mates.stream()
+                .filter(mate -> favoriteMateIds.contains(mate.getId()))
                 .map(mate -> {
                     Member friend = mate.getRequester().getId().equals(memberId)
                             ? mate.getAddressee()
                             : mate.getRequester();
-                    boolean isFavorite = favoriteMateIds.contains(mate.getId());
                     return new MateResDTO.FavoriteMateResDTO(
                             friend.getId(),
                             friend.getNickname(),
                             friend.getProfileImage(),
-                            isFavorite
+                            true
                     );
                 }).toList();
     }
 
     // ==========================================
     // 오늘의 공연 메이트
+    @Transactional(readOnly = true)
     public List<TodayMateResDTO> getTodayMates(Long memberId) {
         // 오늘의 공연 조회
         LocalDate today = LocalDate.now();
@@ -306,6 +269,7 @@ public class MateService {
     }
 
     // 메이트 프로필 조회
+    @Transactional(readOnly = true)
     public MateResDTO.MateProfileResDTO getMateProfile(Long memberId, Long mateId) {
         Mate mate = mateRepository.findById(mateId)
                 .orElseThrow(() -> GeneralException.notFound("메이트 관계를 찾을 수 없습니다."));
@@ -352,5 +316,24 @@ public class MateService {
                 .reservations(reservations)
                 .build();
 
+    }
+
+    private Mate findMateOrThrow(Long mateId) {
+        return mateRepository.findById(mateId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.MATE_NOT_FOUND, "메이트를 찾을 수 없습니다."));
+    }
+
+    private void validateAddressee(Mate mate, Long memberId) {
+        if (!mate.getAddressee().getId().equals(memberId)) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "해당 요청의 수신자가 아닙니다.");
+        }
+    }
+
+    private void validateMateParticipant(Mate mate, Long memberId) {
+        Long requesterId = mate.getRequester().getId();
+        Long addresseeId = mate.getAddressee().getId();
+        if (!requesterId.equals(memberId) && !addresseeId.equals(memberId)) {
+            throw new GeneralException(ErrorCode.FORBIDDEN, "해당 메이트 관계의 당사자가 아닙니다.");
+        }
     }
 }
