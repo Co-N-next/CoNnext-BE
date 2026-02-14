@@ -47,4 +47,7 @@ public class Mate extends BaseEntity {
     public void reject() {
         this.status = MateStatus.REJECTED;
     }
+
+    // 메이트 재요청
+    public void reRequest() { this.status = MateStatus.PENDING; }
 }

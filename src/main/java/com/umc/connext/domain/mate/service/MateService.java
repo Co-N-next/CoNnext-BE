@@ -54,17 +54,23 @@ public class MateService {
         Member addressee = memberRepository.findById(addresseeId)
                 .orElseThrow(() -> GeneralException.notFound("수신자 멤버를 찾을 수 없습니다."));
 
+        // 기존 메이트 관계 확인
+        Mate existingMate = mateRepository.findBetween(requesterId, addresseeId).orElse(null);
+
         // 기존 메이트 요청 확인
-        mateRepository.findBetween(requesterId, addresseeId)
-                .ifPresent(mate -> {
-                    switch (mate.getStatus()) {
-                        case PENDING -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 대기 중인 메이트 요청이 있습니다.");
-                        case ACCEPTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 메이트인 사용자입니다.");
-                        case REJECTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 거절된 메이트 요청이 있습니다.");
-                        case BLOCKED -> throw new GeneralException(ErrorCode.FORBIDDEN, "차단된 사용자입니다.");
-                        default -> throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR, "처리할 수 없는 상태입니다.");
-                    }
-        });
+        if (existingMate != null) {
+            switch (existingMate.getStatus()) {
+                case PENDING -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 대기 중인 메이트 요청이 있습니다.");
+                case ACCEPTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 메이트인 사용자입니다.");
+                case REJECTED -> {
+                    // 재요청 허용
+                    existingMate.reRequest();
+                    return MateConverter.toMateRequestResDTO(existingMate);
+                }
+                case BLOCKED -> throw new GeneralException(ErrorCode.FORBIDDEN, "차단된 사용자입니다.");
+                default -> throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR, "처리할 수 없는 상태입니다.");
+            }
+        }
 
         // 메이트 요청 생성 및 저장
         Mate mate = Mate.request(requester, addressee);
