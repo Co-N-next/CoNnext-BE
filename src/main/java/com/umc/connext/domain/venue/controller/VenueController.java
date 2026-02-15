@@ -131,6 +131,18 @@ public class VenueController implements VenueControllerDocs {
         return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, dto, "근처 공연장 조회 성공"));
     }
 
+    @GetMapping("/today")
+    @Override
+    public ResponseEntity<Response<VenueResDTO.VenuePreviewDTO>> todayVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long memberId = userDetails.getMemberId();
+
+        Optional<VenueResDTO.VenuePreviewDTO> result = venueService.todayVenue(memberId);
+
+        return ResponseEntity.ok().body(Response.success(SuccessCode.GET_SUCCESS, result.orElse(null), "오늘의 공연장 조회 성공"));
+    }
+
     @Operation(
             summary = "공연장 레이아웃 조회",
             description = "공연장의 SVG 레이아웃 정보를 조회합니다. 섹션, 시설물 좌표를 포함하여 프론트엔드에서 SVG 렌더링 및 경로 오버레이에 사용됩니다."

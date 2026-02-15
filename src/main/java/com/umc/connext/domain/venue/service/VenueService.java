@@ -2,13 +2,17 @@ package com.umc.connext.domain.venue.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umc.connext.common.code.ErrorCode;
 import com.umc.connext.common.enums.FacilityType;
 import com.umc.connext.common.enums.SectionType;
 import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.domain.concert.entity.Concert;
 import com.umc.connext.domain.concert.entity.ConcertDetail;
 import com.umc.connext.domain.concert.repository.ConcertDetailRepository;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.member.repository.MemberRepository;
+import com.umc.connext.domain.reservation.entity.Reservation;
+import com.umc.connext.domain.reservation.repository.ReservationRepository;
 import com.umc.connext.domain.venue.converter.VenueConverter;
 import com.umc.connext.domain.venue.dto.VenueLayoutResponse;
 import com.umc.connext.domain.venue.dto.VenueResDTO;
@@ -29,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.Collection;
 import java.util.Map;
@@ -47,6 +53,7 @@ public class VenueService {
     private final FavoriteVenueRepository favoriteVenueRepository;
     private final MemberRepository memberRepository;
     private final ConcertDetailRepository concertDetailRepository;
+    private final ReservationRepository reservationRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final FloorMappingService floorMappingService;
@@ -207,6 +214,32 @@ public class VenueService {
                 .map(FavoriteVenue::getVenue)
                 .map(VenueConverter::toVenuePreviewDTO)
                 .toList();
+    }
+
+    // 오늘의 공연장
+    public Optional<VenueResDTO.VenuePreviewDTO> todayVenue(
+            Long memberId
+    ) {
+        // 오늘의 공연 조회
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        Reservation todayConcert = reservationRepository
+                .findFirstByMemberIdAndConcertDetail_StartAtBetweenOrderByConcertDetail_StartAtAsc(
+                        memberId, startOfDay, endOfDay
+                ).orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "오늘 예정된 공연이 없습니다."));
+
+        Venue todayVenue = todayConcert
+                .getConcertDetail()
+                .getConcert()
+                .getConcertVenues()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new GeneralException(ErrorCode.NOT_FOUND, "오늘 공연의 공연장을 찾을 수 없습니다."))
+                .getVenue();
+
+        return Optional.ofNullable(VenueConverter.toVenuePreviewDTO(todayVenue));
     }
 
     // ── 근처 공연장 ──

@@ -4,6 +4,7 @@ import com.umc.connext.domain.mate.projection.MateReservationProjection;
 import com.umc.connext.domain.member.entity.Member;
 import com.umc.connext.domain.reservation.dto.ReservationGetResDTO;
 import com.umc.connext.domain.reservation.entity.Reservation;
+import com.umc.connext.domain.venue.dto.VenueResDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
