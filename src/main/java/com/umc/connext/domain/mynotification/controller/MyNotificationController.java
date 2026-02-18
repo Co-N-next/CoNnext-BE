@@ -30,17 +30,16 @@ public class MyNotificationController {
 
     private final MyNotificationService myNotificationService;
 
-    private static final Long TEMP_MEMBER_ID = 1L;
-
     // 내소식 조회
     @GetMapping
     public ResponseEntity<Response<MyNotificationPageResponse>> getMyNotifications(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) int size
     ) {
-
+        Long memberId = user.getMemberId();
         MyNotificationPageResponse result =
-                myNotificationService.getMyNotifications(TEMP_MEMBER_ID, page, size);
+                myNotificationService.getMyNotifications(memberId, page, size);
 
         return ResponseEntity.ok(
                 Response.success(SuccessCode.GET_SUCCESS, result, "내소식 알림 조회 성공")
@@ -50,10 +49,11 @@ public class MyNotificationController {
     // 위치 공유 수락
     @PostMapping("/share-locations")
     public ResponseEntity<Response<Void>> shareLocations(
+            @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody ShareLocationRequestDTO request
     ) {
-
-        myNotificationService.acceptShareLocation(TEMP_MEMBER_ID, request);
+        Long memberId = user.getMemberId();
+        myNotificationService.acceptShareLocation(memberId, request);
 
         return ResponseEntity.ok(
                 Response.success(SuccessCode.UPDATE_SUCCESS, "위치 공유 요청 수락 성공")
@@ -63,10 +63,11 @@ public class MyNotificationController {
     // 메이트 수락
     @PostMapping("/share-mates")
     public ResponseEntity<Response<Void>> shareMates(
+            @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody ShareMateRequestDTO request
     ) {
-
-        myNotificationService.acceptShareMate(TEMP_MEMBER_ID, request);
+        Long memberId = user.getMemberId();
+        myNotificationService.acceptShareMate(memberId, request);
 
         return ResponseEntity.ok(
                 Response.success(SuccessCode.UPDATE_SUCCESS, "메이트 요청 수락 성공")
@@ -76,10 +77,11 @@ public class MyNotificationController {
     // 읽음 처리
     @GetMapping("/{notificationId}/read")
     public ResponseEntity<Response<Void>> readMyNotification(
+            @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long notificationId
     ) {
-
-        myNotificationService.markAsRead(TEMP_MEMBER_ID, notificationId);
+        Long memberId = user.getMemberId();
+        myNotificationService.markAsRead(memberId, notificationId);
 
         return ResponseEntity.ok(
                 Response.success(SuccessCode.UPDATE_SUCCESS, "알림 읽음 처리 성공")
