@@ -28,6 +28,7 @@ public class AnnouncementController {
     private final AnnouncementService announcementService;
 
     // 공지 조회
+    @Operation(summary = "공지사항 조회")
     @GetMapping
     public ResponseEntity<Response<AnnouncementPageResponse>> getAnnouncements(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -57,6 +58,7 @@ public class AnnouncementController {
     }
 
     // 공지 생성
+    @Operation(summary = "공지사항 생성")
     @PostMapping
     public ResponseEntity<Response<Void>> createAnnouncement(
             @AuthenticationPrincipal CustomUserDetails userDetails,

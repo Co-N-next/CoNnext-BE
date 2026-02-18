@@ -31,6 +31,7 @@ public class MyNotificationController {
     private final MyNotificationService myNotificationService;
 
     // 내소식 조회
+    @Operation(summary = "내소식 알림 조회")
     @GetMapping
     public ResponseEntity<Response<MyNotificationPageResponse>> getMyNotifications(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -47,6 +48,7 @@ public class MyNotificationController {
     }
 
     // 위치 공유 수락
+    @Operation(summary = "내소식 메이트 위치 공유 수락")
     @PostMapping("/share-locations")
     public ResponseEntity<Response<Void>> shareLocations(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -61,6 +63,7 @@ public class MyNotificationController {
     }
 
     // 메이트 수락
+    @Operation(summary = "내소식 메이트 요청 수락")
     @PostMapping("/share-mates")
     public ResponseEntity<Response<Void>> shareMates(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -75,6 +78,10 @@ public class MyNotificationController {
     }
 
     // 읽음 처리
+    @Operation(
+            summary = "내소식 알림 읽음 처리",
+            description = "내소식 알림의 읽음 처리를 진행합니다."
+    )
     @GetMapping("/{notificationId}/read")
     public ResponseEntity<Response<Void>> readMyNotification(
             @AuthenticationPrincipal CustomUserDetails user,
