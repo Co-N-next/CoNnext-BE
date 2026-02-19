@@ -27,26 +27,20 @@ public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
-    // 공지 조회
-    @Operation(summary = "공지사항 조회")
+    private static final Long TEMP_MEMBER_ID = 1L;
+
     @GetMapping
     public ResponseEntity<Response<AnnouncementPageResponse>> getAnnouncements(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) int size
     ) {
 
-        if (userDetails == null) {
-            return ResponseEntity.status(401)
-                    .body(Response.fail(
-                            com.umc.connext.common.code.ErrorCode.UNAUTHORIZED
-                    ));
-        }
-
-        Long memberId = userDetails.getMemberId();
-
         AnnouncementPageResponse result =
-                announcementService.getAnnouncements(memberId, page, size);
+                announcementService.getAnnouncements(
+                        TEMP_MEMBER_ID,
+                        page,
+                        size
+                );
 
         return ResponseEntity.ok(
                 Response.success(
@@ -57,24 +51,15 @@ public class AnnouncementController {
         );
     }
 
-    // 공지 생성
-    @Operation(summary = "공지사항 생성")
     @PostMapping
     public ResponseEntity<Response<Void>> createAnnouncement(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody AnnouncementCreateRequestDTO request
     ) {
 
-        if (userDetails == null) {
-            return ResponseEntity.status(401)
-                    .body(Response.fail(
-                            com.umc.connext.common.code.ErrorCode.UNAUTHORIZED
-                    ));
-        }
-
-        Long adminId = userDetails.getMemberId();
-
-        announcementService.createAnnouncement(adminId, request);
+        announcementService.createAnnouncement(
+                TEMP_MEMBER_ID,
+                request
+        );
 
         return ResponseEntity.ok(
                 Response.success(

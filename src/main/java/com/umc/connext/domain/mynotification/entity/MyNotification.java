@@ -2,8 +2,8 @@ package com.umc.connext.domain.mynotification.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.*;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import com.umc.connext.common.entity.BaseEntity;
 import com.umc.connext.domain.mynotification.entity.ActionStatus;
 import com.umc.connext.domain.mynotification.entity.ActionType;
@@ -11,9 +11,7 @@ import com.umc.connext.domain.mynotification.entity.Category;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name="my_notifications")
 public class MyNotification extends BaseEntity {
 

@@ -1,7 +1,6 @@
 package com.umc.connext.domain.mate.service;
 
 import com.umc.connext.common.code.ErrorCode;
-import com.umc.connext.domain.mynotification.service.MyNotificationService;
 import com.umc.connext.common.exception.GeneralException;
 import com.umc.connext.domain.mate.converter.MateConverter;
 import com.umc.connext.domain.mate.dto.MateResDTO;
@@ -39,7 +38,6 @@ public class MateService {
     private final MemberRepository memberRepository;
     private final FavoriteMateRepository favoriteMateRepository;
     private final ReservationRepository reservationRepository;
-    private final MyNotificationService myNotificationService;
 
     // 메이트 요청
     @Transactional
@@ -82,12 +80,6 @@ public class MateService {
         // 메이트 요청 생성 및 저장
         Mate mate = Mate.request(requester, addressee);
         mateRepository.save(mate);
-
-        myNotificationService.createMateRequestNotification(
-                requester,
-                addressee,
-                mate.getId()
-        );
 
         return MateConverter.toMateRequestResDTO(mate);
     }
