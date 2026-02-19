@@ -8,8 +8,11 @@ import java.time.LocalDateTime;
 public record ReservationGetResDTO(
         Long reservationId,
         String concertName,
+        String concertPosterImage,
         String artist,
+        String artistImage,
         LocalDateTime startAt,
         String venueName,
+        String venueImage,
         SeatInfoDTO seat
 ){}
