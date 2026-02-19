@@ -3,6 +3,8 @@ package com.umc.connext.domain.mynotification.service;
 import java.util.List;
 import com.umc.connext.domain.mynotification.service.LocationShareService;
 import com.umc.connext.domain.mynotification.service.MateShareService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -21,13 +23,25 @@ import com.umc.connext.domain.mynotification.dto.response.MyNotificationPayload;
 import com.umc.connext.domain.mynotification.dto.response.ShareLocationRequestDTO;
 import com.umc.connext.domain.mynotification.dto.response.ShareMateRequestDTO;
 import org.springframework.transaction.annotation.Transactional;
+import com.umc.connext.domain.mate.service.MateService;
+import com.umc.connext.domain.member.entity.Member;
+import com.umc.connext.domain.mate.entity.Mate;
+import com.umc.connext.domain.mate.repository.MateRepository;
+import com.umc.connext.domain.mate.enums.MateStatus;
+import com.umc.connext.common.exception.GeneralException;
+import com.umc.connext.common.code.ErrorCode;
+
 
 @Service
 @RequiredArgsConstructor
 public class MyNotificationService {
     private final MyNotificationRepository myNotificationRepository;
     private final LocationShareService locationShareService;
-    private final MateShareService mateShareService;
+
+    @Autowired
+    @Lazy
+    private MateService mateService;
+    private final MateRepository mateRepository;
 
     @Transactional(readOnly = true)
     public boolean existsUnread(Long memberId) {
@@ -103,17 +117,12 @@ public class MyNotificationService {
             return "이미 처리된 알림";
         }
 
-        try {
-            boolean result = locationShareService.accept(memberId, dto.getNotificationId());
-            if (result) {
-                notification.accept(); // 알림 상태 변경
-                return "위치 공유 수락 완료";
-            } else {
-                return "처리 실패";
-            }
-        } catch (Exception e) {
-            // 서비스 내부에서 발생한 예외도 잡아서 메시지 반환
-            return "처리 실패: " + e.getMessage();
+        boolean result = locationShareService.accept(memberId, dto.getNotificationId());
+        if (result) {
+            notification.accept(); // 알림 상태 변경
+            return "위치 공유 수락 완료";
+        } else {
+            return "처리 실패";
         }
     }
 
@@ -123,31 +132,58 @@ public class MyNotificationService {
         var notificationOpt = myNotificationRepository.findById(dto.getNotificationId());
 
         if (notificationOpt.isEmpty()) {
-            // 알림이 없으면 예외 없이 메시지 반환
             return "알림 없음";
         }
 
         MyNotification notification = notificationOpt.get();
 
+        // 수신자 확인
         if (!notification.getMemberId().equals(memberId)) {
-            return "권한 없음"; // 500 대신 메시지 반환
+            return "권한 없음";
         }
 
+        // 이미 처리된 알림 확인
         if (notification.getActionStatus() != ActionStatus.PENDING) {
             return "이미 처리된 알림";
         }
 
-        try {
-            mateShareService.accept(memberId, dto.getNotificationId());
-            notification.accept(); // 알림 상태 변경
-            return "메이트 요청 수락 완료";
-        } catch (Exception e) {
-            // 서비스 내부 예외도 잡아서 메시지 반환
-            return "처리 실패: " + e.getMessage();
+        // 알림 카테고리 확인
+        if (notification.getCategory() != Category.MATE) {
+            return "메이트 요청 알림이 아님";
         }
+
+        // Mate 엔티티 조회 (senderId=요청자, memberId=수신자)
+        Mate mate = mateRepository.findBetween(notification.getSenderId(), memberId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.MATE_NOT_FOUND, "해당 메이트 요청이 존재하지 않습니다."));
+
+        // 상태 수락
+        mateService.acceptMateRequest(memberId, mate.getId());
+
+        // 알림 상태 변경
+        notification.accept();
+
+        return "메이트 요청 수락 완료";
     }
 
 
+    @Transactional
+    public void createMateRequestNotification(
+            Member sender,
+            Member receiver,
+            Long mateId
+    ){
+        MyNotification notification = MyNotification.createSocial(
+                receiver.getId(),
+                sender.getId(),
+                "메이트 요청",
+                sender.getNickname() + "님이 메이트 요청을 보냈습니다",
+                sender.getProfileImage(),
+                Category.MATE,
+                ActionType.ACCEPT_REJECT
+        );
+
+        myNotificationRepository.save(notification);
+    }
 
 
     @Transactional
