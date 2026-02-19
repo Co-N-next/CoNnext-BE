@@ -64,6 +64,11 @@ public class MateService {
                 case ACCEPTED -> throw new GeneralException(ErrorCode.MATE_CONFLICT, "이미 메이트인 사용자입니다.");
                 case REJECTED -> {
                     // 재요청 허용
+                    // 기존 메이트 기록의 요청자/수신자 방향이 현재 요청 방향과 다른 경우 수정
+                    if (!existingMate.getRequester().getId().equals(requesterId)) {
+                        existingMate.setRequester(requester);
+                        existingMate.setAddressee(addressee);
+                    }
                     existingMate.reRequest();
                     return MateConverter.toMateRequestResDTO(existingMate);
                 }
