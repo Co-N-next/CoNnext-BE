@@ -9,8 +9,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import com.umc.connext.domain.notification.service.NotificationService;
 import com.umc.connext.domain.notification.type.NotificationType;
+import com.umc.connext.global.jwt.principal.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @Tag(name = "Notifications", description = "알림 관련 API")
 @RestController
@@ -19,8 +22,6 @@ import com.umc.connext.domain.notification.type.NotificationType;
 public class NotificationController {
 
     private final NotificationService notificationService;
-
-    private static final Long TEMP_MEMBER_ID = 1L;
 
     @Operation(
             summary = "내소식/공지사항 알림 존재 여부",
@@ -31,11 +32,14 @@ public class NotificationController {
     })
     @GetMapping
     public ResponseEntity<Response<Boolean>> hasUnreadNotification(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam NotificationType type
     ) {
 
+        Long memberId = user.getMemberId();
+
         boolean result =
-                notificationService.hasUnreadNotification(TEMP_MEMBER_ID, type);
+                notificationService.hasUnreadNotification(memberId, type);
 
         return ResponseEntity.ok(
                 Response.success(

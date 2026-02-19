@@ -2,6 +2,7 @@ package com.umc.connext.domain.venue.entity;
 
 import com.umc.connext.common.enums.FacilityType;
 import com.umc.connext.domain.concert.entity.ConcertVenue;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
