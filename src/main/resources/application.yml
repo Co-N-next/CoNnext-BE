@@ -79,8 +79,8 @@ app:
   oauth2:
 #    success: ${FRONTEND_BASE_URL:http://localhost:3000}
 #    signup: ${FRONTEND_BASE_URL:http://localhost:3000}/signup/terms
-     success: http://localhost:3000
-     signup: http://localhost:3000/signup/terms
+     success: http://localhost:5173
+     signup: http://localhost:5173/signup/terms
 
 
 logging:
