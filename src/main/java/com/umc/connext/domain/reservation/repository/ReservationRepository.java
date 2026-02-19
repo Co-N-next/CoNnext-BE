@@ -28,9 +28,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         SELECT DISTINCT new com.umc.connext.domain.reservation.dto.ReservationGetResDTO(
             r.id,
             c.name,
+            c.posterImage,
             COALESCE(cast.name, '미정'),
+            COALESCE(cast.imageUrl, null),
             cd.startAt,
             COALESCE(v.name, '미정'),
+            COALESCE(v.imageUrl, null),
             new com.umc.connext.domain.reservation.dto.SeatInfoDTO(
                 r.floor,
                 r.section,
