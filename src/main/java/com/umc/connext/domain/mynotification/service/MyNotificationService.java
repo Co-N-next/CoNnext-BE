@@ -3,6 +3,7 @@ package com.umc.connext.domain.mynotification.service;
 import java.util.List;
 import com.umc.connext.domain.mynotification.service.LocationShareService;
 import com.umc.connext.domain.mynotification.service.MateShareService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +38,9 @@ public class MyNotificationService {
     private final MyNotificationRepository myNotificationRepository;
     private final LocationShareService locationShareService;
 
+    @Autowired
     @Lazy
-    private final MateService mateService;
+    private MateService mateService;
     private final MateRepository mateRepository;
 
     @Transactional(readOnly = true)
