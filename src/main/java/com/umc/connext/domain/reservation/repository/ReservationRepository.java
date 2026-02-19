@@ -30,7 +30,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             c.name,
             c.posterImage,
             COALESCE(cast.name, '미정'),
-            COALESCE(cast.imageUrl, null),
+            COALESCE(cast.profileImg, null),
             cd.startAt,
             COALESCE(v.name, '미정'),
             COALESCE(v.imageUrl, null),
