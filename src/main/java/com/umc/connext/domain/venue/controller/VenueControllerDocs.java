@@ -144,4 +144,17 @@ public interface VenueControllerDocs {
             @Parameter(description = "검색 반경 (미터)", example = "500")
             @RequestParam(defaultValue = "500", required = false) @Min(1) @Max(5000) Integer radius
     );
+
+    @Operation(
+            summary = "오늘의 공연장 조회",
+            description = "사용자가 오늘 예약한 공연이 있는 경우, 해당 공연의 공연장 정보를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "오늘 예정된 공연이 없습니다.")
+    })
+    @GetMapping("/today")
+    ResponseEntity<Response<VenueResDTO.VenuePreviewDTO>> todayVenue(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    );
 }

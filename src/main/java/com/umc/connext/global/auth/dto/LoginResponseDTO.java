@@ -13,9 +13,19 @@ public class LoginResponseDTO {
         @Schema(description = "아이디 (email)", example = "qwer@example.com")
         private String email;
 
+        @Schema(description = "닉네임", example = "커넥스트최고최고25")
+        private String nickname;
+
         public static LoginResponseDTO of(String email) {
                 return LoginResponseDTO.builder()
                         .email(email)
+                        .build();
+        }
+
+        public static LoginResponseDTO of(String email, String nickname) {
+                return LoginResponseDTO.builder()
+                        .email(email)
+                        .nickname(nickname)
                         .build();
         }
 }

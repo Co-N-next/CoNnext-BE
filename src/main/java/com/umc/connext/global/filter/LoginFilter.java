@@ -93,8 +93,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setHeader("Authorization", "Bearer " + access);
         response.addCookie(createCookie("refresh", refresh));
 
-        //ID(email) 리턴
-        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername());
+        //ID(email) 와 닉네임 리턴
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername(), userDetails.getNickname());
         Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS,loginResponseDto);
 
         securityResponseWriter.write(response, body);
