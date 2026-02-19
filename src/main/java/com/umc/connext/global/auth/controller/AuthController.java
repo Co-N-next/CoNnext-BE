@@ -91,7 +91,7 @@ public class AuthController {
         response.setHeader("Authorization", "Bearer " + access);
 
 
-        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(member.getEmail());
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(member.getEmail(), member.getNickname());
 
         return ResponseEntity
                 .status(SuccessCode.JOIN_SUCCESS.getStatusCode())
@@ -275,7 +275,7 @@ public class AuthController {
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
-        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername());
+        LoginResponseDTO loginResponseDto = LoginResponseDTO.of(userDetails.getUsername(), userDetails.getNickname());
         Response<LoginResponseDTO> body = Response.success(SuccessCode.LOGIN_SUCCESS, loginResponseDto);
 
         securityResponseWriter.write(response, body);

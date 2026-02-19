@@ -64,4 +64,8 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     }
 
     public MemberStatus getMemberStatus() {return  member.getMemberStatus();}
+
+    public String getNickname() {
+        return member.getNickname();
+    }
 }
