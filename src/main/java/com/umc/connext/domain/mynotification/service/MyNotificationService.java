@@ -3,6 +3,7 @@ package com.umc.connext.domain.mynotification.service;
 import java.util.List;
 import com.umc.connext.domain.mynotification.service.LocationShareService;
 import com.umc.connext.domain.mynotification.service.MateShareService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +36,8 @@ import com.umc.connext.common.code.ErrorCode;
 public class MyNotificationService {
     private final MyNotificationRepository myNotificationRepository;
     private final LocationShareService locationShareService;
-    private final MateShareService mateShareService;
+
+    @Lazy
     private final MateService mateService;
     private final MateRepository mateRepository;
 
@@ -113,17 +115,12 @@ public class MyNotificationService {
             return "이미 처리된 알림";
         }
 
-        try {
-            boolean result = locationShareService.accept(memberId, dto.getNotificationId());
-            if (result) {
-                notification.accept(); // 알림 상태 변경
-                return "위치 공유 수락 완료";
-            } else {
-                return "처리 실패";
-            }
-        } catch (Exception e) {
-            // 서비스 내부에서 발생한 예외도 잡아서 메시지 반환
-            return "처리 실패: " + e.getMessage();
+        boolean result = locationShareService.accept(memberId, dto.getNotificationId());
+        if (result) {
+            notification.accept(); // 알림 상태 변경
+            return "위치 공유 수락 완료";
+        } else {
+            return "처리 실패";
         }
     }
 
@@ -153,23 +150,17 @@ public class MyNotificationService {
             return "메이트 요청 알림이 아님";
         }
 
-        try {
-            // Mate 엔티티 조회 (senderId=요청자, memberId=수신자)
-            Mate mate = mateRepository.findBetween(notification.getSenderId(), memberId)
-                    .orElseThrow(() -> new GeneralException(ErrorCode.MATE_NOT_FOUND, "해당 메이트 요청이 존재하지 않습니다."));
+        // Mate 엔티티 조회 (senderId=요청자, memberId=수신자)
+        Mate mate = mateRepository.findBetween(notification.getSenderId(), memberId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.MATE_NOT_FOUND, "해당 메이트 요청이 존재하지 않습니다."));
 
-            // 상태 수락
-            mateService.acceptMateRequest(memberId, mate.getId());
+        // 상태 수락
+        mateService.acceptMateRequest(memberId, mate.getId());
 
-            // 알림 상태 변경
-            notification.accept();
+        // 알림 상태 변경
+        notification.accept();
 
-            return "메이트 요청 수락 완료";
-        } catch (GeneralException e) {
-            return "처리 실패: " + e.getMessage();
-        } catch (Exception e) {
-            return "처리 실패: 알 수 없는 오류 발생";
-        }
+        return "메이트 요청 수락 완료";
     }
 
 
@@ -179,16 +170,15 @@ public class MyNotificationService {
             Member receiver,
             Long mateId
     ){
-        MyNotification notification = MyNotification.builder()
-                .memberId(receiver.getId())
-                .senderId(sender.getId())
-                .title("메이트 요청")
-                .content(sender.getNickname() + "님이 메이트 요청을 보냈습니다")
-                .category(Category.MATE)
-                .actionType(ActionType.ACCEPT_REJECT)
-                .actionStatus(ActionStatus.PENDING)
-                .img(sender.getProfileImage())
-                .build();
+        MyNotification notification = MyNotification.createSocial(
+                receiver.getId(),
+                sender.getId(),
+                "메이트 요청",
+                sender.getNickname() + "님이 메이트 요청을 보냈습니다",
+                sender.getProfileImage(),
+                Category.MATE,
+                ActionType.ACCEPT_REJECT
+        );
 
         myNotificationRepository.save(notification);
     }
