@@ -78,10 +78,10 @@ Co:N-next는
 ## Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| 이윤지    |  <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="이윤지" width="100"> | <ul><li>공연 목록 조회</li><li>공연 검색</li><li>내부 지도 조회</li></ul>     |
+| 이윤지    |  <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="이윤지" width="100"> | <ul><li>공연 목록 기능 구현</li><li>공연 검색 기능 구현</li><li>내부 지도 기능 구현</li></ul>     |
 | 이주영   |  <img src="https://github.com/user-attachments/assets/3ba69cfe-5e6f-40b4-a19c-91199faf5ad9" alt="이주영" width="100">| <ul><li>자체 로그인 기능 구현</li><li>소셜 로그인 기능 구현</li><li>공연 및 좌석 공개범위 설정 기능 구현</li></ul> |
-| 조예슬   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="조예슬" width="100">    |<ul><li>예매 내역 기능</li><li>즐겨찾기 기능</li><li>공연장 검색</li></ul>  |
-| 천희정    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="천희정" width="100">    | <ul><li>메이트 요청</li><li>검색어 조회 및 저장</li></ul>    |
+| 조예슬   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="조예슬" width="100">    |<ul><li>예매 내역 기능 구현</li><li>즐겨찾기 기능 구현</li><li>공연장 검색 기능 구현</li></ul>  |
+| 천희정    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="천희정" width="100">    | <ul><li>메이트 기능 구현</li><li>검색어 기능 구현</li></ul>    |
 
 
 <br>
